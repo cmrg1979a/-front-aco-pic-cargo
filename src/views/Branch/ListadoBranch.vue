@@ -1,0 +1,93 @@
+<template>
+  <v-card>
+    <v-container fluid>
+      <v-row>
+        <v-col cols="4">
+          <v-text-field v-model="search"></v-text-field>
+        </v-col>
+        <v-col cols="4"> filtros </v-col>
+        <v-col cols="12">
+          <v-data-table
+            :headers="header"
+            :items="$store.state.branch.lstBranch"
+            class="elevation-1"
+            item-key="id"
+            :search="search"
+          >
+            <template v-slot:[`item.status`]="{ item }">
+              <v-chip
+                v-if="item.status == 1"
+                class="ma-2"
+                color="green"
+                text-color="white"
+              >
+                Activo
+              </v-chip>
+              <v-chip v-else class="ma-2" color="red" text-color="white">
+                Inactivo
+              </v-chip>
+            </template>
+
+            <template v-slot:[`item.action`]="{ item }">
+              <v-icon
+                style="cursor: pointer"
+                v-if="item.status == 1"
+                color="red"
+                @click="inactivar(item.id)"
+                >mdi-delete</v-icon
+              >
+            </template>
+          </v-data-table>
+        </v-col>
+      </v-row>
+    </v-container>
+  </v-card>
+</template>
+
+<script>
+import { mapActions } from "vuex";
+import Swal from "sweetalert2";
+export default {
+  data() {
+    return {
+      search: "",
+      header: [
+        { text: "Empresa", value: "trade_name" },
+        { text: "Dirección", value: "address" },
+        { text: "País", value: "pais" },
+        { text: "Fec. Creación", value: "created_at" },
+        // { text: "ultima Actualización", value: "updated_at" },
+        { text: "Nombres", value: "nombrecompleto" },
+        { text: "Tel.", value: "phone" },
+        { text: "Último Login", value: "ultimologin" },
+        { text: "Estado", value: "status" },
+        { text: "", value: "action" },
+      ],
+    };
+  },
+  mounted() {
+    this.ListadoSucursal();
+  },
+  methods: {
+    ...mapActions(["ListadoSucursal", "inactivarSucursal"]),
+    inactivar(id) {
+      Swal.fire({
+        icon: "warning",
+        text: "¿Desea Inactivar el registro?",
+        showCancelButton: true,
+        confirmButtonText: "Si eliminar",
+        cancelButtonText: "Cancelar",
+        allowEnterKey: true,
+        allowOutsideClick: true,
+      }).then(async (respuesta) => {
+        if (respuesta.isConfirmed) {
+          await this.inactivarSucursal(id);
+          await this.ListadoSucursal();
+        }
+      });
+    },
+  },
+};
+</script>
+
+<style></style>

@@ -1,0 +1,23 @@
+<template>
+  <v-container fluid>
+    <listUser />
+  </v-container>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      mostrar: false,
+    };
+  },
+  components: {
+    listUser: () =>
+      import("../../components/Calculadora/listUserCalcComponent.vue"),
+  },
+  mounted() {},
+  methods: {},
+};
+</script>
+
+<style></style>

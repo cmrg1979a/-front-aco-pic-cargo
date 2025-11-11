@@ -1,0 +1,14 @@
+<template>
+  <div>
+    <controlGastos />
+  </div>
+</template>
+<script>
+import controlGastos from "@/components/folderBilling/controlGastos.vue";
+export default {
+  name: "controlEntities",
+  components: {
+    controlGastos,
+  },
+};
+</script>

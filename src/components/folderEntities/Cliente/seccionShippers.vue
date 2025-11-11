@@ -1,0 +1,204 @@
+<template>
+  <div>
+    <v-card>
+      <v-card-text class="px-2">
+        <v-subheader class="px-0">
+          <b>Shippers</b>
+
+          <template v-if="showFormActions">
+            <v-btn
+              color="primary"
+              rounded
+              small
+              class="ml-auto"
+              @click="mostrarDialogShippers"
+              >AGREGAR SHIPPER</v-btn
+            >
+          </template>
+        </v-subheader>
+        <v-row>
+          <v-col cols="12">
+            <v-form ref="formShippers" :readonly="isFormReadonly">
+              <v-data-table
+                :headers="headersShippers"
+                :items="$store.state.entities.lstShippers"
+                class="elevation-5"
+                item-key="index"
+                disable-sort
+              >
+                <template v-slot:[`item.correlativo`]="{ item, index }">
+                  PR-{{ item.correlativo }}
+                </template>
+                <template
+                  v-slot:[`item.action`]="{ item, index }"
+                  v-if="showFormActions"
+                >
+                  <v-btn icon color="red" @click="eliminarShipper(index)">
+                    <v-icon>mdi-delete</v-icon>
+                  </v-btn>
+                </template>
+              </v-data-table>
+            </v-form>
+          </v-col>
+        </v-row>
+      </v-card-text>
+      <v-card-actions v-if="showNavigationButtons">
+        <v-btn color="primary" @click="$store.state.entities.stepper--"
+          >Regresar</v-btn
+        >
+        <v-btn color="primary" class="ml-auto" @click="validarFormulario"
+          >Continuar</v-btn
+        >
+      </v-card-actions>
+    </v-card>
+
+    <!--DIALOG SHIPPERS-->
+    <v-dialog
+      v-model="dialogShippers"
+      scrollable
+      persistent
+      max-width="60%"
+      transition="dialog-transition"
+    >
+      <v-card>
+        <v-card-title primary-title> Seleccionar Shipper </v-card-title>
+        <v-card-text class="pt-2">
+          <v-text-field label="Buscar" dense v-model="search"></v-text-field>
+          <v-data-table
+            :headers="headersProveedoresRolShipper"
+            :items="$store.state.itemsProveedorRolShipper"
+            fixed-header
+            class="elevation-1"
+            item-key="id"
+            :search="search"
+            :loading="loading"
+            @click:row="seleccionarShippers"
+          >
+          </v-data-table>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn rounded color="success" @click="aceptar">Aceptar</v-btn>
+          <v-btn rounded color="error" @click="cancelar">Cancelar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </div>
+</template>
+
+<script>
+import { mapActions } from "vuex";
+export default {
+  name: "SeccionShippers",
+  data() {
+    return {
+      loading: false,
+      headersShippers: [
+        { text: "Código", value: "correlativo", width: "20%" },
+        { text: "Shipper", value: "nombrecompleto", width: "40%" },
+        { text: "Producto que vende", value: "producto", width: "30%" },
+        { text: "Acciones", value: "action", width: "10%" },
+      ],
+      headersProveedoresRolShipper: [
+        {
+          text: "Razón Social/Nombre Comercial",
+          value: "namelong",
+          width: "35%",
+        },
+        { text: "Teléfono", value: "telefono", width: "30%" },
+        { text: "Producto que vende", value: "producto", width: "35%" },
+      ],
+      search: "",
+      dialogShippers: false,
+      lstSelectedShippers: [],
+    };
+  },
+  computed: {
+    isFormReadonly() {
+      return this.$store.state.entities.isReadonly;
+    },
+    showFormActions() {
+      return !this.$store.state.entities.isReadonly;
+    },
+    showNavigationButtons() {
+      return !(
+        this.$store.state.entities.isEdit ||
+        this.$store.state.entities.isReadonly
+      );
+    },
+  },
+  methods: {
+    ...mapActions(["_getProveedorRolShipper"]),
+    async mostrarDialogShippers() {
+      var vm = this;
+
+      vm.dialogShippers = !vm.dialogShippers;
+
+      vm.loading = true;
+      await vm._getProveedorRolShipper();
+      vm.loading = false;
+    },
+    seleccionarShippers(item, row) {
+      var vm = this;
+      if (vm.lstSelectedShippers.indexOf(item) == -1) {
+        row.select(true);
+        vm.lstSelectedShippers.push(item);
+      } else {
+        row.select(false);
+        vm.lstSelectedShippers = vm.lstSelectedShippers.filter(
+          (v) => v.id != item.id
+        );
+      }
+    },
+    eliminarShipper(index) {
+      this.$store.state.entities.lstShippers.splice(index, 1);
+    },
+    aceptar() {
+      var vm = this;
+      if (vm.lstSelectedShippers.length) {
+        vm.lstSelectedShippers.map((item) => {
+          if (
+            !vm.$store.state.entities.lstShippers.filter(
+              (v) => v.id_shipper == item.id
+            ).length
+          ) {
+            vm.$store.state.entities.lstShippers.push({
+              id_shipper: item.id,
+              correlativo: item.correlativo,
+              nombrecompleto: item.namelong,
+              producto: item.producto,
+            });
+          }
+        });
+
+        vm.lstSelectedShippers.length = 0;
+      }
+
+      vm.dialogShippers = !vm.dialogShippers;
+    },
+    cancelar() {
+      this.lstSelectedShippers.length = 0;
+      this.dialogShippers = !this.dialogShippers;
+    },
+    validarFormulario() {
+      var vm = this;
+      let ok = true;
+      if (vm.$store.state.entities.lstShippers.length > 0) {
+        if (!vm.$refs.formShippers.validate()) {
+          ok = false;
+        }
+      }
+
+      if (ok) {
+        vm.$store.state.entities.stepper = 6;
+      }
+    },
+  },
+};
+</script>
+
+<style>
+tr.selected {
+  background: #ffccab !important;
+}
+</style>

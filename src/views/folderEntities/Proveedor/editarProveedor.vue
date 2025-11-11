@@ -1,0 +1,37 @@
+<template>
+  <v-row>
+    <v-col cols="12">
+      <v-card>
+        <EditarProveedor />
+      </v-card>
+    </v-col>
+  </v-row>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      code: "",
+    };
+  },
+  components: {
+    EditarProveedor: () =>
+      import(
+        "@/components/folderEntities/Proveedor/EditarProveedorComponet.vue"
+      ),
+  },
+  mounted() {
+    this.$store.state.mainTitle = `MODIFICAR PROVEEDOR`;
+  },
+};
+</script>
+
+<style scoped>
+.imagen-personalizada {
+  margin: auto;
+  padding: auto;
+  max-width: 80%; /* Ajusta el valor según tus necesidades */
+  height: auto; /* Esto asegura que la altura se ajuste automáticamente */
+}
+</style>

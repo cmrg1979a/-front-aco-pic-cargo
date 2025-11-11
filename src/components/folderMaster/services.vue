@@ -1,0 +1,54 @@
+<template>
+  <div>
+    <h3>Servicios a Realizar</h3>
+    <v-container fluid>
+      <v-row class="Services__Main">
+        <v-col
+          v-for="items in $store.state.itemsServicesBegin"
+          :key="items"
+          cols="12"
+          md="6"
+        >
+          <v-list subheader>
+            <v-header>{{ items.namegroupservice }}</v-header>
+
+            <v-list-item
+              class="listMain"
+              v-for="child in items.groupservice"
+              :key="child"
+            >
+              <v-list-item-avatar size="28">
+                <v-icon small class="grey lighten-1" dark> mdi-folder </v-icon>
+              </v-list-item-avatar>
+
+              <v-list-item-content>
+                <v-list-item-title
+                  style="font-size: 14px"
+                  v-text="child.nameservice"
+                ></v-list-item-title>
+                <!-- 
+                <v-list-item-subtitle v-text="asfasf"></v-list-item-subtitle> -->
+              </v-list-item-content>
+
+              <v-list-item-action>
+                <v-switch v-model="child.id" dense></v-switch>
+              </v-list-item-action>
+            </v-list-item>
+          </v-list>
+        </v-col>
+      </v-row>
+    </v-container>
+  </div>
+</template>
+<script>
+export default {
+  name: "services",
+  data: () => ({}),
+};
+</script>
+
+<style lang="scss" scoped>
+.listMain {
+  padding: 0px;
+}
+</style>

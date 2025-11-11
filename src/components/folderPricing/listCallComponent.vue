@@ -1,0 +1,304 @@
+<template>
+  <v-container fluid>
+    <v-dialog
+      v-model="dialogRegistroNotaLlamada"
+      v-if="dialogRegistroNotaLlamada"
+      max-width="30%"
+    >
+      <v-card>
+        <v-card-title>
+          <span class="headline">Detalle de Nota de llamada</span>
+        </v-card-title>
+
+        <v-card-text>
+          <v-form ref="detallenota">
+            <v-text-field
+              v-model="fromData.date"
+              readonly
+              type="date"
+            ></v-text-field>
+            <v-text-field
+              v-model="fromData.descripcion"
+              :rules="[(v) => !!v || 'El dato es requerido']"
+              label="Descripcion"
+            >
+            </v-text-field>
+            <v-autocomplete
+              :items="$store.state.pricing.listEjecutivo"
+              label="Ejecutivo."
+              dense
+              search
+              clearable
+              item-text="name"
+              item-value="id_entitie"
+              v-model="fromData.identities"
+            ></v-autocomplete>
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-flex text-right>
+            <v-btn text color="success" @click="guardarNota">Aceptar</v-btn>
+            <v-btn
+              text
+              color="red"
+              @click="dialogRegistroNotaLlamada = !dialogRegistroNotaLlamada"
+            >
+              Cancelar
+            </v-btn>
+          </v-flex>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-row>
+      <v-col cols="12">
+        <div class="text-right">
+          <v-btn
+            color="red"
+            @click="imprimierCalls()"
+            class="mx-1"
+            :loading="loading4"
+            :disabled="loading4"
+            :dark="!loading4"
+            small
+          >
+            <v-icon>mdi-file-pdf-box</v-icon> Imprimir
+          </v-btn>
+          <v-btn
+            color="info"
+            @click="
+              $store.state.pricing.filtrarCallsFlag =
+                !$store.state.pricing.filtrarCallsFlag
+            "
+            class="mx-1"
+            dark
+            small
+          >
+            Filtrar
+          </v-btn>
+        </div>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-data-table
+        dense
+        :headers="headers"
+        :items="$store.state.pricing.listCall"
+        :items-per-page="5"
+        class="elevation-1 contenido"
+        :search="search"
+        multi-sort
+        mobile
+        disable-sort
+      >
+        <template v-slot:item="row">
+          <tr
+            @dblclick="accionVerCotizacion(row.item.id)"
+            :class="{
+              'text-red':
+                row.item.status === 'COTIZANDO SEGURO' ||
+                row.item.status === 'COTIZANDO PROSPECTO',
+            }"
+          >
+            <td>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                    class="ma-2"
+                    icon
+                    dark
+                    x-small
+                    v-bind="attrs"
+                    v-on="on"
+                    color="#A43542 "
+                    @click="registrarLlamada(row.item.id)"
+                  >
+                    <v-icon dense small>mdi-phone-plus</v-icon>
+                  </v-btn>
+                </template>
+                <span>Actualizar Registro Llamada</span>
+              </v-tooltip>
+            </td>
+            <td>
+              {{ row.item.status }}
+            </td>
+            <td>
+              {{ row.item.codigo }}
+            </td>
+            <td>
+              {{ row.item.fecha_ultima_llamada }}
+            </td>
+            <td>
+              {{ row.item.ejecutivo_ventas }}
+            </td>
+            <td>
+              {{ row.item.cliente }}
+            </td>
+            <td>
+              {{ row.item.ultimo_comentario }}
+            </td>
+            <td>
+              {{ row.item.telefono }}
+            </td>
+            <td>
+              {{ row.item.fecha_solicitud }}
+            </td>
+            <td>
+              {{ row.item.sentido }}
+            </td>
+            <td>
+              {{ row.item.origen }}
+            </td>
+            <td>
+              {{ row.item.destino }}
+            </td>
+            <td>
+              {{ row.item.incoterms }}
+            </td>
+            <td>
+              {{ row.item.tipo_de_carga }}
+            </td>
+          </tr>
+        </template>
+        <template v-slot:no-data> No se encontraron registros </template>
+      </v-data-table>
+    </v-row>
+  </v-container>
+</template>
+
+<script>
+import { mapActions } from "vuex";
+import moment from "moment";
+export default {
+  data() {
+    return {
+      search: "",
+      loading4: false,
+      dialogRegistroNotaLlamada: false,
+      headers: [
+        { value: "acciones", text: "", align: "center", estado: true },
+        { value: "status", text: "ESTATUS ", aling: "center", estado: true },
+        {
+          value: "codigo_quote",
+          text: "CÓDIGO ",
+          aling: "center",
+          estado: true,
+        },
+        {
+          value: "fecha_ultima_llamada",
+          text: "FECHA ÚLTIMA LLAMADA",
+          aling: "center",
+          estado: true,
+        },
+        {
+          value: "ejecutivo_ventas",
+          text: "EJECUTIVO",
+          aling: "center",
+          estado: true,
+        },
+        { value: "cliente", text: "CLIENTE", aling: "center", estado: true },
+        {
+          value: "ultimo_comentario",
+          text: "ULTIMO COMENTARIO",
+          aling: "center",
+          estado: true,
+        },
+        { value: "telefono", text: "TELEFONO", aling: "center", estado: true },
+        {
+          value: "fecha_solicitud",
+          text: "FECHA SOLICITUD",
+          aling: "center",
+          estado: true,
+        },
+        { value: "sentido", text: "SENTIDO", aling: "center", estado: true },
+        { value: "origen", text: "ORIGEN ", aling: "center", estado: true },
+        { value: "destino", text: "DESTINO", aling: "center", estado: true },
+        {
+          value: "incoterms",
+          text: "INCOTERMS",
+          aling: "center",
+          estado: true,
+        },
+        {
+          value: "tipo_de_carga",
+          text: "TIPO DE CARGA",
+          aling: "center",
+          estado: true,
+        },
+      ],
+      filtro: {
+        id_estado: "",
+        id_sentido: "",
+        id_carga: "",
+        id_incoterms: "",
+        desde: "",
+        hasta: "",
+      },
+      filtroLlamada: {
+        idmarketing: null,
+        idstatus: null,
+        identities: null,
+        idmodality: null,
+        idshipment: null,
+        idincoterm: null,
+        fechainicio: null,
+        fechafin: null,
+      },
+    };
+  },
+  async mounted() {
+    this.$store.state.spiner = true;
+    await this.getQuoteCall(this.filtro);
+    this.$store.state.spiner = false;
+  },
+  methods: {
+    ...mapActions([
+      "getQuoteCall",
+      "imprimiReporteListadoCalls",
+      "guardarNotaQuote",
+    ]),
+    async imprimierCalls() {
+      this.$store.state.spiner = true;
+      this.loading4 = true;
+      await this.imprimiReporteListadoCalls({ filtro: this.filtro });
+      this.loading4 = false;
+      this.$store.state.spiner = false;
+    },
+    registrarLlamada(id) {
+      this.fromData = {
+        date: moment().format("YYYY-MM-DD"),
+        descripcion: "",
+        identities: JSON.parse(sessionStorage.getItem("dataUser"))
+          ? JSON.parse(sessionStorage.getItem("dataUser"))[0].id
+          : "",
+      };
+      console.log(id);
+      this.$store.state.pricing.id = id;
+      this.dialogRegistroNotaLlamada = true;
+    },
+    async guardarNota() {
+      if (this.$refs.detallenota.validate()) {
+        this.dialogRegistroNotaLlamada = false;
+        this.$store.state.spiner = true;
+
+        let data = {
+          id_quote: this.$store.state.pricing.id,
+          id_operador: this.fromData.identities,
+          comentario: this.fromData.descripcion,
+          fecha: this.fromData.date,
+        };
+
+        await this.guardarNotaQuote(data).catch((err) => {
+          console.log(err);
+        });
+        await this.getQuoteCall(this.filtro).catch((err) => {
+          console.log(err);
+        });
+
+        this.$store.state.spiner = false;
+      }
+    },
+  },
+};
+</script>
+
+<style></style>
