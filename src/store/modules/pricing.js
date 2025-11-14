@@ -1734,6 +1734,17 @@ const actions = {
       }
     });
 
+    // Agregar TIEMPO DE TRÁNSITO como servicio visible en la tabla de Servicios del PDF
+    if (opcion && opcion.tiempo_transito) {
+      locales.push({
+        name: "TIEMPO DE TRÁNSITO",
+        estado:
+          String(opcion.tiempo_transito) +
+          " " +
+          (Number(opcion.tiempo_transito) === 1 ? "día" : "días"),
+      });
+    }
+
     opcion.listNotasQuote
       .filter((v) => v.estado == 1)
       .forEach((element) => {
@@ -5898,6 +5909,8 @@ const actions = {
 
             OpcionesSelecciondas.push({
               nro_propuesta: opcionCosto.nro_propuesta,
+              date_end: opcionCosto.date_end,
+              tiempo_transito: opcionCosto.tiempo_transito,
               importante: importante,
               impuesto: imp,
               datosFlete: isFlete == true ? datosFlete : [],

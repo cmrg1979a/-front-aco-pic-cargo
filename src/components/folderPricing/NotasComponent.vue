@@ -353,7 +353,7 @@
     >
       <v-card>
         <v-card-title class="indigo white--text my-0 py-0" dark>
-          PREVISUALIZACIÓN DE LA COTIZACIÓN - NO TIENE NINGÚN VALOR COMERCIAL
+          aPREVISUALIZACIÓN DE LA COTIZACIÓN - NO TIENE NINGÚN VALOR COMERCIAL
 
           <v-spacer></v-spacer>
           <v-btn icon color="white" @click="dialogPreview = !dialogPreview">
@@ -439,6 +439,19 @@ export default {
       "predata",
       "updateQuote",
     ]),
+    formatDate(val) {
+      if (!val) return "";
+      try {
+        const d = new Date(val);
+        if (isNaN(d.getTime())) return String(val);
+        const dd = String(d.getDate()).padStart(2, "0");
+        const mm = String(d.getMonth() + 1).padStart(2, "0");
+        const yyyy = d.getFullYear();
+        return `${dd}/${mm}/${yyyy}`;
+      } catch (e) {
+        return String(val);
+      }
+    },
     llenarNotasSeleccionadas() {
       this.opcionesSeleccionadas =
         this.$store.state.pricing.opcionCostos.filter((v) => !!v.selected);
@@ -649,7 +662,17 @@ export default {
       opcion = opcion.map((v) => ({ ...v, service: v.descripcion }));
 
       let final = [...val, ...opcion];
-     
+
+      // Agregar al final: Fecha de Vigencia y Tiempo de Tránsito (si existen)
+      const opt = this.opcionesSeleccionadas[this.$store.state.pricing.page - 1] || {};
+      if (opt.date_end) {
+        final.push({ service: `Fecha de vigencia: ${this.formatDate(opt.date_end)}` });
+      }
+      if (opt.tiempo_transito) {
+        const unidad = Number(opt.tiempo_transito) === 1 ? "día" : "días";
+        final.push({ service: `Tiempo de tránsito: ${opt.tiempo_transito} ${unidad}` });
+      }
+      
       return final;
     },
     lstNoIncluye() {

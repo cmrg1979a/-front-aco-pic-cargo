@@ -110,11 +110,10 @@
             placeholder="Valor de la mercancia..."
             autocomplete="off"
             dense
+            v-if="requiereValorMercancia"
             :rules="[
-              (v) => !!v || 'Dato Requerido',
-              (v) =>
-                /^(?!0\d+|\d*e)\d*(?:\.\d+)?$/.test(v) ||
-                'Debe ser un número real entero positivo',
+              (v) => !requiereValorMercancia || (!!v && Number(v) > 0) || 'Dato Requerido',
+              (v) => !v || /^(?!0\d+|\d*e)\d*(?:\.\d+)?$/.test(v) || 'Debe ser un número real entero positivo',
             ]"
             @input="recargarCostos()"
             @blur="recargarCostos()"
@@ -129,18 +128,17 @@
           >
           </v-text-field>
         </v-col>
-        <v-col
-          cols="12"
-          class="my-0 py-0 align-right"
-          v-if="mostrarContinuarFlag && mostrarBtn"
-          style="text-align: right !important"
-        >
-          <v-btn color="#3F51B5" dark @click="continuarLlenadoCostos()" small
-            >Continuar Llenado Costos</v-btn
-          >
-        </v-col>
+        
       </v-row>
     </v-card-text>
+    <v-divider></v-divider>
+    <v-card-actions class="sticky-actions pa-3">
+      <v-spacer></v-spacer>
+      <v-btn color="primary" large @click="continuarLlenadoCostos()">
+        <v-icon left>mdi-arrow-right-bold</v-icon>
+        Continuar
+      </v-btn>
+    </v-card-actions>
   </v-card>
 </template>
 
@@ -201,22 +199,48 @@ export default {
     },
 
     continuarLlenadoCostos() {
-      if (
-        !this.$store.state.pricing.datosPrincipales.amount ||
-        this.$store.state.pricing.datosPrincipales.amount <= 0
-      ) {
-        this.$store.state.pricing.errorValorMercancia =
-          "Datos Requeridos y mayor que 0";
-        return false;
+      if (this.requiereValorMercancia) {
+        if (
+          !this.$store.state.pricing.datosPrincipales.amount ||
+          this.$store.state.pricing.datosPrincipales.amount <= 0
+        ) {
+          this.$store.state.pricing.errorValorMercancia =
+            "Datos Requeridos y mayor que 0";
+          return false;
+        }
+      } else {
+        this.$store.state.pricing.errorValorMercancia = "";
       }
       this.$emit("activarLlenadoCostos");
       this.mostrarContinuarFlag = false;
     },
     showConfirmationDialog(service) {
       this.$emit("recargarCostos");
+      if (!this.requiereValorMercancia) {
+        this.$store.state.pricing.errorValorMercancia = "";
+      }
+    },
+  },
+  computed: {
+    requiereValorMercancia() {
+      const services = this.$store.state.pricing.listServices || [];
+      const keywords = ["seguro", "impuesto", "impuestos", "aduana"];
+      return services.some(
+        (s) =>
+          s && s.status === true &&
+          keywords.some((k) => String(s.service || "").toLowerCase().includes(k))
+      );
     },
   },
 };
 </script>
 
-<style></style>
+<style scoped>
+.sticky-actions {
+  position: sticky;
+  bottom: 0;
+  background: white;
+  border-top: 1px solid #eee;
+  z-index: 2;
+}
+</style>
