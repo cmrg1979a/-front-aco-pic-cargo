@@ -113,7 +113,7 @@
             :name="`Fecha Validez de la Opción ${
               opcionesSeleccionadas[$store.state.pricing.page - 1].nro_propuesta
             }`"
-            :label="`Fechacc Validez de la Opción ${
+            :label="`Fecha Validez de la Opción ${
               opcionesSeleccionadas[$store.state.pricing.page - 1].nro_propuesta
             }`"
             v-model="

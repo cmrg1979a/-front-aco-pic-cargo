@@ -1,5 +1,18 @@
 <template>
   <v-card>
+    <v-card-title class="px-2">
+      <v-spacer></v-spacer>
+      <v-btn
+        color="light-blue darken-2"
+        class="ma-2"
+        dark
+        small
+        @click="modificarProveedor"
+      >
+        <v-icon left small>mdi-account-edit</v-icon>
+        EDITAR PROVEEDOR
+      </v-btn>
+    </v-card-title>
     <v-card-text class="px-2">
       <!-- ===== TELÉFONOS PROVEEDOR ===== -->
       <v-subheader class="px-0">
@@ -239,7 +252,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions([]),
+    ...mapActions(["actualizarProveedor"]),
     agregarTelefono() {
       this.$store.state.entities.lstTelefonos.push({
         id_tipotelefono: "",
@@ -269,7 +282,43 @@ export default {
     },
     eliminarEmail(item) {
       item.estado = false;
+    },
+    async modificarProveedor() {
+      var vm = this;
+      vm.$store.state.entities.isStep1Valid = true;
+      vm.$store.state.entities.isStep2Valid = true;
+      vm.$store.state.entities.isStep3Valid = true;
+      vm.$store.state.entities.isStep4Valid = true;
 
+      let okStep2_1 = true;
+      if (vm.$store.state.entities.lstTelefonos.length > 0) {
+        vm.$store.state.entities.lstTelefonos.map((v) => {
+          if (!v.id_tipotelefono || !v.telefono) {
+            okStep2_1 = false;
+          }
+        });
+      }
+
+      let okStep2_2 = true;
+      if (vm.$store.state.entities.lstContactos.length > 0) {
+        vm.$store.state.entities.lstContactos.map((v) => {
+          if (!v.nombre || !v.id_tipotelefono || !v.telefono) {
+            okStep2_2 = false;
+          }
+        });
+      }
+
+      if (!okStep2_1 || !okStep2_2) {
+        vm.$store.state.entities.isStep2Valid = false;
+        this.$swal({
+          icon: "warning",
+          text: "Por favor complete todos los campos requeridos en Teléfonos y Contactos",
+        });
+      } else {
+        vm.$store.state.spiner = true;
+        await vm.actualizarProveedor();
+        vm.$store.state.spiner = false;
+      }
     },
     validarFormulario() {
       var vm = this;

@@ -1,5 +1,18 @@
 <template>
   <v-card>
+    <v-card-title class="px-2">
+      <v-spacer></v-spacer>
+      <v-btn
+        color="light-blue darken-2"
+        class="ma-2"
+        dark
+        small
+        @click="modificarCliente"
+      >
+        <v-icon left small>mdi-account-edit</v-icon>
+        EDITAR CLIENTE
+      </v-btn>
+    </v-card-title>
     <v-card-text class="px-2">
       <!-- ===== CONVENIOS ===== -->
       <v-subheader class="px-0">
@@ -205,7 +218,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(["_uploadFile"]),
+    ...mapActions(["_uploadFile", "actualizarCliente"]),
     validarCorreoElectronico(v) {
       if (
         v &&
@@ -336,6 +349,43 @@ export default {
 
       if (ok1 && ok2) {
         vm.$store.state.entities.stepper = 4;
+      }
+    },
+    async modificarCliente() {
+      var vm = this;
+      vm.$store.state.entities.isStep1Valid = true;
+      vm.$store.state.entities.isStep2Valid = true;
+      vm.$store.state.entities.isStep3Valid = true;
+      vm.$store.state.entities.isStep4Valid = true;
+
+      let okStep3_1 = true;
+      if (vm.$store.state.entities.lstConvenios.length > 0) {
+        vm.$store.state.entities.lstConvenios.map((v) => {
+          if (!v.fecha || v.dias_credito < 0) {
+            okStep3_1 = false;
+          }
+        });
+      }
+
+      let okStep3_2 = true;
+      if (vm.$store.state.entities.lstTarifas.length > 0) {
+        vm.$store.state.entities.lstTarifas.map((v) => {
+          if (!v.fecha || !v.codigo || v.tarifa < 0) {
+            okStep3_2 = false;
+          }
+        });
+      }
+
+      if (!okStep3_1 || !okStep3_2) {
+        vm.$store.state.entities.isStep3Valid = false;
+        this.$swal({
+          icon: "warning",
+          text: "Por favor complete todos los campos requeridos en Convenios y Tarifas",
+        });
+      } else {
+        vm.$store.state.spiner = true;
+        await vm.actualizarCliente();
+        vm.$store.state.spiner = false;
       }
     },
   },

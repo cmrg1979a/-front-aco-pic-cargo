@@ -353,7 +353,7 @@
     >
       <v-card>
         <v-card-title class="indigo white--text my-0 py-0" dark>
-          aPREVISUALIZACIÓN DE LA COTIZACIÓN - NO TIENE NINGÚN VALOR COMERCIAL
+          PREVISUALIZACIÓN DE LA COTIZACIÓN - NO TIENE NINGÚN VALOR COMERCIAL
 
           <v-spacer></v-spacer>
           <v-btn icon color="white" @click="dialogPreview = !dialogPreview">
