@@ -8,7 +8,7 @@
               <dataGen />
             </v-card-text>
           </v-card>
-          <v-card class="mt-5">
+          <v-card class="mt-3">
             <v-card-text>
               <dataEmbar :isFormActionsDisabled="formControlHouseReadonly" />
             </v-card-text>
@@ -20,6 +20,122 @@
             <v-card-text>
               <services :isFormActionsDisabled="formControlHouseReadonly" />
             </v-card-text>
+          </v-card>
+
+          <v-card class="mt-3 pa-3">
+            <div class="d-flex align-center">
+              <v-speed-dial v-model="fab" :direction="'right'" :transition="transition">
+                <template v-slot:activator>
+                  <v-btn color="indigo" dark fab small>
+                    <v-icon v-if="!fab">mdi-cog</v-icon>
+                    <v-icon v-else>mdi-close</v-icon>
+                  </v-btn>
+                </template>
+
+                <v-btn
+                  v-if="$route.name != 'controlHouseVer'"
+                  small
+                  color="success"
+                  :loading="loadingBotonGuardarHouse"
+                  :disabled="formControlHouseReadonly"
+                  @click="_setHouseEdit()"
+                >
+                  <v-icon small>mdi-content-save</v-icon>
+                </v-btn>
+                <v-btn
+                  v-else
+                  small
+                  color="info"
+                  @click="irAVerMaster()"
+                >
+                  <v-icon small>mdi-pencil</v-icon>
+                </v-btn>
+
+                <v-btn small color="primary" @click="abrirModalFormato()">
+                  <v-icon small>mdi-printer</v-icon>
+                </v-btn>
+
+                <v-btn
+                  small
+                  color="orange darken-2"
+                  dark
+                  :disabled="isBotonTrackingDisabled"
+                  :loading="loadingBotonTracking"
+                  @click="_generateTrackingToken"
+                >
+                  <v-icon small>mdi-link-variant</v-icon>
+                </v-btn>
+
+                <v-btn
+                  small
+                  color="teal darken-1"
+                  :disabled="formControlHouseReadonly"
+                  :loading="loadingBotonNotificaciones"
+                  @click="openNotificaciones"
+                >
+                  <v-icon small style="transform: rotate(-45deg)">mdi-send</v-icon>
+                </v-btn>
+
+                <v-btn
+                  v-if="$route.name != 'controlHouseVer'"
+                  small
+                  color="red"
+                  dark
+                  :loading="loadingBotonEliminarHouse"
+                  :disabled="formControlHouseReadonly"
+                  @click="eliminarHouse()"
+                >
+                  <v-icon small>mdi-delete</v-icon>
+                </v-btn>
+              </v-speed-dial>
+            </div>
+
+            <v-text-field
+              v-if="$store.state.house_enlace_tracking"
+              v-model="$store.state.house_enlace_tracking"
+              label="Enlace de Tracking"
+              readonly
+              outlined
+              dense
+              hide-details
+              class="mt-3"
+            >
+              <template v-slot:append>
+                <v-btn
+                  icon
+                  small
+                  color="primary"
+                  @click="_copyEnlaceTracking($store.state.house_enlace_tracking)"
+                >
+                  <v-icon small>mdi-content-copy</v-icon>
+                </v-btn>
+              </template>
+            </v-text-field>
+
+            <v-menu v-model="openMenuNotificaciones" top offset-y content-class="elevation-0">
+              <template v-slot:activator="{ on, attrs }">
+                <span v-bind="attrs" v-on="on"></span>
+              </template>
+              <v-list color="transparent" v-show="displayMenuNotificaciones">
+                <v-list-item
+                  v-for="(item, index) in getItemsNotificaciones()"
+                  :key="index"
+                  class="px-0"
+                >
+                  <v-list-item-title>
+                    <v-btn
+                      depressed
+                      block
+                      small
+                      color="primary"
+                      @click="sendNotificacion(item)"
+                    >
+                      {{ item.title }}
+                    </v-btn>
+                  </v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
           </v-card>
         </v-col>
 
@@ -33,100 +149,42 @@
       </v-row>
     </v-container>
 
-    <div class="text-center">
-      <v-menu top offset-y content-class="elevation-0">
-        <template v-slot:activator="{ on, attrs }">
+    <!-- Botones flotantes removidos - ahora en sección de Acciones -->
+    
+    <!-- Modal para seleccionar formato de impresión -->
+    <v-dialog v-model="dialogFormato" max-width="400px">
+      <v-card>
+        <v-card-title primary-title class="light-blue darken-2 white--text">
+          Imprimir Formato {{ isAereo() ? "GUÍA AÉREA" : "BL" }}
+        </v-card-title>
+        <v-card-text class="pt-4">
+          <p class="subtitle-1 mb-2">¿Imprimir con fondo?</p>
+          <v-radio-group v-model="formatoflag">
+            <v-radio label="Sí" :value="true"></v-radio>
+            <v-radio label="No" :value="false"></v-radio>
+          </v-radio-group>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
           <v-btn
             color="success"
-            :dark="!formControlHouseReadonly"
-            fixed
-            bottom
-            right
-            v-bind="attrs"
-            v-on="on"
-            :disabled="formControlHouseReadonly"
-            :loading="loadingBotonNotificaciones"
-            @click="validarMenuNotificaciones"
+            v-if="isAereo()"
+            @click="exportarFormatoAWB()"
           >
-            <v-icon left color="black" style="transform: rotate(-45deg)">
-              mdi-send
-            </v-icon>
-            NOTIFICACIONES
+            <v-icon left>mdi-printer</v-icon>
+            Imprimir Guía Aérea
           </v-btn>
-        </template>
-        <v-list color="transparent" v-show="displayMenuNotificaciones">
-          <v-list-item
-            v-for="(item, index) in getItemsNotificaciones()"
-            :key="index"
-            class="px-0"
-          >
-            <v-list-item-title>
-              <v-btn
-                depressed
-                block
-                color="primary"
-                @click="sendNotificacion(item)"
-              >
-                {{ item.title }}
-              </v-btn>
-            </v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
-    </div>
-    <div style="position: fixed; bottom: 16px; left: 16px">
-      <v-speed-dial
-        v-model="fab"
-        :top="top"
-        :bottom="bottom"
-        :right="right"
-        :left="left"
-        :direction="direction"
-        :open-on-hover="hover"
-        :transition="transition"
-      >
-        <template v-slot:activator>
-          <v-btn v-model="fab" color="info" dark fab>
-            <v-icon v-if="fab"> mdi-close </v-icon>
-            <v-icon v-else> mdi-tools </v-icon>
+          <v-btn color="success" v-else @click="exportarFormatoHBL()">
+            <v-icon left>mdi-printer</v-icon>
+            Imprimir BL
           </v-btn>
-        </template>
-        <v-btn
-          v-if="$route.name != 'controlHouseVer'"
-          color="success"
-          @click="_setHouseEdit()"
-          block
-          dark
-          x-small
-          :loading="loadingBotonGuardarHouse"
-          >GUARDAR CAMBIOS
-        </v-btn>
+          <v-btn color="grey" text @click="dialogFormato = false">
+            Cancelar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
-        <v-btn
-          v-if="$route.name != 'controlHouseVer'"
-          color="red"
-          @click="eliminarHouse()"
-          block
-          dark
-          x-small
-          :loading="loadingBotonEliminarHouse"
-        >
-          ELIMINAR
-        </v-btn>
-        <v-btn
-          v-if="$route.name == 'controlHouseVer'"
-          fab
-          large
-          dark
-          bottom
-          left
-          color="info"
-          @click="irAVerMaster()"
-        >
-          Editar
-        </v-btn>
-      </v-speed-dial>
-    </div>
     <v-dialog v-model="abrirModalCuentasNotificacion" persistent width="70%">
       <v-card>
         <v-card-title primary-title>
@@ -221,9 +279,13 @@ export default {
     ],
     houseData: {},
     displayMenuNotificaciones: false,
+    openMenuNotificaciones: false,
     loadingBotonNotificaciones: false,
     loadingBotonGuardarHouse: false,
     loadingBotonEliminarHouse: false,
+    loadingBotonTracking: false,
+    dialogFormato: false,
+    formatoflag: true,
   }),
   async mounted() {
     if (this.$route.name == "controlHouse") {
@@ -252,6 +314,12 @@ export default {
   },
   computed: {
     ...mapState(["itemsModality", "itemsShipment"]),
+    isBotonTrackingDisabled() {
+      return this.$store.state.house_enlace_tracking !== "" &&
+        this.$store.state.house_enlace_tracking !== null
+        ? true
+        : this.formControlHouseReadonly;
+    },
   },
   methods: {
     ...mapActions([
@@ -265,6 +333,165 @@ export default {
       "fetchDataBank",
       "cargarListadoQuoteAduana",
     ]),
+    getTipoDocumento() {
+      return this.isAereo() ? "GUÍA AÉREA" : "BL";
+    },
+    abrirModalFormato() {
+      this.dialogFormato = true;
+    },
+    async exportarFormatoAWB() {
+      try {
+        const response = await axios({
+          method: "get",
+          url: `${process.env.VUE_APP_URL_MAIN}generar_formato_awb`,
+          params: {
+            id_house: this.$route.params.id,
+            formatoflag: this.formatoflag,
+          },
+          headers: {
+            "auth-token": sessionStorage.getItem("auth-token"),
+          },
+          responseType: "blob",
+        });
+
+        const blob = new Blob([response.data], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+
+        const link = document.createElement("a");
+        link.href = window.URL.createObjectURL(blob);
+        const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, -5);
+        const filename = `formato_awb_${timestamp}.xlsx`;
+        link.download = filename;
+        link.click();
+
+        window.URL.revokeObjectURL(link.href);
+      } catch (err) {
+        console.error("Error exportando archivo:", err);
+        this.$swal({
+          icon: "error",
+          title: "Error",
+          text: "No se pudo generar el formato",
+        });
+      }
+      this.dialogFormato = false;
+    },
+    async exportarFormatoHBL() {
+      try {
+        const response = await axios({
+          method: "get",
+          url: `${process.env.VUE_APP_URL_MAIN}generar_formato_bl`,
+          params: {
+            id_house: this.$route.params.id,
+            formatoflag: this.formatoflag,
+          },
+          headers: {
+            "auth-token": sessionStorage.getItem("auth-token"),
+          },
+          responseType: "blob",
+        });
+
+        const blob = new Blob([response.data], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+
+        const link = document.createElement("a");
+        link.href = window.URL.createObjectURL(blob);
+        const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, -5);
+        const filename = `formato_bl_${timestamp}.xlsx`;
+        link.download = filename;
+        link.click();
+
+        window.URL.revokeObjectURL(link.href);
+      } catch (err) {
+        console.error("Error exportando archivo:", err);
+        this.$swal({
+          icon: "error",
+          title: "Error",
+          text: "No se pudo generar el formato",
+        });
+      }
+      this.dialogFormato = false;
+    },
+    async _generateTrackingToken() {
+      const { v4: uuidv4 } = require("uuid");
+      const token = uuidv4();
+
+      this.loadingBotonTracking = !this.loadingBotonTracking;
+      await this._setTrackingToken(token);
+      this.loadingBotonTracking = !this.loadingBotonTracking;
+    },
+    async _setTrackingToken(token) {
+      var vm = this;
+
+      var data = {
+        id_house: vm.$route.params.id,
+        token: token,
+        fecha: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+          .toISOString()
+          .substr(0, 10),
+      };
+
+      var config = {
+        method: "put",
+        url: process.env.VUE_APP_URL_MAIN + `setTrackingToken`,
+        headers: {
+          "auth-token": sessionStorage.getItem("auth-token"),
+          "Content-Type": "application/json",
+        },
+        data: data,
+      };
+
+      await axios(config)
+        .then(function (response) {
+          sessionStorage.setItem("auth-token", response.data.token);
+
+          if (response.data.estadoflag) {
+            vm.$store.state.house_enlace_tracking =
+              "https://aco.agentedecargaonline.com/tracking/" +
+              response.data.data[0].token;
+            
+            vm.$swal({
+              icon: "success",
+              title: "Éxito",
+              text: "Enlace de tracking generado correctamente",
+            });
+          } else {
+            Swal.fire({
+              icon: response.data.status == "401" ? "error" : "info",
+              text: response.data.mensaje,
+              allowOutsideClick: false,
+              allowEscapeKey: false,
+              allowEnterKey: false,
+            }).then((resSwal) => {
+              if (resSwal.isConfirmed && response.data.status == "401") {
+                router.push({ name: "Login" });
+                setTimeout(() => {
+                  window.location.reload();
+                }, 10);
+              }
+            });
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+          vm.$swal({
+            icon: "error",
+            title: "Error",
+            text: "No se pudo generar el enlace de tracking",
+          });
+        });
+    },
+    async _copyEnlaceTracking(texto) {
+      await navigator.clipboard.writeText(texto);
+      this.$swal({
+        icon: "success",
+        title: "Copiado",
+        text: "Enlace copiado al portapapeles",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    },
     irAVerMaster() {
       this.$router.push({
         name: "controlHouseEditar",
@@ -707,6 +934,10 @@ export default {
           `,
         });
       }
+    },
+    openNotificaciones() {
+      this.validarMenuNotificaciones();
+      this.openMenuNotificaciones = this.displayMenuNotificaciones;
     },
     async _getHouseById() {
       var vm = this;

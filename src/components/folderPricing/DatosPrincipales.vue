@@ -1,7 +1,10 @@
 <template>
-  <v-container fluid class="pa-0">
+  <v-container fluid class="pa-0 mt-4">
     <v-card elevation="0" ref="frmPuerto">
-      <v-card-text class="pa-0">
+          <v-card-title primary-title> Datos Principales </v-card-title>
+ 
+
+      <v-card-text class="pa-0 pt-8">
         <v-form class="" ref="frmDatosPrincipales">
           <v-row>
             <!-- Columna Izquierda -->

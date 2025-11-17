@@ -165,18 +165,7 @@
         @click="registrarCliente"
         >Guardar CLIENTE</v-btn
       >
-
-      <v-btn
-        v-if="
-          getNameUrl() == 'editarCliente' &&
-          $store.state.entities.showBtnSaveFlag
-        "
-        color="success"
-        class="ml-auto"
-        dark
-        @click="modificarCliente"
-        >EDITAR CLIENTE</v-btn
-      >
+ 
 
       <!--MODULO PROVEEDORES-->
       <v-btn

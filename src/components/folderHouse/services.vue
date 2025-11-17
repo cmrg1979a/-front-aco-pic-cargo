@@ -93,36 +93,7 @@
         </tbody>
       </template>
     </v-simple-table>
-    <v-btn color="success" @click="abriModalaFormato">Imprimir Formato</v-btn>
-
-    <v-dialog v-model="dialogFormato" max-width="30%">
-      <v-card>
-        <v-card-title primary-title>
-          Imprimir Formato
-          {{ tipoAreo ? "GUÍA AÉREA" : "BL" }}
-        </v-card-title>
-        <v-card-text>
-          Imprimir Con Fondo
-          <v-radio-group v-model="formatoflag">
-            <v-radio label="Si" :value="true"></v-radio>
-            <v-radio label="No" :value="false"></v-radio>
-          </v-radio-group>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn
-            color="success"
-            v-if="tipoAreo"
-            block
-            @click="exportarFormatoAWB()"
-          >
-            Imprimir Formato Guía Aérea
-          </v-btn>
-          <v-btn color="success" v-else block @click="exportarFormatoHBL()">
-            Imprimir Formato BL
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <!-- Botón "Imprimir Formato" movido a sección de Acciones en controlHouse.vue -->
   </div>
 </template>
 <script>
@@ -141,8 +112,6 @@ export default {
       { value: 2, text: "No Aplica" },
     ],
     selected_certificado: "",
-    dialogFormato: false,
-    formatoflag: true,
   }),
   computed: {},
   async mounted() {
@@ -450,88 +419,6 @@ export default {
         .catch(function (error) {
           console.log(error);
         });
-    },
-    abriModalaFormato() {
-      this.dialogFormato = true;
-    },
-    async exportarFormatoAWB() {
-      try {
-        const response = await axios({
-          method: "get",
-          url: `${process.env.VUE_APP_URL_MAIN}generar_formato_awb`,
-          params: {
-            id_house: this.$route.params.id,
-            formatoflag: this.formatoflag,
-          },
-          headers: {
-            "auth-token": sessionStorage.getItem("auth-token"),
-          },
-          responseType: "blob", // 👈 importante
-        });
-
-        const blob = new Blob([response.data], {
-          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        });
-
-        const link = document.createElement("a");
-        link.href = window.URL.createObjectURL(blob);
-        const timestamp = moment().format("YYYY_MM_DD_HH_mm_ss");
-        const filename = `formato_awb_${timestamp}.xlsx`;
-        link.download = filename; // nombre del archivo
-        link.click();
-
-        // Limpieza opcional
-        window.URL.revokeObjectURL(link.href);
-      } catch (err) {
-        console.error("Error exportando archivo:", err);
-      }
-      this.dialogFormato = false;
-    },
-    async exportarFormatoHBL() {
-      try {
-        const response = await axios({
-          method: "get",
-          url: `${process.env.VUE_APP_URL_MAIN}generar_formato_bl`,
-          params: {
-            id_house: this.$route.params.id,
-            formatoflag: this.formatoflag,
-          },
-          headers: {
-            "auth-token": sessionStorage.getItem("auth-token"),
-          },
-          responseType: "blob", // 👈 importante
-        });
-
-        const blob = new Blob([response.data], {
-          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        });
-
-        const link = document.createElement("a");
-        link.href = window.URL.createObjectURL(blob);
-        const timestamp = moment().format("YYYY_MM_DD_HH_mm_ss");
-        const filename = `formato_bl_${timestamp}.xlsx`;
-        link.download = filename; // nombre del archivo
-        link.click();
-
-        // Limpieza opcional
-        window.URL.revokeObjectURL(link.href);
-      } catch (err) {
-        console.error("Error exportando archivo:", err);
-      }
-      this.dialogFormato = false;
-    },
-  },
-  computed: {
-    tipoAreo() {
-      this.$nextTick(() => {
-        let val = this.$store.state.itemsShipment.filter(
-          (v) => v.id == this.$store.state.house_id_trasnport
-        );
-        if (val.length > 0) {
-          return val[0].code == "Aéreo";
-        }
-        return true;
-      });
     },
   },
 };
