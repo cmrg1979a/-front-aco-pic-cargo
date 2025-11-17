@@ -3949,6 +3949,7 @@ const actions = {
         selected: opcionCosto.selected,
       });
     });
+    const opcionSeleccionada = state.opcionCostos.find((v) => !!v.selected);
     let data = {
       tiporeporte: state.tiporeporte ? state.tiporeporte : "TOTAL",
       id_percepcionaduana: state.datosPrincipales.id_percepcionaduana,
@@ -3988,6 +3989,21 @@ const actions = {
         ? state.datosPrincipales.descripcioncarga
         : "",
       opcionCostos: opciones,
+      tiempo_transito: String(
+        (opcionSeleccionada && opcionSeleccionada.tiempo_transito)
+          ? opcionSeleccionada.tiempo_transito
+          : state.datosPrincipales.tiempo_transito || ""
+      ),
+      date_end: String(
+        (opcionSeleccionada && opcionSeleccionada.date_end)
+          ? opcionSeleccionada.date_end
+          : state.datosPrincipales.fecha_fin || ""
+      ),
+      fecha_fin: String(
+        (opcionSeleccionada && opcionSeleccionada.date_end)
+          ? opcionSeleccionada.date_end
+          : state.datosPrincipales.fecha_fin || ""
+      ),
     };
     let config = {
       method: "put",
@@ -6144,9 +6160,12 @@ const actions = {
       });
     });
 
-    state.vendedor = state.listEjecutivo.filter(
-      (v) => v.id_entitie == state.datosPrincipales.id_pricing
-    )[0].name;
+    {
+      const ej = (state.listEjecutivo || []).find(
+        (v) => v.id_entitie == state.datosPrincipales.id_pricing || v.id == state.datosPrincipales.id_pricing
+      ) || {};
+      state.vendedor = ej.name || ej.nombrecompleto || "";
+    }
     // console.log(state.opcionCostos)
     GenerarIngresosInstrictivo(state.tiporeporte);
     GenerarCostosInstrictivo(state.tiporeporte);
@@ -6158,39 +6177,36 @@ const actions = {
       (v) => v.id == state.datosPrincipales.idsentido && v.code == "I"
     );
     let totalFleteVentas = 0;
-    let igvIngresos = 0;
-    let totalImpuestosIGV = 0;
-    let montoIngresos = 0;
-    let totalIngresos = 0;
-    let igvCostos = 0;
-    let montoCostos = 0;
-    let totalCostos = 0;
-    let sentido = state.listInstructivo[0].sentido;
-    state.vendedor = state.listEjecutivo.filter(
-      (v) => v.id_entitie == state.datosPrincipales.id_pricing
-    )[0].name;
+    // Resolver vendedor de forma segura
+    const _execItem = (state.listEjecutivo || []).find(
+      (v) =>
+        v.id_entitie == state.datosPrincipales.id_pricing ||
+        v.id == state.datosPrincipales.id_pricing
+    ) || {};
+    state.vendedor = _execItem.name || _execItem.nombrecompleto || "";
 
-    state.opcionCostos
-      .filter((v) => !!v.selected)
-      .forEach(async (opcion) => {
-        let igvIngresos = 0;
-        let totalImpuestosIGV = 0;
-        let montoIngresos = 0;
-        let totalIngresos = 0;
-        let igvCostos = 0;
-        let montoCostos = 0;
-        let totalCostos = 0;
-        let dataIngresos = [];
-        let dataCostos = [];
-        totalFleteVentas = await calcularTotalFleteVentaPorOpcion(
-          opcion.listCostos
-        );
+  state.opcionCostos
+    .filter((v) => !!v.selected)
+    .forEach(async (opcion) => {
+      let dataIngresos = [];
+      let dataCostos = [];
+      // acumuladores locales por opción
+      let igvIngresos = 0;
+      let totalImpuestosIGV = 0;
+      let montoIngresos = 0;
+      let totalIngresos = 0;
+      let igvCostos = 0;
+      let montoCostos = 0;
+      let totalCostos = 0;
+      totalFleteVentas = await calcularTotalFleteVentaPorOpcion(
         opcion.listCostos
-          .filter((v) => v.esventaflag == 1 && v.status == 1)
-          .forEach((element) => {
-            let orden = 1;
-            let name = "";
+      );
 
+      opcion.listCostos
+        .filter((v) => v.esventaflag == 1 && v.status == 1)
+        .forEach((element) => {
+          let orden = 1;
+          let name = "";
             // ------------------------------------
 
             let montoDetails = 0;
@@ -6259,7 +6275,7 @@ const actions = {
             if (element.esfleteflag == 1 && isImport) {
               name =
                 state.listTipoCostos.length > 0
-                  ? state.listTipoCostos.filter((v) => v.codigo == "FL")[0].name
+                  ? (state.listTipoCostos.find((v) => v.codigo == "FL")?.name || "")
                   : "";
               orden = 1;
             }
@@ -6269,7 +6285,7 @@ const actions = {
               }
               name =
                 state.listTipoCostos.length > 0
-                  ? state.listTipoCostos.filter((v) => v.codigo == "OR")[0].name
+                  ? (state.listTipoCostos.find((v) => v.codigo == "OR")?.name || "")
                   : "";
               orden = 2;
             }
@@ -6278,7 +6294,7 @@ const actions = {
               totalImpuestosIGV += parseFloat(montoDetails);
               name =
                 state.listTipoCostos.length > 0
-                  ? state.listTipoCostos.filter((v) => v.codigo == "LO")[0].name
+                  ? (state.listTipoCostos.find((v) => v.codigo == "LO")?.name || "")
                   : "";
               orden = 3;
             }
@@ -6287,13 +6303,13 @@ const actions = {
               orden = 4;
               name =
                 state.listTipoCostos.length > 0
-                  ? state.listTipoCostos.filter((v) => v.codigo == "AD")[0].name
+                  ? (state.listTipoCostos.find((v) => v.codigo == "AD")?.name || "")
                   : "";
             }
             if (element.esfleteflag == 1 && !isImport) {
               name =
                 state.listTipoCostos.length > 0
-                  ? state.listTipoCostos.filter((v) => v.codigo == "FL")[0].name
+                  ? (state.listTipoCostos.find((v) => v.codigo == "FL")?.name || "")
                   : "";
               orden = 5;
             }
@@ -6304,7 +6320,7 @@ const actions = {
               orden = 6;
               name =
                 state.listTipoCostos.length > 0
-                  ? state.listTipoCostos.filter((v) => v.codigo == "AL")[0].name
+                  ? (state.listTipoCostos.find((v) => v.codigo == "AL")?.name || "")
                   : "";
             }
             dataIngresos.push({
@@ -6330,14 +6346,14 @@ const actions = {
             if (element.esfleteflag == 1 && isImport) {
               name =
                 state.listTipoCostos.length > 0
-                  ? state.listTipoCostos.filter((v) => v.codigo == "FL")[0].name
+                  ? (state.listTipoCostos.find((v) => v.codigo == "FL")?.name || "")
                   : "";
               orden = 1;
             }
             if (element.esorigenflag == 1) {
               name =
                 state.listTipoCostos.length > 0
-                  ? state.listTipoCostos.filter((v) => v.codigo == "OR")[0].name
+                  ? (state.listTipoCostos.find((v) => v.codigo == "OR")?.name || "")
                   : "";
               orden = 2;
             }
@@ -6345,7 +6361,7 @@ const actions = {
               // totalImpuestosIGV += montoDetails;
               name =
                 state.listTipoCostos.length > 0
-                  ? state.listTipoCostos.filter((v) => v.codigo == "LO")[0].name
+                  ? (state.listTipoCostos.find((v) => v.codigo == "LO")?.name || "")
                   : "";
               orden = 3;
             }
@@ -6354,13 +6370,13 @@ const actions = {
               orden = 4;
               name =
                 state.listTipoCostos.length > 0
-                  ? state.listTipoCostos.filter((v) => v.codigo == "AD")[0].name
+                  ? (state.listTipoCostos.find((v) => v.codigo == "AD")?.name || "")
                   : "";
             }
             if (element.esfleteflag == 1 && !isImport) {
               name =
                 state.listTipoCostos.length > 0
-                  ? state.listTipoCostos.filter((v) => v.codigo == "FL")[0].name
+                  ? (state.listTipoCostos.find((v) => v.codigo == "FL")?.name || "")
                   : "";
               orden = 5;
             }
@@ -6369,7 +6385,7 @@ const actions = {
               orden = 6;
               name =
                 state.listTipoCostos.length > 0
-                  ? state.listTipoCostos.filter((v) => v.codigo == "AL")[0].name
+                  ? (state.listTipoCostos.find((v) => v.codigo == "AL")?.name || "")
                   : "";
             }
             // ------------------------------------
@@ -6439,17 +6455,19 @@ const actions = {
               );
             }
             dataCostos.push({
-              proveedor: modules.state.provedores.filter(
-                (v) => v.id == element.id_proveedor
-              )[0].namelong,
+              proveedor:
+                (modules.state.provedores || []).find(
+                  (v) => v.id == element.id_proveedor
+                )?.namelong || "",
               service: element.nameservice,
               valor: montoDetails,
               orden: orden,
               igv: 0,
               total: montoDetails,
-              id: modules.state.provedores.filter(
-                (v) => v.id == element.id_proveedor
-              )[0].id,
+              id:
+                (modules.state.provedores || []).find(
+                  (v) => v.id == element.id_proveedor
+                )?.id || "",
             });
             igvCostos += 0;
             montoCostos += parseFloat(montoDetails);
@@ -8814,9 +8832,10 @@ async function GenerarCostosInstrictivo(tipo) {
             );
           }
           dataCostos.push({
-            proveedor: modules.state.provedores.filter(
-              (v) => v.id == element.id_proveedor
-            )[0].namelong,
+            proveedor:
+              (modules.state.provedores || []).find(
+                (v) => v.id == element.id_proveedor
+              )?.namelong || "",
             service: element.nameservice,
             valor: montoDetails,
           });
