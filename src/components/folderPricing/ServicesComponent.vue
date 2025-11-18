@@ -216,7 +216,7 @@ export default {
       console.log("******", service);
 
       const mensajeTransporte =
-        "EL SERVICO DE TRASPORTE SE PUEDE REALIZAR PERO SE NECESITA DATA ADICIONAL";
+        "TARIFA NO INCLUYE TRANSPORTE EN DESTINO SE PUEDE HACER PERO NECESITAMOS DIRECCIÓN DE ENTREGA";
 
       const esServicioTransporte =
         (service.code_service == 14 || service.code_service === '14') &&
