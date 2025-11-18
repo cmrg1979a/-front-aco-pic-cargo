@@ -778,7 +778,7 @@ export default {
     }, 10);
 
     await this._validaVersion();
-    await this._getVersion();
+    //await this._getVersion();
 
     var vm = this;
     vm.$store.state.drawer = false;
@@ -864,7 +864,7 @@ export default {
     async _validaVersion() {
       var vm = this;
       setInterval(async () => {
-        await vm._getVersion();
+       // await vm._getVersion();
         // await vm.validateTotal();
       }, 30000);
     },

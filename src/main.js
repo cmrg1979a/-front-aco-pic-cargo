@@ -64,7 +64,6 @@ function syncSessionFromLocalStorage() {
 }
 syncSessionFromLocalStorage();
 window.addEventListener("storage", (event) => {
-  console.log("aaaa");
   if (!event.key) return;
   const keysToSync = [
     "security",
