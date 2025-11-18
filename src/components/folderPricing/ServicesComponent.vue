@@ -213,7 +213,89 @@ export default {
       this.mostrarContinuarFlag = false;
     },
     showConfirmationDialog(service) {
+      // Si el servicio fue desmarcado (status = false)
+      if (!service.status) {
+        this.agregarNotaServicioDesmarcado(service);
+      } else {
+        // Si el servicio fue marcado nuevamente, eliminar la nota si existe
+        this.eliminarNotaServicioDesmarcado(service);
+      }
       this.$emit("recargarCostos");
+    },
+    
+    agregarNotaServicioDesmarcado(service) {
+      // Obtener servicios desmarcados
+      const serviciosDesmarcados = this.$store.state.pricing.listServices.filter(
+        (s) => !s.status
+      );
+      
+      // Crear el texto de la nota
+      let textoNota = "Se puede realizar el transporte, pero se necesitan datos adicionales para los siguientes servicios:\n\n";
+      serviciosDesmarcados.forEach((s) => {
+        const categoria = this.obtenerNombreCategoria(s.codebegend);
+        textoNota += `• ${s.service} (${categoria})\n`;
+      });
+      
+      // Buscar si ya existe una nota automática de servicios desmarcados
+      const notaExistente = this.$store.state.pricing.listNotasQuote.find(
+        (nota) => nota.esNotaAutomatica === true
+      );
+      
+      if (notaExistente) {
+        // Actualizar la nota existente
+        notaExistente.name = textoNota;
+        notaExistente.descripcion = textoNota;
+      } else {
+        // Crear una nueva nota
+        const nuevaNota = {
+          id: `auto_${Date.now()}`, // ID temporal único
+          name: textoNota,
+          descripcion: textoNota,
+          estado: 1, // Activa
+          statusincluye: 1, // Se incluye en la cotización
+          statusnoincluye: 0,
+          esNotaAutomatica: true, // Flag para identificar notas automáticas
+          created_at: new Date().toISOString(),
+        };
+        
+        // Agregar la nota al principio de la lista
+        this.$store.state.pricing.listNotasQuote.unshift(nuevaNota);
+      }
+      
+      // Actualizar el flag para refrescar las notas en otros componentes
+      this.$store.state.pricing.actualizarNotas = !this.$store.state.pricing.actualizarNotas;
+    },
+    
+    eliminarNotaServicioDesmarcado(service) {
+      // Verificar si aún hay servicios desmarcados
+      const serviciosDesmarcados = this.$store.state.pricing.listServices.filter(
+        (s) => !s.status
+      );
+      
+      if (serviciosDesmarcados.length === 0) {
+        // Si no hay servicios desmarcados, eliminar la nota automática
+        const indiceNota = this.$store.state.pricing.listNotasQuote.findIndex(
+          (nota) => nota.esNotaAutomatica === true
+        );
+        
+        if (indiceNota !== -1) {
+          this.$store.state.pricing.listNotasQuote.splice(indiceNota, 1);
+          this.$store.state.pricing.actualizarNotas = !this.$store.state.pricing.actualizarNotas;
+        }
+      } else {
+        // Si aún hay servicios desmarcados, actualizar la nota
+        this.agregarNotaServicioDesmarcado(service);
+      }
+    },
+    
+    obtenerNombreCategoria(code) {
+      const categorias = {
+        'OR': 'Origen',
+        'FL': 'Flete',
+        'DE': 'Destino',
+        'OP': 'Opcional'
+      };
+      return categorias[code] || code;
     },
   },
 };

@@ -66,6 +66,20 @@
           </td>
         </template>
 
+        <template v-slot:[`item.quote_number`]="{ item }">
+          <v-chip
+            v-if="item.quote_number"
+            color="primary"
+            small
+            @click.stop="verCotizacion(item.id_quote)"
+            class="cursor-pointer"
+          >
+            <v-icon small left>mdi-file-document-outline</v-icon>
+            {{ item.quote_number }}
+          </v-chip>
+          <span v-else class="grey--text text--lighten-1">Sin cotización</span>
+        </template>
+
         <template v-slot:[`item.actions`]="{ item }">
           <div class="d-flex">
             <v-icon
@@ -192,6 +206,7 @@ export default {
       headers: [
         { text: "Master", value: "code_master" },
         { text: "Nro BL House", value: "nro_hbl", align: "start" },
+        { text: "Cotización", value: "quote_number" },
         { text: "Sentido", value: "namemodality" },
         { text: "Origen", value: "nameportbegin" },
         { text: "Destino", value: "nameportend" },
@@ -242,6 +257,11 @@ export default {
     },
     viewHouse(id) {
       this.$router.push("/home/folderHouse/control/ver/" + id);
+    },
+    verCotizacion(id_quote) {
+      if (id_quote) {
+        this.$router.push(`/home/folderPricing/verQuote/${id_quote}`);
+      }
     },
     selectHouse(house) {
       this.$router.push({
