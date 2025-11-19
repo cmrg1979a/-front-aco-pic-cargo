@@ -215,13 +215,56 @@ export default {
       this.mostrarContinuarFlag = false;
     },
     showConfirmationDialog(service) {
-      // Si el servicio fue desmarcado (status = false)
-      if (!service.status) {
-        this.agregarNotaServicioDesmarcado(service);
-      } else {
-        // Si el servicio fue marcado nuevamente, eliminar la nota si existe
-        this.eliminarNotaServicioDesmarcado(service);
+      console.log("******", service);
+
+      const mensajeTransporte =
+        "TARIFA NO INCLUYE TRANSPORTE EN DESTINO SE PUEDE HACER PERO NECESITAMOS DIRECCIÓN DE ENTREGA";
+
+      const esServicioTransporte =
+        (service.code_service == 14 || service.code_service === '14') &&
+        (service.id_groupservices == 14 || service.id_groupservices === '14');
+
+      if (esServicioTransporte) {
+        const opciones = this.$store.state.pricing.opcionCostos || [];
+
+        if (service.status) {
+          // Agregar nota a todas las opciones si no existe
+          opciones.forEach((opcion) => {
+            if (!Array.isArray(opcion.listNotasQuote)) {
+              opcion.listNotasQuote = [];
+            }
+            const existeNota = opcion.listNotasQuote.some(
+              (n) =>
+                n.descripcion === mensajeTransporte &&
+                !n.statusincluye &&
+                !n.statusnoincluye
+            );
+            if (!existeNota) {
+              opcion.listNotasQuote.push({
+                descripcion: mensajeTransporte,
+                estado: 1,
+                statusincluye: 0,
+                statusnoincluye: 0,
+              });
+            }
+          });
+        } else {
+          // Quitar la nota cuando se desactiva el servicio
+          opciones.forEach((opcion) => {
+            if (Array.isArray(opcion.listNotasQuote)) {
+              opcion.listNotasQuote = opcion.listNotasQuote.filter(
+                (n) =>
+                  !(
+                    n.descripcion === mensajeTransporte &&
+                    !n.statusincluye &&
+                    !n.statusnoincluye
+                  )
+              );
+            }
+          });
+        }
       }
+
       this.$emit("recargarCostos");
       if (!this.requiereValorMercancia) {
         this.$store.state.pricing.errorValorMercancia = "";

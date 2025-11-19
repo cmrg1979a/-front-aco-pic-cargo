@@ -265,7 +265,6 @@ export default {
   },
   data() {
     return {
-      // opcionesSeleccionadas: [],
       mostrarCostos: false,
       mostrarVentasFlag: false,
       btnIngresarCostos: true,
@@ -276,10 +275,6 @@ export default {
     };
   },
   mounted() {
-    if (!this.llenadoCostos) {
-      this.opcionesSeleccionadas =
-        this.$store.state.pricing.opcionCostos.filter((v) => !!v.selected);
-    }
   },
   methods: {
     irAComparativa() {
@@ -545,14 +540,10 @@ export default {
   watch: {
     llenadoCostos() {
       if (!this.llenadoCostos) {
-        this.opcionesSeleccionadas =
-          this.$store.state.pricing.opcionCostos.filter((v) => !!v.selected);
         this.$store.state.pricing.page = 1;
       }
     },
     recargarCostoSeleccionados() {
-      this.opcionesSeleccionadas =
-        this.$store.state.pricing.opcionCostos.filter((v) => !!v.selected);
       this.$store.state.pricing.page = 1;
     },
     reset() {
