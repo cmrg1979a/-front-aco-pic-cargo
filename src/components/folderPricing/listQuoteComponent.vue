@@ -74,7 +74,9 @@
       <template v-slot:item="{ item, expand, isExpanded }">
         <tr
           :class="[
-            item.status_code == 3
+            item.aprobadoflag || item.status_code == 4
+              ? 't-green-approved'
+              : item.status_code == 3
               ? 't-red'
               : item.status_code == 5
               ? 't-green'
@@ -939,6 +941,11 @@ export default {
 }
 .t-green {
   color: green;
+}
+.t-green-approved {
+  background-color: #c8e6c9 !important;
+  color: #2e7d32 !important;
+  font-weight: 500;
 }
 .t-black {
   color: #000;

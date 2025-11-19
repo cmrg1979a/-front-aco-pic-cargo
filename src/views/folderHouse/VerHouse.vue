@@ -221,6 +221,7 @@ export default {
   async mounted() {
     this.$store.state.spiner = true;
     await this.verHouse(this.$route.params);
+    await this.getQuoteNoAsignadoHouse();
     this.$store.state.spiner = false;
     await this.fetchDataBank({
       code: "",
@@ -244,6 +245,7 @@ export default {
       "getListBanksDetailsCargarPorSucursal",
       "verHouse",
       "fetchDataBank",
+      "getQuoteNoAsignadoHouse",
     ]),
     _setMasterContainer(id_master, id_containers, quantity) {
       var vm = this;
