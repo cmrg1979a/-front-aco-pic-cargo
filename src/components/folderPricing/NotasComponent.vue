@@ -665,12 +665,14 @@ export default {
 
       // Agregar al final: Fecha de Vigencia y Tiempo de Tránsito (si existen)
       const opt = this.opcionesSeleccionadas[this.$store.state.pricing.page - 1] || {};
-      if (opt.date_end) {
-        final.push({ service: `Fecha de vigencia: ${this.formatDate(opt.date_end)}` });
+      const fechaVigencia = opt.date_end || this.$store.state.pricing.datosPrincipales.fecha_fin;
+      const ttransito = opt.tiempo_transito || this.$store.state.pricing.datosPrincipales.tiempo_transito;
+      if (fechaVigencia) {
+        final.push({ service: `Fecha de vigencia: ${this.formatDate(fechaVigencia)}` });
       }
-      if (opt.tiempo_transito) {
-        const unidad = Number(opt.tiempo_transito) === 1 ? "día" : "días";
-        final.push({ service: `Tiempo de tránsito: ${opt.tiempo_transito} ${unidad}` });
+      if (ttransito) {
+        const unidad = Number(ttransito) === 1 ? "día" : "días";
+        final.push({ service: `Tiempo de tránsito: ${ttransito} ${unidad}` });
       }
       
       return final;

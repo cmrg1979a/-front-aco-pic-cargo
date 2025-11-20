@@ -428,6 +428,19 @@ export default {
       "predataAduana",
       "actualizarQuoteAduana",
     ]),
+    formatDate(val) {
+      if (!val) return "";
+      try {
+        const d = new Date(val);
+        if (isNaN(d.getTime())) return String(val);
+        const dd = String(d.getDate()).padStart(2, "0");
+        const mm = String(d.getMonth() + 1).padStart(2, "0");
+        const yyyy = d.getFullYear();
+        return `${dd}/${mm}/${yyyy}`;
+      } catch (e) {
+        return String(val);
+      }
+    },
     llenarNotasSeleccionadas() {
       this.opcionesSeleccionadas = this.$store.state.aduana.opcionCostos.filter(
         (v) => !!v.selected
@@ -647,6 +660,17 @@ export default {
       opcion = opcion.map((v) => ({ ...v, service: v.descripcion }));
 
       let final = [...val, ...opcion];
+
+      const opt = this.opcionesSeleccionadas[this.$store.state.aduana.page - 1] || {};
+      const fechaVigencia = opt.date_end || this.$store.state.aduana.datosPrincipales.fecha_fin;
+      const ttransito = opt.tiempo_transito || this.$store.state.aduana.datosPrincipales.tiempo_transito;
+      if (fechaVigencia) {
+        final.push({ service: `Fecha de vigencia: ${this.formatDate(fechaVigencia)}` });
+      }
+      if (ttransito) {
+        const unidad = Number(ttransito) === 1 ? "día" : "días";
+        final.push({ service: `Tiempo de tránsito: ${ttransito} ${unidad}` });
+      }
 
       return final;
     },
