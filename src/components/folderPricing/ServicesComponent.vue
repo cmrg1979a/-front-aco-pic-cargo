@@ -217,7 +217,7 @@ export default {
     showConfirmationDialog(service) {
       console.log("******", service);
       const mensajeTransporte =
-        "TARIFA NO INCLUYE TRANSPORTE EN DESTINO SE PUEDE HACER PERO NECESITAMOS DIRECCIÓN DE ENTREGA";
+        "Tarifa no incluye transporte en destino se puede hacer pero necesitamos dirección de entrega";
 
       const esServicioTransporte =
         (service.service.trim() == 'TRANSPORTE EN DESTINO'.trim());        
