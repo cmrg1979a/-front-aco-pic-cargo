@@ -252,6 +252,19 @@ export default {
       "generarReporteAduana",
       "obtenerDatosEmpresaAduana",
     ]),
+    formatDate(val) {
+      if (!val) return "";
+      try {
+        const d = new Date(val);
+        if (isNaN(d.getTime())) return String(val);
+        const dd = String(d.getDate()).padStart(2, "0");
+        const mm = String(d.getMonth() + 1).padStart(2, "0");
+        const yyyy = d.getFullYear();
+        return `${dd}/${mm}/${yyyy}`;
+      } catch (e) {
+        return String(val);
+      }
+    },
     abrirModalTipoReporte() {
       this.tiporeporte = "";
       this.dialogCambioNombreSecciones = false;
@@ -329,7 +342,20 @@ export default {
         namegroupservice: v.descripcion,
       }));
       let final = [...val, ...opcion];
-    
+
+      const opt = this.opcionesSeleccionadas[this.$store.state.aduana.page - 1] || {};
+      const fechaVigencia = opt.date_end || this.$store.state.aduana.datosPrincipales.fecha_fin;
+      const ttransito = opt.tiempo_transito || this.$store.state.aduana.datosPrincipales.tiempo_transito;
+      if (fechaVigencia) {
+        const texto = `Fecha de vigencia: ${this.formatDate(fechaVigencia)}`;
+        final.push({ service: texto, namegroupservice: texto });
+      }
+      if (ttransito) {
+        const unidad = Number(ttransito) === 1 ? "día" : "días";
+        const texto = `Tiempo de tránsito: ${ttransito} ${unidad}`;
+        final.push({ service: texto, namegroupservice: texto });
+      }
+
       return final;
     },
     lstNoIncluye() {

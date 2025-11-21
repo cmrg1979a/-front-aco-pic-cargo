@@ -247,6 +247,19 @@ export default {
   },
   methods: {
     ...mapActions(["registrarQuote", "generarReporte", "obtenerDatosEmpresa"]),
+    formatDate(val) {
+      if (!val) return "";
+      try {
+        const d = new Date(val);
+        if (isNaN(d.getTime())) return String(val);
+        const dd = String(d.getDate()).padStart(2, "0");
+        const mm = String(d.getMonth() + 1).padStart(2, "0");
+        const yyyy = d.getFullYear();
+        return `${dd}/${mm}/${yyyy}`;
+      } catch (e) {
+        return String(val);
+      }
+    },
     abrirModalTipoReporte() {
       this.tiporeporte = "";
       this.dialogCambioNombreSecciones = false;
@@ -325,6 +338,17 @@ export default {
       }));
 
       let final = [...val, ...opcion];
+
+      const opt = this.opcionesSeleccionadas[this.$store.state.pricing.page - 1] || {};
+      if (opt.date_end) {
+        const texto = `Fecha de vigencia: ${this.formatDate(opt.date_end)}`;
+        final.push({ service: texto, namegroupservice: texto });
+      }
+      if (opt.tiempo_transito) {
+        const unidad = Number(opt.tiempo_transito) === 1 ? "día" : "días";
+        const texto = `Tiempo de tránsito: ${opt.tiempo_transito} ${unidad}`;
+        final.push({ service: texto, namegroupservice: texto });
+      }
 
       return final;
     },
