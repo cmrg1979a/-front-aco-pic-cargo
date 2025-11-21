@@ -216,18 +216,16 @@ export default {
     },
     showConfirmationDialog(service) {
       console.log("******", service);
-
       const mensajeTransporte =
         "TARIFA NO INCLUYE TRANSPORTE EN DESTINO SE PUEDE HACER PERO NECESITAMOS DIRECCIÓN DE ENTREGA";
 
       const esServicioTransporte =
-        (service.code_service == 14 || service.code_service === '14') &&
-        (service.id_groupservices == 14 || service.id_groupservices === '14');
-
+        (service.service.trim() == 'TRANSPORTE EN DESTINO'.trim());        
       if (esServicioTransporte) {
+        
         const opciones = this.$store.state.pricing.opcionCostos || [];
 
-        if (service.status) {
+        if (service.status) {          
           // Agregar nota a todas las opciones si no existe
           opciones.forEach((opcion) => {
             if (!Array.isArray(opcion.listNotasQuote)) {
