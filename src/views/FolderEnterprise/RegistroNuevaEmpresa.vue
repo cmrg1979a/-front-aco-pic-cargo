@@ -22,6 +22,7 @@
                 outlined
                 persistent-placeholder
                 dense
+                prepend-inner-icon="mdi-domain"
                 :hide-details="!errortrade_name"
                 v-model="$store.state.enterprises.data.trade_name"
                 autocomplete="off"
@@ -39,6 +40,7 @@
                 outlined
                 persistent-placeholder
                 dense
+                prepend-inner-icon="mdi-account"
                 :hide-details="!errornames"
                 v-model="$store.state.enterprises.data.names"
                 :error-messages="errornames"
@@ -55,6 +57,7 @@
                 outlined
                 persistent-placeholder
                 dense
+                prepend-inner-icon="mdi-account"
                 :hide-details="!errorsurname"
                 v-model="$store.state.enterprises.data.surname"
                 :error-messages="errorsurname"
@@ -70,6 +73,7 @@
                 outlined
                 persistent-placeholder
                 dense
+                prepend-inner-icon="mdi-account"
                 :hide-details="!errorsecond_surname"
                 v-model="$store.state.enterprises.data.second_surname"
                 :error-messages="errorsecond_surname"
@@ -84,6 +88,7 @@
                 outlined
                 persistent-placeholder
                 dense
+                prepend-inner-icon="mdi-email"
                 :hide-details="!errorEmail"
                 v-model="$store.state.enterprises.data.email"
                 @change="validarCorreoExiste()"
@@ -101,6 +106,7 @@
                 outlined
                 persistent-placeholder
                 dense
+                prepend-inner-icon="mdi-email-check-outline"
                 v-model="$store.state.enterprises.data.emailconfirmacion"
                 :error-messages="errorEmail"
                 id="EmailConfirmación"
@@ -125,6 +131,7 @@
                 :error-messages="errorClave"
                 :type="typePassword ? 'password' : 'text'"
                 label="Contraseña"
+                prepend-inner-icon="mdi-lock"
                 :append-icon="typePassword ? 'mdi-eye' : 'mdi-eye-off'"
                 @click:append="typePassword = !typePassword"
                 autocomplete="new-password"
@@ -150,6 +157,7 @@
                 outlined
                 persistent-placeholder
                 dense
+                prepend-inner-icon="mdi-phone"
                 v-model="$store.state.enterprises.data.phone"
                 :error-messages="errorPhone"
                 :hide-details="!errorPhone"
@@ -164,9 +172,10 @@
               </p>
             </v-col>
             <v-col class="py-2 my-0" cols="12">
-              <v-btn color="info" v-if="enviarCodigo" @click="enviarCorreo()"
-                >Enviar Código</v-btn
-              >
+              <v-btn color="info" v-if="enviarCodigo" @click="enviarCorreo()">
+                <v-icon left>mdi-email-send-outline</v-icon>
+                Enviar Código
+              </v-btn>
               <p v-if="mostrarAdvertencia">
                 Ingresa el código de 4 dígitos enviado a tu correo.
 
@@ -203,6 +212,7 @@
                 persistent-placeholder
                 dense
                 hide-details
+                prepend-inner-icon="mdi-shield-key-outline"
                 v-model="$store.state.enterprises.data.codigo"
               ></v-text-field>
             </v-col>
@@ -228,6 +238,7 @@
                 @click="crearNuevaEmpresa()"
                 block
               >
+                <v-icon left>mdi-rocket-launch</v-icon>
                 Iniciar tu PRUEBA GRATUITA por 30 días</v-btn
               >
             </v-col>
@@ -239,6 +250,7 @@
                 @click="irALogin()"
                 block
               >
+                <v-icon left>mdi-login</v-icon>
                 Ya Tengo una cuenta
               </v-btn>
             </v-col>

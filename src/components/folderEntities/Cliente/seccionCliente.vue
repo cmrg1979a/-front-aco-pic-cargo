@@ -1,13 +1,28 @@
 <template>
   <v-card>
+      <v-card-title class="px-2">
+      <v-spacer></v-spacer>
+      <v-btn
+        color="light-blue darken-2"
+        class="ma-2"
+        dark
+        small
+        @click="modificarCliente"
+      >
+        <v-icon left small>mdi-account-edit</v-icon>
+        EDITAR CLIENTE
+      </v-btn>
+    </v-card-title>
     <v-card-text>
       <v-form ref="formDatosCliente" :readonly="isFormReadonly">
         <v-row>
           <v-col cols="12">
+            <v-subheader class="px-0 font-weight-bold">Identificación del Cliente</v-subheader>
             <v-row>
               <v-col cols="12" md="6">
                 <v-autocomplete
                   dense
+                  outlined
                   :items="$store.state.masterusuarios.lstTipoPersona"
                   item-text="descripcion"
                   item-value="id"
@@ -15,6 +30,18 @@
                   :rules="[(v) => !!v || 'Dato Requerido']"
                   v-model="$store.state.entities.cliente.id_tipopersona"
                   @change="toggleNombre"
+                ></v-autocomplete>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-autocomplete
+                  dense
+                  outlined
+                  :items="$store.state.masterusuarios.lstTipoTransaccion"
+                  item-text="descripcion"
+                  item-value="id"
+                  label="Nacional / Extranjero"
+                  :rules="[(v) => !!v || 'Dato Requerido']"
+                  v-model="$store.state.entities.cliente.id_tipotransaccion"
                 ></v-autocomplete>
               </v-col>
             </v-row>
@@ -30,8 +57,12 @@
                   v-model="$store.state.entities.cliente.nombrecompleto" @blur="handleNombre"></v-text-field>
               </v-col>
             </v-row>-->
-
-            <!--CUSTOM AUTOCOMPLETE-->
+            <v-row v-if="showNombreFiscal">
+              <v-col cols="12">
+                <v-text-field dense label="Nombre Fiscal" :rules="[(v) => !!v || 'Dato Requerido']"
+                  v-model="$store.state.entities.cliente.nombrecompleto" @blur="handleNombre"></v-text-field>
+              </v-col>
+            </v-row>
             <v-row>
               <v-col cols="12">
                 <CustomAutocomplete
@@ -48,24 +79,12 @@
                 />
               </v-col>
             </v-row>
-
+            <v-subheader class="px-0 font-weight-bold mt-2">Documento Fiscal</v-subheader>
             <v-row>
               <v-col cols="12" md="6">
                 <v-autocomplete
                   dense
-                  :items="$store.state.masterusuarios.lstTipoTransaccion"
-                  item-text="descripcion"
-                  item-value="id"
-                  label="Nacional / Extranjero"
-                  :rules="[(v) => !!v || 'Dato Requerido']"
-                  v-model="$store.state.entities.cliente.id_tipotransaccion"
-                ></v-autocomplete>
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col cols="12" md="6">
-                <v-autocomplete
-                  dense
+                  outlined
                   :items="$store.state.itemsDocumentsPais"
                   item-text="description"
                   item-value="id"
@@ -91,10 +110,12 @@
                 />
               </v-col>
             </v-row>
+            <v-subheader class="px-0 font-weight-bold mt-2">Ubicación y Contacto</v-subheader>
             <v-row>
               <v-col cols="12" md="6">
                 <v-autocomplete
                   dense
+                  outlined
                   item-text="name"
                   item-value="id"
                   :items="$store.state.itemsPais"
@@ -107,6 +128,7 @@
               <v-col cols="12" md="6">
                 <v-autocomplete
                   dense
+                  outlined
                   :items="$store.state.itemsState"
                   item-text="name"
                   item-value="id"
@@ -116,18 +138,18 @@
               </v-col>
             </v-row>
             <v-row>
-              <v-col cols="12">
+              <v-col cols="12" md="6">
                 <v-text-field
                   dense
+                  outlined
                   label="Dirección"
                   v-model="$store.state.entities.cliente.direccion"
                 ></v-text-field>
               </v-col>
-            </v-row>
-            <v-row>
-              <v-col cols="12">
+              <v-col cols="12" md="6">
                 <v-text-field
                   dense
+                  outlined
                   label="Correo Electrónico"
                   v-model="$store.state.entities.cliente.emailaddress"
                   :rules="[(v) => validarCorreoElectronico(v)]"
@@ -135,9 +157,8 @@
                 ></v-text-field>
               </v-col>
             </v-row>
-
             <!--CONVENIO ACTUAL-->
-            <v-subheader class="px-0">
+            <v-subheader class="px-0 font-weight-bold mt-2">
               Convenio Actual
               <v-spacer></v-spacer>
               <v-file-input
@@ -150,10 +171,11 @@
                 @change="subirArchivoConvenio"
               ></v-file-input>
             </v-subheader>
-            <v-row class="pl-5">
+            <v-row>
              <v-col cols="12" md="4">
                 <v-text-field
                   dense
+                  outlined
                   type="number"
                   suffix="días"
                   v-model="
@@ -168,20 +190,20 @@
                   @change="validarConvenioActual"
                 ></v-text-field>
               </v-col>
-
              <v-col cols="12" md="4">
                 <v-text-field
                   dense
+                  outlined
                   type="date"
                   v-model="$store.state.entities.cliente.convenioActual.fecha"
                   label="Fecha Convenio"
                   @change="validarConvenioActual"
                 ></v-text-field>
               </v-col>
-
              <v-col cols="12" md="4">
                 <v-text-field
                   dense
+                  outlined
                   v-model="
                     $store.state.entities.cliente.convenioActual.email_soporte
                   "
@@ -192,13 +214,13 @@
                 ></v-text-field>
               </v-col>
             </v-row>
-
             <!--TELÉFONO ACTUAL-->
-            <h2 class="my-2">Teléfono Principal</h2>
-            <v-row class="pl-5">
+            <v-subheader class="px-0 font-weight-bold mt-2">Teléfono Principal</v-subheader>
+            <v-row>
               <v-col cols="12" md="6">
                 <v-autocomplete
                   dense
+                  outlined
                   :items="$store.state.masterusuarios.lstTipoTelefono"
                   item-text="descripcion"
                   item-value="id"
@@ -218,6 +240,7 @@
               <v-col cols="12" md="6">
                 <v-text-field
                   dense
+                  outlined
                   label="Teléfono"
                   v-model="
                     $store.state.entities.cliente.telefonoActual.telefono
@@ -231,13 +254,13 @@
                 ></v-text-field>
               </v-col>
             </v-row>
-
             <!--CONTACTO ACTUAL-->
-            <h2 class="my-2">Telefono Adicional</h2>
-            <v-row class="pl-5">
+            <v-subheader class="px-0 font-weight-bold mt-2">Teléfono Adicional</v-subheader>
+            <v-row>
              <v-col cols="12" md="4">
                 <v-text-field
                   dense
+                  outlined
                   label="Nombre"
                   v-model="$store.state.entities.cliente.contactoActual.nombre"
                   @change="validarContactoActual"
@@ -246,6 +269,7 @@
              <v-col cols="12" md="4">
                 <v-autocomplete
                   dense
+                  outlined
                   :items="$store.state.masterusuarios.lstTipoTelefono"
                   item-text="descripcion"
                   item-value="id"
@@ -259,6 +283,7 @@
              <v-col cols="12" md="4">
                 <v-text-field
                   dense
+                  outlined
                   label="Teléfono"
                   v-model="
                     $store.state.entities.cliente.contactoActual.telefono
@@ -267,16 +292,17 @@
                 ></v-text-field>
               </v-col>
             </v-row>
-
             <!--NOTAS-->
+            <v-subheader class="px-0 font-weight-bold mt-2">Notas</v-subheader>
             <v-row>
               <v-col cols="12">
-                <v-text-field
+                <v-textarea
                   dense
-                  textarea
+                  outlined
+                  rows="3"
                   label="Comentarios / Notas Importantes"
                   v-model="$store.state.entities.cliente.notas"
-                ></v-text-field>
+                ></v-textarea>
               </v-col>
             </v-row>
           </v-col>
@@ -288,6 +314,7 @@
         >Agregar Más</v-btn
       >
     </v-card-actions>
+  
   </v-card>
 </template>
 
@@ -342,6 +369,7 @@ export default {
       "validarNombreCliente",
       "validarDocumentoCliente",
       "_uploadFile",
+      "actualizarCliente",
     ]),
     setDocumentoFiscalByDefault(criterio = "") {
       var vm = this;
@@ -553,6 +581,165 @@ export default {
         vm.validarContactoActual();
 
         vm.$store.state.entities.stepper = 2;
+      }
+    },
+    isClienteInternacional() {
+      let val = this.$store.state.masterusuarios.lstTipoTransaccion.some((v) => {
+        return (
+          v.codigo == "02" &&
+          v.id == this.$store.state.entities.cliente.id_tipotransaccion
+        );
+      });
+      return val;
+    },
+    async modificarCliente() {
+      var vm = this;
+      vm.$store.state.entities.isStep1Valid = true;
+      vm.$store.state.entities.isStep2Valid = true;
+      vm.$store.state.entities.isStep3Valid = true;
+      vm.$store.state.entities.isStep4Valid = true;
+      vm.$store.state.entities.isStep5Valid = true;
+      vm.$store.state.entities.isStep6Valid = true;
+
+      let okStep1 = true;
+      if (vm.$store.state.entities.cliente) {
+        if (!vm.$store.state.entities.cliente.id_tipopersona) {
+          okStep1 = false;
+        }
+        if (!vm.$store.state.entities.cliente.nombrecompleto) {
+          okStep1 = false;
+        }
+        if (!vm.$store.state.entities.cliente.id_tipotransaccion) {
+          okStep1 = false;
+        }
+        if (!vm.$store.state.entities.cliente.id_pais) {
+          okStep1 = false;
+        }
+        if (
+          vm.$store.state.entities.cliente.emailaddress &&
+          !/^(([^<>()\[\]\\.,;:\s@']+(\.[^<>()\\\[\\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+            vm.$store.state.entities.cliente.emailaddress
+          )
+        ) {
+          okStep1 = false;
+        }
+      }
+
+      let okStep2_1 = true;
+      if (vm.$store.state.entities.lstTelefonos.length > 0) {
+        vm.$store.state.entities.lstTelefonos.map((v) => {
+          if (!v.id_tipotelefono) {
+            okStep2_1 = false;
+          }
+          if (!v.telefono) {
+            okStep2_1 = false;
+          }
+        });
+      }
+
+      let okStep2_2 = true;
+      if (vm.$store.state.entities.lstContactos.length > 0) {
+        vm.$store.state.entities.lstContactos.map((v) => {
+          if (!v.nombre) {
+            okStep2_2 = false;
+          }
+          if (!v.id_tipotelefono) {
+            okStep2_2 = false;
+          }
+          if (!v.telefono) {
+            okStep2_2 = false;
+          }
+        });
+      }
+
+      let okStep3_1 = true;
+      if (vm.$store.state.entities.lstConvenios.length > 0) {
+        vm.$store.state.entities.lstConvenios.map((v) => {
+          if (!v.fecha) {
+            okStep3_1 = false;
+          }
+          if (v.dias_credito < 0) {
+            okStep3_1 = false;
+          }
+          if (
+            v.email_soporte &&
+            !/^(([^<>()\[\]\\.,;:\s@']+(\.[^<>()\\\[\\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+              v.email_soporte
+            )
+          ) {
+            okStep3_1 = false;
+          }
+        });
+      }
+
+      let okStep3_2 = true;
+      if (vm.$store.state.entities.lstTarifas.length > 0) {
+        vm.$store.state.entities.lstTarifas.map((v) => {
+          if (!v.fecha) {
+            okStep3_2 = false;
+          }
+          if (!v.codigo) {
+            okStep3_2 = false;
+          }
+          if (
+            v.email_soporte &&
+            !/^(([^<>()\[\]\\.,;:\s@']+(\.[^<>()\\\[\\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+              v.email_soporte
+            )
+          ) {
+            okStep3_2 = false;
+          }
+          if (v.tarifa < 0) {
+            okStep3_2 = false;
+          }
+        });
+      }
+
+      let okStep4 = true;
+      if (vm.$store.state.entities.lstInformacionBancaria.length > 0) {
+        vm.$store.state.entities.lstInformacionBancaria.map((v) => {
+          if (!v.nro_cuenta) {
+            okStep4 = false;
+          }
+          if (!v.cci) {
+            okStep4 = false;
+          }
+          if (!v.id_banco) {
+            okStep4 = false;
+          }
+          if (!v.id_coins) {
+            okStep4 = false;
+          }
+          if (vm.isClienteInternacional()) {
+            if (!v.nro_swift) {
+              okStep4 = false;
+            }
+            if (!v.id_intermediario) {
+              okStep4 = false;
+            }
+            if (!v.nro_cuenta_intermediario) {
+              okStep4 = false;
+            }
+          }
+        });
+      }
+
+      if (!okStep1) {
+        vm.$store.state.entities.isStep1Valid =
+          !vm.$store.state.entities.isStep1Valid;
+      } else if (!okStep2_1 || !okStep2_2) {
+        vm.$store.state.entities.isStep2Valid =
+          !vm.$store.state.entities.isStep2Valid;
+      } else if (!okStep3_1 || !okStep3_2) {
+        vm.$store.state.entities.isStep3Valid =
+          !vm.$store.state.entities.isStep3Valid;
+      } else if (!okStep4) {
+        vm.$store.state.entities.isStep4Valid =
+          !vm.$store.state.entities.isStep4Valid;
+      } else {
+        vm.$store.state.spiner = true;
+        await vm.actualizarCliente();
+        vm.$store.state.spiner = false;
       }
     },
   },

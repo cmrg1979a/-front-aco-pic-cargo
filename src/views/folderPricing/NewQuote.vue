@@ -21,37 +21,73 @@
 
       <v-stepper-items>
         <v-stepper-content step="1">
-          <v-row>
-            <!-- <v-col cols="12" md="6" class="pt-0"> -->
-            <v-col cols="12" md="6" class="pt-0">
-              <v-row>
-                <v-col cols="12" class="my-0 py-0">
-                  <DatosPrincipales
-                    @recargarServiciosCostos="recargar"
-                    @activarDatosCarga="activarDatosCarga"
-                  />
-                </v-col>
-              </v-row>
-            </v-col>
-            <v-col cols="12" md="6" class="my-0 py-0" id="DatosCargaComponent">
+          <v-card outlined class="mb-4">
+            <v-card-title class="primary white--text mb-8">
+              <v-icon left color="white">mdi-file-document-edit</v-icon>
+              Información de la Cotización
+            </v-card-title>
+            <v-card-text class="pt-4">
+              <DatosPrincipales
+                ref="datosPrincipales"
+                :mostrarBtn="false"
+                @recargarServiciosCostos="recargar"
+                @activarDatosCarga="activarDatosCarga"
+              />
+            </v-card-text>
+          </v-card>
+
+          <v-card outlined class="mb-4" v-if="DatosCargaComponentFlag" id="DatosCargaComponent">
+            <v-card-title class="teal darken-1 white--text">
+              <v-icon left color="white">mdi-package-variant</v-icon>
+              Datos de la Carga
+            </v-card-title>
+            <v-card-text class="pt-4">
               <DatosCargaComponent
-                v-if="DatosCargaComponentFlag"
+                :mostrarBtn="false"
                 @activarServicios="activarServicios()"
                 @recargarCostos="recargarCostos"
               />
-            </v-col>
-            <v-col cols="12" id="ServicesComponent">
+            </v-card-text>
+          </v-card>
+
+          <v-card outlined class="mb-4" v-if="ServicesComponentFlag" id="ServicesComponent">
+            <v-card-title class="orange darken-1 white--text">
+              <v-icon left color="white">mdi-cog-outline</v-icon>
+              Servicios a Cotizar
+            </v-card-title>
+            <v-card-text class="pt-4">
               <ServicesComponent
-                v-if="ServicesComponentFlag"
+                :mostrarBtn="false"
                 @activarLlenadoCostos="activarLlenadoCostos()"
                 @recargarCostos="recargarCostos()"
               />
-            </v-col>
-          </v-row>
+            </v-card-text>
+          </v-card>
 
-          <!-- <v-btn color="primary" @click="step = 2"> Continue </v-btn>
-
-          <v-btn text> Cancel </v-btn> -->
+          <v-card outlined>
+            <v-card-actions class="pa-4">
+              <v-spacer></v-spacer>
+              <v-btn color="success" large class="mr-2" @click="triggerExcel">
+                <v-icon left>mdi-file-excel</v-icon>
+                Importar Excel
+              </v-btn>
+              <v-btn 
+                color="primary" 
+                large 
+                @click="continuarFlujo()"
+              >
+                <v-icon left>mdi-arrow-right-bold</v-icon>
+                Continuar
+              </v-btn>
+              <input
+                ref="excelInput"
+                type="file"
+                accept=".xls,.xlsx"
+                style="display: none"
+                @change="onExcelSelected"
+              />
+            </v-card-actions>
+          </v-card>
         </v-stepper-content>
 
         <v-stepper-content step="2">
@@ -84,6 +120,7 @@ import ComparativaComponent from "../../components/folderPricing/ComparativaComp
 import NotasComponent from "../../components/folderPricing/NotasComponent.vue";
 import { mapActions, mapState } from "vuex";
 import Swal from "sweetalert2";
+import readXlsFile from "read-excel-file";
 export default {
   components: {
     DatosPrincipales,
@@ -111,11 +148,14 @@ export default {
       // await this.resetQuoteNew(),
       await this.getMarketingList(),
       await this.getQuoteStatus(),
+      await this.ensurePreliminarStatus(),
       await this.getModality(),
       await this.getShipment(),
       await this.getIncoterms(),
       await this.getCargarEjecutivo(),
     ]);
+    await this.getQuoteStatus();
+    await this.setDefaultStatusPreliminar();
     let opciones = [...this.$store.state.pricing.opcionCostos];
     let IdProveedor = [];
     opciones.forEach((opcion) => {
@@ -592,6 +632,223 @@ export default {
       this.step = 4;
       this.editableStep4 = true;
       this.$store.state.pricing.btnRegistrar = true;
+    },
+    async ensurePreliminarStatus() {
+      const estados = this.$store.state.pricing.listQuoteStatus || [];
+      const existe = estados.some(
+        (e) => typeof e.name === "string" && e.name.toLowerCase().includes("preliminar")
+      );
+      if (existe) return;
+      await this.createPreliminarStatus();
+    },
+    async createPreliminarStatus() {
+      try {
+        await this.$store.dispatch("MaxPositionQuoteStatus");
+        const max = this.$store.state.QuoteStatus;
+        const id_branch = JSON.parse(sessionStorage.getItem("dataUser"))[0]
+          .id_branch;
+        this.$store.state.QuoteStatus.StatusModel = {
+          id: "",
+          name: "PRELIMINAR",
+          code: "",
+          position: (max.max_position || 0) + 1,
+          position_select: (max.max_position_select || 0) + 1,
+          position_report: (max.max_position_report || 0) + 1,
+          position_calls: (max.max_position_calls || 0) + 1,
+          status_calls: 0,
+          status_calls_all: 0,
+          description: "Cotización preliminar",
+          status: 1,
+          id_branch,
+        };
+        await this.$store.dispatch("setQuoteStatus");
+      } catch (e) {}
+    },
+    setDefaultStatusPreliminar() {
+      const estados = this.$store.state.pricing.listQuoteStatus || [];
+      if (!Array.isArray(estados) || estados.length === 0) return;
+      // buscar PRELIMINAR (case-insensitive)
+      const prelim = estados.find(
+        (e) => typeof e.name === "string" && e.name.toLowerCase().includes("preliminar") && e.status == 1
+      );
+      if (prelim) {
+        this.$store.state.pricing.datosPrincipales.id_status = prelim.id;
+        return;
+      }
+      // fallback: primer estado activo
+      const activo = estados.find((e) => e.status == 1) || estados[0];
+      if (activo) {
+        this.$store.state.pricing.datosPrincipales.id_status = activo.id;
+      }
+    },
+    continuarFlujo() {
+      if (!this.DatosCargaComponentFlag) {
+        // Validar y continuar desde DatosPrincipales (misma lógica que el botón original)
+        if (
+          this.$refs.datosPrincipales &&
+          typeof this.$refs.datosPrincipales.continuarDatosCarga === "function"
+        ) {
+          this.$refs.datosPrincipales.continuarDatosCarga();
+        } else {
+          // Fallback
+          this.activarDatosCarga();
+        }
+      } else if (!this.ServicesComponentFlag) {
+        // Activar servicios
+        this.activarServicios();
+      } else {
+        // Activar llenado de costos
+        this.activarLlenadoCostos();
+      }
+    },
+    triggerExcel() {
+      if (this.$refs.excelInput) this.$refs.excelInput.click();
+    },
+    async onExcelSelected(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      this.$store.state.spiner = true;
+      try {
+        const rows = await readXlsFile(file);
+        const { actualizados } = this.cargarDesdeExcelDatosPrincipales(rows);
+        Swal.fire({
+          icon: "success",
+          title: "Excel cargado",
+          text: `Se actualizaron ${actualizados} campos de la cotización.`,
+        });
+      } catch (err) {
+        console.log(err);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "No se pudo leer el archivo Excel.",
+        });
+      } finally {
+        this.$store.state.spiner = false;
+        e.target.value = null;
+      }
+    },
+    cargarDesdeExcelDatosPrincipales(rows) {
+      if (!Array.isArray(rows) || rows.length < 2) return { actualizados: 0 };
+      const norm = (v) => (v == null ? "" : String(v).trim().toLowerCase());
+      const headers = rows[0].map((h) => norm(h));
+      const findIdx = (...names) => {
+        const targets = names.map((n) => norm(n));
+        for (let i = 0; i < headers.length; i++) {
+          const h = headers[i];
+          if (targets.some((t) => h === t || h.includes(t))) return i;
+        }
+        return -1;
+      };
+      const row = rows.slice(1).find((r) => (r || []).some((v) => norm(v) !== "")) || rows[1];
+      let cambios = 0;
+      const sp = this.$store.state.pricing;
+
+      const idxMarketing = findIdx("marketing", "tipo de marketing");
+      const idxStatus = findIdx("status", "estado", "estado de la cotizacion", "estado de la cotización");
+      const idxEjecutivo = findIdx("ejecutivo", "vendedor");
+      const idxPricing = findIdx("pricing", "analista pricing");
+      const idxCliente = findIdx("cliente", "nombre cliente", "razon social", "razón social");
+      const idxTelefono = findIdx("telefono", "teléfono");
+      const idxSentido = findIdx("sentido", "modality", "modalidad");
+      const idxShipment = findIdx("tipo de embarque", "embarque", "shipment");
+      const idxIncoterms = findIdx("incoterms", "incoterm");
+      const idxProveedor = findIdx("proveedor", "nombre proveedor");
+      const idxTelProveedor = findIdx("telefono proveedor", "teléfono proveedor");
+      const idxDirProveedor = findIdx("direccion proveedor", "dirección proveedor");
+
+      if (idxMarketing > -1) {
+        const val = norm(row[idxMarketing]);
+        const it = (sp.listMarketing || []).find((x) => norm(x.name) === val);
+        if (it) {
+          sp.datosPrincipales.id_marketing = it.id;
+          cambios++;
+        }
+      }
+      if (idxStatus > -1) {
+        const val = norm(row[idxStatus]);
+        const it = (sp.listQuoteStatus || []).find((x) => norm(x.name) === val);
+        if (it) {
+          sp.datosPrincipales.id_status = it.id;
+          cambios++;
+        }
+      }
+      if (idxEjecutivo > -1) {
+        const val = norm(row[idxEjecutivo]);
+        const it = (sp.listEjecutivo || []).find((x) => norm(x.nombrecompleto) === val);
+        if (it) {
+          sp.datosPrincipales.id_vendedor = it.id;
+          cambios++;
+        }
+      }
+      if (idxPricing > -1) {
+        const val = norm(row[idxPricing]);
+        const it = (sp.listEjecutivo || []).find((x) => norm(x.nombrecompleto) === val);
+        if (it) {
+          sp.datosPrincipales.id_pricing = it.id;
+          cambios++;
+        }
+      }
+      if (idxCliente > -1) {
+        const val = row[idxCliente];
+        if (norm(val) !== "") {
+          sp.datosPrincipales.nombre = String(val);
+          cambios++;
+        }
+      }
+      if (idxTelefono > -1) {
+        const val = row[idxTelefono];
+        if (norm(val) !== "") {
+          sp.datosPrincipales.telefono = String(val);
+          cambios++;
+        }
+      }
+      if (idxSentido > -1) {
+        const val = norm(row[idxSentido]);
+        const it = (sp.listModality || []).find((x) => norm(x.name) === val || norm(x.name).includes(val) || val.includes(norm(x.name)));
+        if (it) {
+          sp.datosPrincipales.idsentido = it.id;
+          cambios++;
+        }
+      }
+      if (idxShipment > -1) {
+        const val = norm(row[idxShipment]);
+        const it = (sp.listShipment || []).find((x) => norm(x.embarque) === val || norm(x.embarque).includes(val) || val.includes(norm(x.embarque)));
+        if (it) {
+          sp.datosPrincipales.idtipocarga = it;
+          cambios++;
+        }
+      }
+      if (idxIncoterms > -1) {
+        const val = norm(row[idxIncoterms]);
+        const it = (sp.listIncoterms || []).find((x) => norm(x.name) === val || norm(x.text || "") === val);
+        if (it) {
+          sp.datosPrincipales.idincoterms = it.id;
+          cambios++;
+        }
+      }
+      if (idxProveedor > -1) {
+        const val = row[idxProveedor];
+        if (norm(val) !== "") {
+          sp.datosPrincipales.proveedor = String(val);
+          cambios++;
+        }
+      }
+      if (idxTelProveedor > -1) {
+        const val = row[idxTelProveedor];
+        if (norm(val) !== "") {
+          sp.datosPrincipales.telefonoproveedor = String(val);
+          cambios++;
+        }
+      }
+      if (idxDirProveedor > -1) {
+        const val = row[idxDirProveedor];
+        if (norm(val) !== "") {
+          sp.datosPrincipales.direccionproveedor = String(val);
+          cambios++;
+        }
+      }
+      return { actualizados: cambios };
     },
   },
   computed: {

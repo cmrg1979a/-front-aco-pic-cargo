@@ -34,6 +34,12 @@
             <tr>
               <td>CLIENTE: {{ data.cliente }}</td>
             </tr>
+            <tr v-if="data.OpcionesSelecciondas[index - 1] && data.OpcionesSelecciondas[index - 1].date_end">
+              <td>
+                FECHA DE VIGENCIA:
+                {{ formatDate(data.OpcionesSelecciondas[index - 1].date_end) }}
+              </td>
+            </tr>
           </tbody>
         </table>
       </v-col>
@@ -94,6 +100,13 @@
             <tr v-for="(serv, index) in lstServices" :key="index">
               <td>{{ serv.name }}</td>
               <td>{{ serv.estado }}</td>
+            </tr>
+            <tr v-if="data.OpcionesSelecciondas[index - 1] && data.OpcionesSelecciondas[index - 1].tiempo_transito">
+              <td><b>TIEMPO DE TRÁNSITO</b></td>
+              <td>
+                {{ data.OpcionesSelecciondas[index - 1].tiempo_transito }}
+                {{ Number(data.OpcionesSelecciondas[index - 1].tiempo_transito) === 1 ? 'día' : 'días' }}
+              </td>
             </tr>
           </tbody>
         </v-simple-table>
@@ -663,6 +676,10 @@ export default {
     },
     fechaHoy() {
       return moment().format("YYYY-MM-DD");
+    },
+    formatDate(val) {
+      if (!val) return "";
+      return moment(val).isValid() ? moment(val).format("DD/MM/YYYY") : String(val);
     },
     cerrar() {
       this.$emit("cerrar", false);

@@ -14,6 +14,7 @@
             </v-row>-->
 
             <!--CUSTOM AUTOCOMPLETE-->
+            <v-subheader class="px-0 font-weight-bold">Identificación del Proveedor</v-subheader>
             <v-row>
               <v-col cols="12">
                 <CustomAutocomplete
@@ -28,11 +29,11 @@
                 />
               </v-col>
             </v-row>
-
             <v-row>
-              <v-col cols="6">
+              <v-col cols="12" md="6">
                 <v-autocomplete
                   dense
+                  outlined
                   :items="$store.state.itemsDataRoleList"
                   item-text="name"
                   item-value="id"
@@ -41,9 +42,10 @@
                   v-model="$store.state.entities.proveedor.id_tipoproveedor"
                 ></v-autocomplete>
               </v-col>
-              <v-col cols="6">
+              <v-col cols="12" md="6">
                 <v-autocomplete
                   dense
+                  outlined
                   :items="$store.state.masterusuarios.lstTipoTransaccion"
                   item-text="descripcion"
                   item-value="id"
@@ -53,10 +55,12 @@
                 ></v-autocomplete>
               </v-col>
             </v-row>
+            <v-subheader class="px-0 font-weight-bold mt-2">Documento Fiscal</v-subheader>
             <v-row>
-              <v-col cols="6">
+              <v-col cols="12" md="6">
                 <v-autocomplete
                   dense
+                  outlined
                   :items="$store.state.itemsDocumentsPais"
                   item-text="description"
                   item-value="id"
@@ -64,7 +68,7 @@
                   v-model="$store.state.entities.proveedor.id_tipodocumento"
                 ></v-autocomplete>
               </v-col>
-              <v-col cols="6">
+              <v-col cols="12" md="6">
                 <!--<v-text-field 
                   dense 
                   label="Nro De Documento" 
@@ -82,10 +86,12 @@
                 />
               </v-col>
             </v-row>
+            <v-subheader class="px-0 font-weight-bold mt-2">Ubicación y Contacto</v-subheader>
             <v-row>
-              <v-col cols="6">
+              <v-col cols="12" md="6">
                 <v-autocomplete
                   dense
+                  outlined
                   item-text="name"
                   item-value="id"
                   :items="$store.state.itemsPais"
@@ -95,9 +101,10 @@
                   v-model="$store.state.entities.proveedor.id_pais"
                 ></v-autocomplete>
               </v-col>
-              <v-col cols="6">
+              <v-col cols="12" md="6">
                 <v-autocomplete
                   dense
+                  outlined
                   :items="$store.state.itemsState"
                   item-text="name"
                   item-value="id"
@@ -107,18 +114,18 @@
               </v-col>
             </v-row>
             <v-row>
-              <v-col cols="12">
+              <v-col cols="12" md="6">
                 <v-text-field
                   dense
+                  outlined
                   label="Dirección"
                   v-model="$store.state.entities.proveedor.direccion"
                 ></v-text-field>
               </v-col>
-            </v-row>
-            <v-row>
-              <v-col cols="12">
+              <v-col cols="12" md="6">
                 <v-text-field
                   dense
+                  outlined
                   label="Correo Electrónico"
                   v-model="$store.state.entities.proveedor.emailaddress"
                   :rules="[(v) => validarCorreoElectronico(v)]"
@@ -128,7 +135,7 @@
             </v-row>
 
             <!--CONVENIO ACTUAL-->
-            <v-subheader class="px-0">
+            <v-subheader class="px-0 font-weight-bold mt-2">
               Convenio Actual
               <v-spacer></v-spacer>
               <v-file-input
@@ -141,10 +148,11 @@
                 @change="subirArchivoConvenio"
               ></v-file-input>
             </v-subheader>
-            <v-row class="pl-5">
-              <v-col cols="4">
+            <v-row>
+              <v-col cols="12" md="4">
                 <v-text-field
                   dense
+                  outlined
                   type="number"
                   suffix="días"
                   v-model="
@@ -157,20 +165,20 @@
                   @change="validarConvenioActual"
                 ></v-text-field>
               </v-col>
-
-              <v-col cols="4">
+              <v-col cols="12" md="4">
                 <v-text-field
                   dense
+                  outlined
                   type="date"
                   v-model="$store.state.entities.proveedor.convenioActual.fecha"
                   label="Fecha Convenio"
                   @change="validarConvenioActual"
                 ></v-text-field>
               </v-col>
-
-              <v-col cols="4">
+              <v-col cols="12" md="4">
                 <v-text-field
                   dense
+                  outlined
                   v-model="
                     $store.state.entities.proveedor.convenioActual.email_soporte
                   "
@@ -183,11 +191,12 @@
             </v-row>
 
             <!--TELÉFONO ACTUAL-->
-            <v-subheader class="px-0">Teléfono</v-subheader>
-            <v-row class="pl-5">
-              <v-col cols="6">
+            <v-subheader class="px-0 font-weight-bold mt-2">Teléfono Principal</v-subheader>
+            <v-row>
+              <v-col cols="12" md="6">
                 <v-autocomplete
                   dense
+                  outlined
                   :items="$store.state.masterusuarios.lstTipoTelefono"
                   item-text="descripcion"
                   item-value="id"
@@ -199,9 +208,10 @@
                   @change="validarTelefonoActual"
                 ></v-autocomplete>
               </v-col>
-              <v-col cols="6">
+              <v-col cols="12" md="6">
                 <v-text-field
                   dense
+                  outlined
                   label="Teléfono"
                   v-model="
                     $store.state.entities.proveedor.telefonoActual.telefono
@@ -212,11 +222,12 @@
             </v-row>
 
             <!--CONTACTO ACTUAL-->
-            <v-subheader class="px-0">Contacto</v-subheader>
-            <v-row class="pl-5">
-              <v-col cols="4">
+            <v-subheader class="px-0 font-weight-bold mt-2">Teléfono Adicional</v-subheader>
+            <v-row>
+              <v-col cols="12" md="4">
                 <v-text-field
                   dense
+                  outlined
                   label="Nombre"
                   v-model="
                     $store.state.entities.proveedor.contactoActual.nombre
@@ -224,9 +235,10 @@
                   @change="validarContactoActual"
                 ></v-text-field>
               </v-col>
-              <v-col cols="4">
+              <v-col cols="12" md="4">
                 <v-autocomplete
                   dense
+                  outlined
                   :items="$store.state.masterusuarios.lstTipoTelefono"
                   item-text="descripcion"
                   item-value="id"
@@ -238,9 +250,10 @@
                   @change="validarContactoActual"
                 ></v-autocomplete>
               </v-col>
-              <v-col cols="4">
+              <v-col cols="12" md="4">
                 <v-text-field
                   dense
+                  outlined
                   label="Teléfono"
                   v-model="
                     $store.state.entities.proveedor.contactoActual.telefono
@@ -251,25 +264,29 @@
             </v-row>
 
             <!--PRODUCTO QUE VENDE-->
+            <v-subheader class="px-0 font-weight-bold mt-2">Producto</v-subheader>
             <v-row>
               <v-col cols="12">
-                <v-text-field
+                <v-textarea
                   dense
-                  textarea
+                  outlined
+                  rows="2"
                   label="Producto que vende"
                   :rules="[(v) => validarProducto(v)]"
                   :error-messages="productoErrors"
                   v-model="$store.state.entities.proveedor.producto"
                   :disabled="isProductoDisabled"
-                ></v-text-field>
+                ></v-textarea>
               </v-col>
             </v-row>
 
             <!--DÍAS LIBRES DE SOBREESTADÍA-->
+            <v-subheader class="px-0 font-weight-bold mt-2">Condiciones del Servicio</v-subheader>
             <v-row v-show="showDiasSobreestadia">
-              <v-col cols="6">
+              <v-col cols="12" md="6">
                 <v-text-field
                   dense
+                  outlined
                   type="number"
                   label="Días Libres de Sobreestadía"
                   :rules="[
@@ -282,9 +299,10 @@
 
             <!--DÍAS LIBRES DE ALMACENAJE-->
             <v-row v-show="showDiasAlmacenaje">
-              <v-col cols="6">
+              <v-col cols="12" md="6">
                 <v-text-field
                   dense
+                  outlined
                   type="number"
                   label="Días Libres de Almacenaje"
                   :rules="[
@@ -296,14 +314,16 @@
             </v-row>
 
             <!--NOTAS-->
+            <v-subheader class="px-0 font-weight-bold mt-2">Notas</v-subheader>
             <v-row>
               <v-col cols="12">
-                <v-text-field
+                <v-textarea
                   dense
-                  textarea
+                  outlined
+                  rows="3"
                   label="Comentarios / Notas Importantes"
                   v-model="$store.state.entities.proveedor.notas"
-                ></v-text-field>
+                ></v-textarea>
               </v-col>
             </v-row>
           </v-col>
@@ -314,6 +334,17 @@
       <v-btn color="primary" class="ml-auto" @click="validarFormulario"
         >Continuar</v-btn
       >
+    </v-card-actions>
+    <v-card-actions class="justify-end">
+      <v-btn
+        color="light-blue darken-2"
+        class="ma-2"
+        dark
+        @click="modificarProveedor"
+      >
+        <v-icon left small>mdi-account-edit</v-icon>
+        EDITAR PROVEEDOR
+      </v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -380,6 +411,7 @@ export default {
       "validarNombreProveedor",
       "validarDocumentoProveedor",
       "_uploadFile",
+      "actualizarProveedor",
     ]),
     isShipper() {
       let val = this.$store.state.itemsDataRoleList.some((v) => {
@@ -573,6 +605,163 @@ export default {
         vm.validarContactoActual();
 
         vm.$store.state.entities.stepper = 2;
+      }
+    },
+    isProveedorInternacional() {
+      let val = this.$store.state.masterusuarios.lstTipoTransaccion.some((v) => {
+        return (
+          v.codigo == "02" &&
+          v.id == this.$store.state.entities.proveedor.id_tipotransaccion
+        );
+      });
+      return val;
+    },
+    async modificarProveedor() {
+      var vm = this;
+      vm.$store.state.entities.isStep1Valid = true;
+      vm.$store.state.entities.isStep2Valid = true;
+      vm.$store.state.entities.isStep3Valid = true;
+      vm.$store.state.entities.isStep4Valid = true;
+
+      let okStep1 = true;
+      if (vm.$store.state.entities.proveedor) {
+        if (!vm.$store.state.entities.proveedor.nombrecompleto) {
+          okStep1 = false;
+        }
+        if (!vm.$store.state.entities.proveedor.id_tipoproveedor) {
+          okStep1 = false;
+        }
+        if (!vm.$store.state.entities.proveedor.id_tipotransaccion) {
+          okStep1 = false;
+        }
+        if (!vm.$store.state.entities.proveedor.id_pais) {
+          okStep1 = false;
+        }
+        if (
+          vm.$store.state.entities.proveedor.emailaddress &&
+          !/^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+            vm.$store.state.entities.proveedor.emailaddress
+          )
+        ) {
+          okStep1 = false;
+        }
+      }
+
+      let okStep2_1 = true;
+      if (vm.$store.state.entities.lstTelefonos.length > 0) {
+        vm.$store.state.entities.lstTelefonos.map((v) => {
+          if (!v.id_tipotelefono) {
+            okStep2_1 = false;
+          }
+          if (!v.telefono) {
+            okStep2_1 = false;
+          }
+        });
+      }
+
+      let okStep2_2 = true;
+      if (vm.$store.state.entities.lstContactos.length > 0) {
+        vm.$store.state.entities.lstContactos.map((v) => {
+          if (!v.nombre) {
+            okStep2_2 = false;
+          }
+          if (!v.id_tipotelefono) {
+            okStep2_2 = false;
+          }
+          if (!v.telefono) {
+            okStep2_2 = false;
+          }
+        });
+      }
+
+      let okStep3_1 = true;
+      if (vm.$store.state.entities.lstConvenios.length > 0) {
+        vm.$store.state.entities.lstConvenios.map((v) => {
+          if (!v.fecha) {
+            okStep3_1 = false;
+          }
+          if (v.dias_credito < 0) {
+            okStep3_1 = false;
+          }
+          if (
+            v.email_soporte &&
+            !/^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+              v.email_soporte
+            )
+          ) {
+            okStep3_1 = false;
+          }
+        });
+      }
+
+      let okStep3_2 = true;
+      if (vm.$store.state.entities.lstTarifas.length > 0) {
+        vm.$store.state.entities.lstTarifas.map((v) => {
+          if (!v.fecha) {
+            okStep3_2 = false;
+          }
+          if (!v.codigo) {
+            okStep3_2 = false;
+          }
+          if (
+            v.email_soporte &&
+            !/^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+              v.email_soporte
+            )
+          ) {
+            okStep3_2 = false;
+          }
+          if (v.tarifa < 0) {
+            okStep3_2 = false;
+          }
+        });
+      }
+
+      let okStep4 = true;
+      if (vm.$store.state.entities.lstInformacionBancaria.length > 0) {
+        vm.$store.state.entities.lstInformacionBancaria.map((v) => {
+          if (!v.nro_cuenta) {
+            okStep4 = false;
+          }
+          if (!v.cci) {
+            okStep4 = false;
+          }
+          if (!v.id_banco) {
+            okStep4 = false;
+          }
+          if (!v.id_coins) {
+            okStep4 = false;
+          }
+          if (vm.isProveedorInternacional()) {
+            if (!v.nro_swift) {
+              okStep4 = false;
+            }
+            if (!v.id_intermediario) {
+              okStep4 = false;
+            }
+            if (!v.nro_cuenta_intermediario) {
+              okStep4 = false;
+            }
+          }
+        });
+      }
+
+      if (!okStep1) {
+        vm.$store.state.entities.isStep1Valid =
+          !vm.$store.state.entities.isStep1Valid;
+      } else if (!okStep2_1 || !okStep2_2) {
+        vm.$store.state.entities.isStep2Valid =
+          !vm.$store.state.entities.isStep2Valid;
+      } else if (!okStep3_1 || !okStep3_2) {
+        vm.$store.state.entities.isStep3Valid =
+          !vm.$store.state.entities.isStep3Valid;
+      } else if (!okStep4) {
+        vm.$store.state.entities.isStep4Valid =
+          !vm.$store.state.entities.isStep4Valid;
+      } else {
+        vm.$store.state.spiner = true;
+        await vm.actualizarProveedor();
+        vm.$store.state.spiner = false;
       }
     },
   },

@@ -158,39 +158,7 @@
           </v-simple-table>
         </v-col>
       </v-row>
-
-      <v-row class="align-end">
-        <v-col cols="6">
-          <v-btn
-            @click="_generateTrackingToken"
-            color="primary"
-            block
-            small
-            :disabled="isBotonTrackingDisabled"
-            :loading="loadingBotonTracking"
-            >Generar Enlace Tracking</v-btn
-          >
-        </v-col>
-        <v-col>
-          <v-text-field
-            v-model="$store.state.house_enlace_tracking"
-            label=""
-            readonly
-            hide-details
-          >
-            <v-icon
-              @click.native="
-                _copyEnlaceTracking($store.state.house_enlace_tracking)
-              "
-              slot="append"
-              color="secondary"
-              class="btn_add"
-            >
-              mdi-content-copy
-            </v-icon>
-          </v-text-field>
-        </v-col>
-      </v-row>
+      <!-- Botones de Tracking movidos a sección de Acciones en controlHouse.vue -->
     </v-container>
 
     <v-dialog
@@ -498,7 +466,6 @@ export default {
     modal: false,
     menu2: false,
     loadingBotonBitacora: false,
-    loadingBotonTracking: false,
     disabledBotonBitacora: false,
     id: "",
     exw: false,
@@ -517,12 +484,6 @@ export default {
   }),
   computed: {
     ...mapState("statushouse", ["listStatusHouse", "orden"]),
-    isBotonTrackingDisabled: function () {
-      return this.$store.state.house_enlace_tracking !== "" &&
-        this.$store.state.house_enlace_tracking !== null
-        ? true
-        : this.isFormActionsDisabled;
-    },
     isBotonBitacoraDisabled: function () {
       return this.isFormActionsDisabled || this.disabledBotonBitacora;
     },
@@ -962,67 +923,6 @@ export default {
             });
         }
       }
-    },
-    async _generateTrackingToken() {
-      const token = uuidv4();
-
-      this.loadingBotonTracking = !this.loadingBotonTracking;
-      await this._setTrackingToken(token);
-      this.loadingBotonTracking = !this.loadingBotonTracking;
-    },
-    async _setTrackingToken(token) {
-      var vm = this;
-
-      var data = {
-        id_house: vm.$route.params.id,
-        token: token,
-        fecha: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
-          .toISOString()
-          .substr(0, 10),
-      };
-
-      var config = {
-        method: "put",
-        url: process.env.VUE_APP_URL_MAIN + `setTrackingToken`,
-        headers: {
-          "auth-token": sessionStorage.getItem("auth-token"),
-          "Content-Type": "application/json",
-        },
-        data: data,
-      };
-
-      await axios(config)
-        .then(function (response) {
-          // console.log(response);
-          sessionStorage.setItem("auth-token", response.data.token);
-
-          if (response.data.estadoflag) {
-            vm.$store.state.house_enlace_tracking =
-              "https://aco.agentedecargaonline.com/tracking/" +
-              response.data.data[0].token;
-          } else {
-            Swal.fire({
-              icon: response.data.status == "401" ? "error" : "info",
-              text: response.data.mensaje,
-              allowOutsideClick: false,
-              allowEscapeKey: false,
-              allowEnterKey: false,
-            }).then((resSwal) => {
-              if (resSwal.isConfirmed && response.data.status == "401") {
-                router.push({ name: "Login" });
-                setTimeout(() => {
-                  window.location.reload();
-                }, 10);
-              }
-            });
-          }
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-    },
-    async _copyEnlaceTracking(texto) {
-      await navigator.clipboard.writeText(texto);
     },
   },
 };

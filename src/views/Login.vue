@@ -20,6 +20,7 @@
                     <p>Ingresa Tu Usuario o Email</p>
                     <v-text-field
                       outlined
+                      prepend-inner-icon="mdi-account"
                       v-model="$store.state.securitys.frmLogin.user"
                       type="text"
                       placeholder="Usuario o Email"
@@ -38,6 +39,7 @@
                       v-model="$store.state.securitys.frmLogin.password"
                       :type="verClave == false ? 'password' : 'text'"
                       placeholder="Contraseña"
+                      prepend-inner-icon="mdi-lock"
                       :append-icon="!verClave ? 'mdi-eye' : 'mdi-eye-off'"
                       @click:append="verClave = !verClave"
                       :loading="loading"
@@ -49,9 +51,10 @@
                   {{ $store.state.securitys.errorClave }}</span
                 >
                 <p class="rigth my-2">
-                  <a @click="ReEstablecerContrasenia()"> Olvidé Contraseña</a>
+                  <a @click="ReEstablecerContrasenia()"><v-icon small class="mr-1">mdi-lock-reset</v-icon> Olvidé Contraseña</a>
                 </p>
                 <v-btn class="my-5" block color="info" @click="acceder()">
+                  <v-icon left>mdi-login</v-icon>
                   Iniciar Sesión
                 </v-btn>
                 <p class="center my-2">O</p>
@@ -61,6 +64,7 @@
                   color="default"
                   @click="registroEmpresa()"
                 >
+                  <v-icon left>mdi-account-plus</v-icon>
                   Registrate</v-btn
                 >
               </v-card>
@@ -89,9 +93,11 @@
                   @click="iraHome()"
                   :loading="loading"
                 >
+                  <v-icon left>mdi-arrow-right</v-icon>
                   Continuar</v-btn
                 >
                 <v-btn class="my-5" block color="red" dark @click="cancelar()">
+                  <v-icon left>mdi-close</v-icon>
                   Cancelar</v-btn
                 >
               </v-card>

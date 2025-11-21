@@ -9,7 +9,7 @@
         <v-divider></v-divider>
 
         <v-stepper-step :complete="step > 2" step="2" :editable="mostrarStepS">
-          <span> costos de la Cotización </span>
+          <span> Costos de la Cotización </span>
         </v-stepper-step>
 
         <v-divider></v-divider>

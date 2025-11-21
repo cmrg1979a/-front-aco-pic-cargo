@@ -110,11 +110,10 @@
             placeholder="Valor de la mercancia..."
             autocomplete="off"
             dense
+            v-if="requiereValorMercancia"
             :rules="[
-              (v) => !!v || 'Dato Requerido',
-              (v) =>
-                /^(?!0\d+|\d*e)\d*(?:\.\d+)?$/.test(v) ||
-                'Debe ser un número real entero positivo',
+              (v) => !requiereValorMercancia || (!!v && Number(v) > 0) || 'Dato Requerido',
+              (v) => !v || /^(?!0\d+|\d*e)\d*(?:\.\d+)?$/.test(v) || 'Debe ser un número real entero positivo',
             ]"
             @input="recargarCostos()"
             @blur="recargarCostos()"
@@ -129,18 +128,17 @@
           >
           </v-text-field>
         </v-col>
-        <v-col
-          cols="12"
-          class="my-0 py-0 align-right"
-          v-if="mostrarContinuarFlag && mostrarBtn"
-          style="text-align: right !important"
-        >
-          <v-btn color="#3F51B5" dark @click="continuarLlenadoCostos()" small
-            >Continuar Llenado Costos</v-btn
-          >
-        </v-col>
+        
       </v-row>
     </v-card-text>
+    <v-divider></v-divider>
+    <v-card-actions class="sticky-actions pa-3">
+      <v-spacer></v-spacer>
+      <v-btn color="primary" large @click="continuarLlenadoCostos()">
+        <v-icon left>mdi-arrow-right-bold</v-icon>
+        Continuar
+      </v-btn>
+    </v-card-actions>
   </v-card>
 </template>
 
@@ -201,22 +199,171 @@ export default {
     },
 
     continuarLlenadoCostos() {
-      if (
-        !this.$store.state.pricing.datosPrincipales.amount ||
-        this.$store.state.pricing.datosPrincipales.amount <= 0
-      ) {
-        this.$store.state.pricing.errorValorMercancia =
-          "Datos Requeridos y mayor que 0";
-        return false;
+      if (this.requiereValorMercancia) {
+        if (
+          !this.$store.state.pricing.datosPrincipales.amount ||
+          this.$store.state.pricing.datosPrincipales.amount <= 0
+        ) {
+          this.$store.state.pricing.errorValorMercancia =
+            "Datos Requeridos y mayor que 0";
+          return false;
+        }
+      } else {
+        this.$store.state.pricing.errorValorMercancia = "";
       }
       this.$emit("activarLlenadoCostos");
       this.mostrarContinuarFlag = false;
     },
     showConfirmationDialog(service) {
+      console.log("******", service);
+      const mensajeTransporte =
+        "Tarifa no incluye transporte en destino se puede hacer pero necesitamos dirección de entrega";
+
+      const esServicioTransporte =
+        (service.service.trim() == 'TRANSPORTE EN DESTINO'.trim());        
+      if (esServicioTransporte) {
+        
+        const opciones = this.$store.state.pricing.opcionCostos || [];
+
+        if (service.status) {          
+          // Agregar nota a todas las opciones si no existe
+          opciones.forEach((opcion) => {
+            if (!Array.isArray(opcion.listNotasQuote)) {
+              opcion.listNotasQuote = [];
+            }
+            const existeNota = opcion.listNotasQuote.some(
+              (n) =>
+                n.descripcion === mensajeTransporte &&
+                !n.statusincluye &&
+                !n.statusnoincluye
+            );
+            if (!existeNota) {
+              opcion.listNotasQuote.push({
+                descripcion: mensajeTransporte,
+                estado: 1,
+                statusincluye: 0,
+                statusnoincluye: 0,
+              });
+            }
+          });
+        } else {
+          // Quitar la nota cuando se desactiva el servicio
+          opciones.forEach((opcion) => {
+            if (Array.isArray(opcion.listNotasQuote)) {
+              opcion.listNotasQuote = opcion.listNotasQuote.filter(
+                (n) =>
+                  !(
+                    n.descripcion === mensajeTransporte &&
+                    !n.statusincluye &&
+                    !n.statusnoincluye
+                  )
+              );
+            }
+          });
+        }
+      }
+
       this.$emit("recargarCostos");
+      if (!this.requiereValorMercancia) {
+        this.$store.state.pricing.errorValorMercancia = "";
+      }
+    },
+  },
+  computed: {
+    requiereValorMercancia() {
+      const services = this.$store.state.pricing.listServices || [];
+      const keywords = ["seguro", "impuesto", "impuestos", "aduana"];
+      return services.some(
+        (s) =>
+          s && s.status === true &&
+          keywords.some((k) => String(s.service || "").toLowerCase().includes(k))
+      );
+    },
+    
+    agregarNotaServicioDesmarcado(service) {
+      // Obtener servicios desmarcados
+      const serviciosDesmarcados = this.$store.state.pricing.listServices.filter(
+        (s) => !s.status
+      );
+      
+      // Crear el texto de la nota
+      let textoNota = "Se puede realizar el transporte, pero se necesitan datos adicionales para los siguientes servicios:\n\n";
+      serviciosDesmarcados.forEach((s) => {
+        const categoria = this.obtenerNombreCategoria(s.codebegend);
+        textoNota += `• ${s.service} (${categoria})\n`;
+      });
+      
+      // Buscar si ya existe una nota automática de servicios desmarcados
+      const notaExistente = this.$store.state.pricing.listNotasQuote.find(
+        (nota) => nota.esNotaAutomatica === true
+      );
+      
+      if (notaExistente) {
+        // Actualizar la nota existente
+        notaExistente.name = textoNota;
+        notaExistente.descripcion = textoNota;
+      } else {
+        // Crear una nueva nota
+        const nuevaNota = {
+          id: `auto_${Date.now()}`, // ID temporal único
+          name: textoNota,
+          descripcion: textoNota,
+          estado: 1, // Activa
+          statusincluye: 1, // Se incluye en la cotización
+          statusnoincluye: 0,
+          esNotaAutomatica: true, // Flag para identificar notas automáticas
+          created_at: new Date().toISOString(),
+        };
+        
+        // Agregar la nota al principio de la lista
+        this.$store.state.pricing.listNotasQuote.unshift(nuevaNota);
+      }
+      
+      // Actualizar el flag para refrescar las notas en otros componentes
+      this.$store.state.pricing.actualizarNotas = !this.$store.state.pricing.actualizarNotas;
+    },
+    
+    eliminarNotaServicioDesmarcado(service) {
+      // Verificar si aún hay servicios desmarcados
+      const serviciosDesmarcados = this.$store.state.pricing.listServices.filter(
+        (s) => !s.status
+      );
+      
+      if (serviciosDesmarcados.length === 0) {
+        // Si no hay servicios desmarcados, eliminar la nota automática
+        const indiceNota = this.$store.state.pricing.listNotasQuote.findIndex(
+          (nota) => nota.esNotaAutomatica === true
+        );
+        
+        if (indiceNota !== -1) {
+          this.$store.state.pricing.listNotasQuote.splice(indiceNota, 1);
+          this.$store.state.pricing.actualizarNotas = !this.$store.state.pricing.actualizarNotas;
+        }
+      } else {
+        // Si aún hay servicios desmarcados, actualizar la nota
+        this.agregarNotaServicioDesmarcado(service);
+      }
+    },
+    
+    obtenerNombreCategoria(code) {
+      const categorias = {
+        'OR': 'Origen',
+        'FL': 'Flete',
+        'DE': 'Destino',
+        'OP': 'Opcional'
+      };
+      return categorias[code] || code;
     },
   },
 };
 </script>
 
-<style></style>
+<style scoped>
+.sticky-actions {
+  position: sticky;
+  bottom: 0;
+  background: white;
+  border-top: 1px solid #eee;
+  z-index: 2;
+}
+</style>

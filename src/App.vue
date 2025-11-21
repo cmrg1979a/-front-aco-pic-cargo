@@ -42,6 +42,7 @@
     </v-dialog>
 
     <v-dialog
+      v-if="false"
       persistent
       v-model="dialogVersion"
       :width="$vuetify.breakpoint.smAndDown ? '100%' : '25%'"
@@ -777,8 +778,9 @@ export default {
       this.$store.state.lstMenu = JSON.parse(sessionStorage.getItem("menu"));
     }, 10);
 
-    await this._validaVersion();
-    await this._getVersion();
+    // Desactivado: comprobación de versión y diálogo de actualización
+    // await this._validaVersion();
+     await this._getVersion();
 
     var vm = this;
     vm.$store.state.drawer = false;
@@ -864,7 +866,7 @@ export default {
     async _validaVersion() {
       var vm = this;
       setInterval(async () => {
-        await vm._getVersion();
+       await vm._getVersion();
         // await vm.validateTotal();
       }, 30000);
     },

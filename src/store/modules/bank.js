@@ -1,4 +1,4 @@
-import axios from "axios";
+import http from "@/plugins/axios";
 import Swal from "sweetalert2";
 import router from "@/router";
 
@@ -44,7 +44,7 @@ const actions = {
         "auth-token": sessionStorage.getItem("auth-token"),
       },
     };
-    await axios(config)
+    await http(config)
       .then((response) => {
         let data = response.data;
         sessionStorage.setItem("auth-token", data.token);
@@ -85,7 +85,7 @@ const actions = {
       data: data,
     };
 
-    await axios(config)
+    await http(config)
       .then((response) => {
         let data = response.data;
         sessionStorage.setItem("auth-token", data.token);
@@ -119,7 +119,7 @@ const actions = {
       },
     };
 
-    await axios(config)
+    await http(config)
       .then((response) => {
         let data = response.data;
         sessionStorage.setItem("auth-token", data.token);
@@ -157,7 +157,7 @@ const actions = {
       data: data,
     };
 
-    await axios(config)
+    await http(config)
       .then((response) => {
         let data = response.data;
         sessionStorage.setItem("auth-token", data.token);
@@ -195,7 +195,7 @@ const actions = {
         id_branch: JSON.parse(sessionStorage.getItem("dataUser"))[0].id_branch,
       },
     };
-    await axios(config)
+    await http(config)
       .then(function (response) {
         let data = response.data;
         if (!!data.estadoflag) {
@@ -218,7 +218,7 @@ const actions = {
       },
       data: data,
     };
-    await axios(config)
+    await http(config)
       .then((response) => {
         let data = response.data;
         sessionStorage.setItem("auth-token", data.token);
@@ -252,7 +252,7 @@ const actions = {
       },
       data: data,
     };
-    await axios(config)
+    await http(config)
       .then((response) => {
         let data = response.data;
         sessionStorage.setItem("auth-token", data.token);
@@ -289,7 +289,7 @@ const actions = {
         "Content-Type": "application/json",
       },
     };
-    await axios(config)
+    await http(config)
       .then(function (response) {
         let data = response.data;
         if (data.estadoflag) {
@@ -323,7 +323,7 @@ const actions = {
         id: id,
       },
     };
-    await axios(config)
+    await http(config)
       .then(function (response) {
         res = response.data;
       })
@@ -343,7 +343,7 @@ const actions = {
       },
       data: { lstPago: data },
     };
-    await axios(config)
+    await http(config)
       .then(function (response) {
         res = response.data;
       })
@@ -365,7 +365,7 @@ const actions = {
         "Content-Type": "application/json",
       },
     };
-    await axios(config)
+    await http(config)
       .then(function (response) {
         let data = response.data;
         if (data.estadoflag) {
@@ -397,7 +397,7 @@ const actions = {
       },
       data: data,
     };
-    await axios(config)
+    await http(config)
       .then(function (response) {
         res = response.data;
       })
@@ -417,7 +417,7 @@ const actions = {
       },
       data: { lstPago: data },
     };
-    await axios(config)
+    await http(config)
       .then(function (response) {
         res = response.data;
       })
@@ -437,7 +437,7 @@ const actions = {
       },
       params: data,
     };
-    await axios(config)
+    await http(config)
       .then(function (response) {
         res = response.data;
       })
@@ -457,7 +457,7 @@ const actions = {
       },
       params: data,
     };
-    await axios(config)
+    await http(config)
       .then(function (response) {
         res = response.data;
       })
