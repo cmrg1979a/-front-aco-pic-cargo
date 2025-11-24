@@ -4,10 +4,12 @@
     <v-row dense>
       <v-col cols="12" md="4">
         <v-text-field
+            
           readonly
           v-model="$store.state.houses.house.code_master"
           label="N° de Expedientes Master"
-        ></v-text-field>
+          
+        > </v-text-field>
       </v-col>
       <!-- <v-col cols="12" md="4">
         <v-text-field
@@ -26,7 +28,9 @@
           :append-icon="quoteCodeDisplay ? 'mdi-open-in-new' : ''"
         >
         </v-text-field>
+        
       </v-col>
+      
       <v-col cols="12" md="4">
         <v-text-field
           label="Modality"
@@ -34,6 +38,7 @@
           readonly
         ></v-text-field>
       </v-col>
+
       <v-col cols="12" md="4">
         <v-text-field
           readonly
@@ -41,7 +46,7 @@
           label="Tipo de Embarque"
           return-object
         ></v-text-field>
-      </v-col>
+      </v-col >
       <v-col cols="12" md="4">
         <v-text-field
           label="Incoterms"
@@ -123,6 +128,8 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+
   </div>
 </template>
 <script>
@@ -515,6 +522,7 @@ export default {
         this.$router.push(`/home/folderPricing/verQuote/${quoteId}`);
       }
     },
+
   },
 };
 </script>

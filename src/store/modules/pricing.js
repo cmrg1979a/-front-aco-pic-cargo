@@ -1530,28 +1530,44 @@ const actions = {
       state.datosPrincipales.peso = res.peso;
       state.datosPrincipales.volumen = res.volumen;
       // --------------------------------------------------------------
-      state.listServices = res.servicios;
-      state.copylistServices = res.servicios;
+      state.listServices = res.servicios || [];
+      state.copylistServices = res.servicios || [];
       state.datosPrincipales.amount = res.monto;
       // --------------------------------------------------------------
       state.opcionCostos = [];
 
-      res.opcioncostos.forEach((element) => {
-        state.opcionCostos.push({
-          id: element.id,
-          nro_propuesta: element.nro_propuesta,
-          date_end: element.date_end,
-          tiempo_transito: element.tiempo_transito,
-          listCostos: element.listcostos,
-          listImpuestos: element.listimpuestos,
-          listNotasQuote: element.listnotasquote,
-          selected: element.selected,
+      // Validar que opcioncostos existe y es un array antes de hacer forEach
+      if (res.opcioncostos && Array.isArray(res.opcioncostos)) {
+        res.opcioncostos.forEach((element) => {
+          state.opcionCostos.push({
+            id: element.id,
+            nro_propuesta: element.nro_propuesta,
+            date_end: element.date_end,
+            tiempo_transito: element.tiempo_transito,
+            listCostos: element.listcostos,
+            listImpuestos: element.listimpuestos,
+            listNotasQuote: element.listnotasquote,
+            selected: element.selected,
+          });
         });
-      });
+      } else {
+        // Si no hay opciones de costos, inicializar con una opción vacía por defecto
+        state.opcionCostos = [
+          {
+            nro_propuesta: 1,
+            date_end: "",
+            tiempo_transito: 0,
+            listCostos: [],
+            listImpuestos: [],
+            listNotasQuote: [],
+            selected: false,
+          },
+        ];
+      }
 
       // --------------------------------------------------------------
 
-      state.datosPrincipales.containers = res.containers;
+      state.datosPrincipales.containers = res.containers || [];
       state.aprobadoflag = res.aprobadoflag;
       state.fullflag = res.fullflag;
       state.tiporeporte = res.tiporeporte;
