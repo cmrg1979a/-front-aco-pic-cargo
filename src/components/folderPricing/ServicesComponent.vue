@@ -185,6 +185,10 @@ export default {
         status: true,
       };
     },
+       logNameService(value) {
+    console.log("nameservice:", value); 
+     return value;
+  },
     recargarCostos() {
       this.$store.state.pricing.errorValorMercancia = "";
       this.$store.state.pricing.actualizarCostosFlag =

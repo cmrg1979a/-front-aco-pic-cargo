@@ -226,6 +226,7 @@
           <td @click="expand(!isExpanded)">{{ item.incoterms }}</td>
           <td @click="expand(!isExpanded)">{{ item.origen }}</td>
           <td @click="expand(!isExpanded)">{{ item.destino }}</td>
+          <td @click="expand(!isExpanded)">{{ displayMarketing(item) }}</td>
         </tr>
       </template>
 
@@ -553,6 +554,13 @@ export default {
           groupable: true,
           estado: true,
         },
+        {
+          value: "marketing",
+          text: "MARKETING",
+          align: "center",
+          groupable: true,
+          estado: true,
+        },
       ],
       filtro: {
         idmarketing: null,
@@ -583,6 +591,7 @@ export default {
       "getListRecibidoCotizacion",
       "getListEnviadoCliente",
       "getModulesEntities",
+      "getMarketingList",
       "guardarNotaQuote",
       "eliminarRegistro",
       "getQuoteStatus",
@@ -590,6 +599,16 @@ export default {
       "aprobarCotizacion",
       "validarUsuarioAdmin",
     ]),
+    displayMarketing(item) {
+      // Prefer server-provided friendly name if present
+      if (item.marketing) return item.marketing;
+      const id = item.id_marketing || item.idmarketing || item.idMarketing;
+      if (!id) return "";
+      const m = (this.$store.state.pricing.listMarketing || []).find(
+        (v) => String(v.id) === String(id)
+      );
+      return m ? m.name : "";
+    },
     async iraAprobado(id) {
       let val = false;
       let msg = "";
@@ -912,13 +931,14 @@ export default {
       estado: "activo",
     };
     this.$store.state.spiner = true;
-    await this.getListQuote(),
-      Promise.all([
-        this.getListRecibidoCotizacion(),
-        this.getListEnviadoCliente(),
-        this.getModulesEntities(),
-        this.getQuoteStatus(),
-      ]);
+    await this.getListQuote();
+    await Promise.all([
+      this.getListRecibidoCotizacion(),
+      this.getListEnviadoCliente(),
+      this.getModulesEntities(),
+      this.getQuoteStatus(),
+      this.getMarketingList(),
+    ]);
     // await this.cargarMaster({
     //   idsentido: "",
     //   idtipocarga: "",
