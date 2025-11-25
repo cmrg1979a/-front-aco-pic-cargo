@@ -276,12 +276,26 @@ export default {
   computed: {
     requiereValorMercancia() {
       const services = this.$store.state.pricing.listServices || [];
-      const keywords = ["seguro", "impuesto", "impuestos", "aduana"];
-      return services.some(
-        (s) =>
-          s && s.status === true &&
-          keywords.some((k) => String(s.service || "").toLowerCase().includes(k))
-      );
+      const normalize = (str) =>
+        String(str || "")
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+      // Palabras clave: Seguro, Impuesto(s), Almacén Aduanero (con o sin acento)
+      const keywords = [
+        "seguro",
+        "impuesto",
+        "impuestos",
+        "almacen",
+        "almacen aduanero",
+      ];
+      return services.some((s) => {
+        if (!s) return false;
+        const checked = s.status === true || s.status === 1;
+        if (!checked) return false;
+        const name = normalize(s.service);
+        return keywords.some((k) => name.includes(k));
+      });
     },
     
     agregarNotaServicioDesmarcado(service) {
