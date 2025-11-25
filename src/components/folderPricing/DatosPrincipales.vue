@@ -1,201 +1,208 @@
 <template>
-  <v-container fluid class="pa-0 mt-4">
+  <v-container fluid class="pa-0">
     <v-card elevation="0" ref="frmPuerto">
-          <v-card-title primary-title> Datos Principales </v-card-title>
- 
-
-      <v-card-text class="pa-0 pt-8">
+      <v-card-title primary-title> Datos Principales </v-card-title>
+      <v-card-text>
         <v-form class="" ref="frmDatosPrincipales">
-          <v-row>
-            <!-- Columna Izquierda -->
-            <v-col cols="12" md="6" class="py-0">
-              <v-autocomplete
-                label="Tipo de Marketing"
-                outlined
-                dense
-                :rules="[(v) => !!v || 'Dato requerido']"
-                class="mb-2"
-                :items="$store.state.pricing.listMarketing"
-                item-text="name"
-                item-value="id"
-                v-model="$store.state.pricing.datosPrincipales.id_marketing"
-              ></v-autocomplete>
+          <v-container>
+            <v-row>
+              <v-col cols="12" class="my-0 py-0">
+                <v-autocomplete
+                  label="Tipo de Marketing"
+                  outlined
+                  dense
+                  :rules="[(v) => !!v || 'Dato requerido']"
+                  class="my-1"
+                  :items="$store.state.pricing.listMarketing"
+                  item-text="name"
+                  item-value="id"
+                  v-model="$store.state.pricing.datosPrincipales.id_marketing"
+                ></v-autocomplete>
+                <v-autocomplete
+                  label="Estado de la cotización"
+                  outlined
+                  dense
+                  :rules="[(v) => !!v || 'Dato requerido']"
+                  class="my-0"
+                  :items="$store.state.pricing.listQuoteStatus"
+                  item-text="name"
+                  item-value="id"
+                  v-model="$store.state.pricing.datosPrincipales.id_status"
+                  :item-disabled="(item) => item.status != 1"
+                ></v-autocomplete>
+              </v-col>
+              <v-col cols="12" class="my-0 py-0">
+                <v-autocomplete
+                  label="Ejecutivo"
+                  outlined
+                  dense
+                  :rules="[(v) => !!v || 'Dato requerido']"
+                  class="my-0"
+                  :items="$store.state.pricing.listEjecutivo"
+                  item-text="nombrecompleto"
+                  item-value="id"
+                  item-key="id"
+                  v-model="$store.state.pricing.datosPrincipales.id_vendedor"
+                ></v-autocomplete>
+              </v-col>
 
-              <v-autocomplete
-                label="Ejecutivo"
-                outlined
-                dense
-                :rules="[(v) => !!v || 'Dato requerido']"
-                class="mb-2"
-                :items="$store.state.pricing.listEjecutivo"
-                item-text="nombrecompleto"
-                item-value="id"
-                item-key="id"
-                v-model="$store.state.pricing.datosPrincipales.id_vendedor"
-              ></v-autocomplete>
+              <v-col cols="12" class="my-0 py-0">
+                <v-autocomplete
+                  label="Pricing"
+                  outlined
+                  dense
+                  :rules="[(v) => !!v || 'Dato requerido']"
+                  class="my-0"
+                  :items="$store.state.pricing.listEjecutivo"
+                  item-text="nombrecompleto"
+                  item-value="id"
+                  item-key="id"
+                  v-model="$store.state.pricing.datosPrincipales.id_pricing"
+                ></v-autocomplete
+              ></v-col>
 
-              <v-text-field
-                label="Nombre del cliente"
-                outlined
-                placeholder="Buscar cliente..."
-                :append-icon="'mdi-account-search'"
-                @click:append="abrirModalCliente()"
-                @click="abrirModalCliente()"
-                :rules="[(v) => !!v || 'El nombre es requerido']"
-                dense
-                required
-                autocomplete="off"
-                id="nombre"
-                name="nombre"
-                class="mb-2"
-                v-model="$store.state.pricing.datosPrincipales.nombre"
-                readonly
-              ></v-text-field>
+              <v-col cols="12" class="my-0 py-0">
+                <v-text-field
+                  label="Nombre del cliente"
+                  outlined
+                  placeholder="Nombre del cliente"
+                  :append-icon="'mdi-account-search'"
+                  @click:append="abrirModalCliente()"
+                  @click="abrirModalCliente()"
+                  :rules="[(v) => !!v || 'El nombre es requerido']"
+                  dense
+                  required
+                  autocomplete="off"
+                  id="nombre"
+                  name="nombre"
+                  v-model="$store.state.pricing.datosPrincipales.nombre"
+                  readonly
+                ></v-text-field
+              ></v-col>
 
-              <v-autocomplete
-                label="Sentido"
-                outlined
-                dense
-                :rules="[(v) => !!v || 'Dato requerido']"
-                class="mb-2"
-                :items="$store.state.pricing.listModality"
-                item-text="name"
-                item-key="id"
-                item-value="id"
-                v-model="$store.state.pricing.datosPrincipales.idsentido"
-                @change="recargarServiciosCostos()"
-                :disabled="!EditableFlag"
-              ></v-autocomplete>
+              <v-col cols="12" class="my-0 py-0">
+                <v-text-field
+                  label="Teléfono"
+                  outlined
+                  placeholder="Teléfono..."
+                  dense
+                  readonly
+                  v-model="$store.state.pricing.datosPrincipales.telefono"
+                ></v-text-field
+              ></v-col>
 
-              <v-autocomplete
-                label="Tipo de Embarque"
-                outlined
-                dense
-                :rules="[(v) => !!v || 'Dato requerido']"
-                class="mb-2"
-                :items="$store.state.pricing.listShipment"
-                item-text="embarque"
-                item-key="id"
-                item-value="id"
-                v-model="$store.state.pricing.datosPrincipales.idtipocarga"
-                @change="recargarServiciosCostos()"
-                return-object
-                :disabled="!EditableFlag"
-              ></v-autocomplete>
+              <v-col cols="12" class="my-0 py-0">
+                <v-autocomplete
+                  label="Sentido"
+                  outlined
+                  dense
+                  :rules="[(v) => !!v || 'Dato requerido']"
+                  class="my-0"
+                  :items="$store.state.pricing.listModality"
+                  item-text="name"
+                  item-key="id"
+                  item-value="id"
+                  v-model="$store.state.pricing.datosPrincipales.idsentido"
+                  @change="recargarServiciosCostos()"
+                  :disabled="!EditableFlag"
+                ></v-autocomplete
+              ></v-col>
 
-              <v-text-field
-                name="name"
-                label="Nombre del proveedor"
-                id="id"
-                v-model="$store.state.pricing.datosPrincipales.proveedor"
-                dense
-                outlined
-                class="mb-2"
-                v-if="mostrarProveedorFlag"
-              ></v-text-field>
-
-              <v-text-field
-                name="name"
-                label="Dirección del proveedor"
-                id="id"
-                v-model="
-                  $store.state.pricing.datosPrincipales.direccionproveedor
-                "
-                dense
-                outlined
-                class="mb-2"
-                v-if="mostrarProveedorFlag"
-              ></v-text-field>
-            </v-col>
-
-            <!-- Columna Derecha -->
-            <v-col cols="12" md="6" class="py-0">
-              <v-autocomplete
-                label="Estado de la cotización"
-                outlined
-                dense
-                :rules="[(v) => !!v || 'Dato requerido']"
-                class="mb-2"
-                :items="$store.state.pricing.listQuoteStatus"
-                item-text="name"
-                item-value="id"
-                v-model="$store.state.pricing.datosPrincipales.id_status"
-                :item-disabled="(item) => item.status != 1"
-              ></v-autocomplete>
-
-              <v-autocomplete
-                label="Pricing"
-                outlined
-                dense
-                :rules="[(v) => !!v || 'Dato requerido']"
-                class="mb-2"
-                :items="$store.state.pricing.listEjecutivo"
-                item-text="nombrecompleto"
-                item-value="id"
-                item-key="id"
-                v-model="$store.state.pricing.datosPrincipales.id_pricing"
-              ></v-autocomplete>
-
-              <v-text-field
-                label="Teléfono"
-                outlined
-                placeholder="Teléfono..."
-                dense
-                readonly
-                class="mb-2"
-                v-model="$store.state.pricing.datosPrincipales.telefono"
-              ></v-text-field>
-
-              <v-autocomplete
-                label="Incoterms"
-                outlined
-                dense
-                :rules="[(v) => !!v || 'Dato requerido']"
-                class="mb-2"
-                :items="incoterms"
-                item-text="text"
-                item-key="id"
-                item-value="id"
-                v-model="$store.state.pricing.datosPrincipales.idincoterms"
-                @change="recargarServiciosCostos()"
+              <v-col cols="12" class="my-0 py-0">
+                <v-autocomplete
+                  label="Tipo de Embarque"
+                  outlined
+                  dense
+                  :rules="[(v) => !!v || 'Dato requerido']"
+                  class="my-0"
+                  :items="$store.state.pricing.listShipment"
+                  item-text="embarque"
+                  item-key="id"
+                  item-value="id"
+                  v-model="$store.state.pricing.datosPrincipales.idtipocarga"
+                  @change="recargarServiciosCostos()"
+                  return-object
+                  :disabled="!EditableFlag"
+                ></v-autocomplete
+              ></v-col>
+              <v-col cols="12" class="my-0 py-0">
+                <v-autocomplete
+                  label="Incoterms"
+                  outlined
+                  dense
+                  :rules="[(v) => !!v || 'Dato requerido']"
+                  class="my-0"
+                  :items="incoterms"
+                  item-text="text"
+                  item-key="id"
+                  item-value="id"
+                  v-model="$store.state.pricing.datosPrincipales.idincoterms"
+                  @change="recargarServiciosCostos()"
+                >
+                  <template slot="selection" slot-scope="data">
+                    {{ data.item.name }} - {{ data.item.description }}
+                  </template>
+                </v-autocomplete></v-col
               >
-                <template slot="selection" slot-scope="data">
-                  {{ data.item.name }} - {{ data.item.description }}
-                </template>
-              </v-autocomplete>
 
-              <v-text-field
-                name="Teléfono"
-                label="Teléfono del proveedor"
-                v-model="
-                  $store.state.pricing.datosPrincipales.telefonoproveedor
-                "
-                dense
-                outlined
-                class="mb-2"
-                :rules="[
-                  (v) => {
-                    if (v === '' || /^\+?\d+$/.test(v)) {
-                      return true;
-                    } else {
-                      return 'Formato de teléfono no válido';
-                    }
-                  },
-                ]"
-                v-if="mostrarProveedorFlag"
-              ></v-text-field>
-            </v-col>
+              <v-col cols="12" class="my-0 py-0">
+                <v-text-field
+                  name="name"
+                  label="Nombre del proveedor"
+                  id="id"
+                  v-model="$store.state.pricing.datosPrincipales.proveedor"
+                  dense
+                  outlined
+                  v-if="mostrarProveedorFlag"
+                ></v-text-field
+              ></v-col>
 
-            <v-col
-              cols="12"
-              class="my-0 py-0 align-right"
-              v-if="mostrarContinuarFlag && mostrarBtn"
-            >
-              <v-btn color="#3F51B5" dark @click="continuarDatosCarga()" small
-                >Continuar Datos Carga</v-btn
+              <v-col cols="12" class="my-0 py-0">
+                <v-text-field
+                  name="Teléfono"
+                  label="Teléfono del proveedor"
+                  v-model="
+                    $store.state.pricing.datosPrincipales.telefonoproveedor
+                  "
+                  dense
+                  outlined
+                  :rules="[
+                    (v) => {
+                      if (v === '' || /^\+?\d+$/.test(v)) {
+                        return true; // Válido si está en blanco o cumple con el formato
+                      } else {
+                        return 'Formato de teléfono no válido';
+                      }
+                    },
+                  ]"
+                  v-if="mostrarProveedorFlag"
+                ></v-text-field
+              ></v-col>
+
+              <v-col cols="12" class="my-0 py-0">
+                <v-text-field
+                  name="name"
+                  label="Dirección del proveedor"
+                  id="id"
+                  v-model="
+                    $store.state.pricing.datosPrincipales.direccionproveedor
+                  "
+                  dense
+                  outlined
+                  v-if="mostrarProveedorFlag"
+                ></v-text-field>
+              </v-col>
+              <v-col
+                cols="12"
+                class="my-0 py-0 align-right"
+                v-if="mostrarContinuarFlag && mostrarBtn"
               >
-            </v-col>
-          </v-row>
+                <v-btn color="#3F51B5" dark @click="continuarDatosCarga()" small
+                  >Continuar Datos Carga</v-btn
+                >
+              </v-col>
+            </v-row>
+          </v-container>
         </v-form>
       </v-card-text>
     </v-card>
