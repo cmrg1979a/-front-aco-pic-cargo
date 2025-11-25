@@ -39,27 +39,7 @@
         </v-col>
       </v-row>
 
-      <v-row class="align-end">
-        <v-col cols="6" offset="6">
-          <v-text-field
-            v-model="$store.state.house_enlace_tracking"
-            label="Tranking"
-            readonly
-            hide-details
-          >
-            <v-icon
-              @click.native="
-                _copyEnlaceTracking($store.state.house_enlace_tracking)
-              "
-              slot="append"
-              color="secondary"
-              class="btn_add"
-            >
-              mdi-content-copy
-            </v-icon>
-          </v-text-field>
-        </v-col>
-      </v-row>
+  
     </v-container>
   </div>
 </template>

@@ -1,27 +1,30 @@
 <template>
   <div>
     <p>{{ selected_certificado }}</p>
+
     <h3>Servicios a Realizar</h3>
+
     <v-simple-table fixed-header height="605px" dense>
       <template v-slot:default>
         <thead>
           <tr>
-            <!-- <th width="25%" class="text-left">Ubicación/Tramo</th> -->
             <th width="45%" class="text-left">Servicio</th>
             <th width="25%" class="text-center">Realizado (Sí/No)</th>
           </tr>
         </thead>
+
         <tbody>
           <tr
-            :style="`background:${item.color}`"
             v-for="(item, index) in $store.state.itemsHouseServices"
             :key="item.id"
+            :style="`background:${item.color}`"
           >
-            <!-- <td>{{ item.namebegend }}</td> -->
             <td>{{ item.nameservice }}</td>
 
             <td>
               <div class="d-flex justify-center">
+
+                <!-- Switch normal -->
                 <v-switch
                   v-if="item.nameservice != 'CERTIFICADO DE ORIGEN'"
                   dense
@@ -31,82 +34,187 @@
                   @change="toggleServiceStatusSwitch(item, index)"
                   readonly
                 ></v-switch>
-              </div>
 
-              <v-menu
-                v-if="item.nameservice == 'CERTIFICADO DE ORIGEN'"
-                offset-y
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn large color="default" v-bind="attrs" v-on="on">
-                    {{
-                      item.status == 1
-                        ? "SI"
-                        : item.status == 0
-                        ? "NO"
-                        : item.status == 2
-                        ? "NO APLICA"
-                        : ""
-                    }}
-                  </v-btn>
-                </template>
-                <v-list>
-                  <v-list-item @click="_editServices(item.id, 1)" link>
-                    <v-list-item-title>SI</v-list-item-title>
-                  </v-list-item>
-                  <v-list-item @click="_editServices(item.id, 0)" link>
-                    <v-list-item-title>NO</v-list-item-title>
-                  </v-list-item>
-                  <v-list-item @click="_editServices(item.id, 2)" link>
-                    <v-list-item-title>NO APLICA</v-list-item-title>
-                  </v-list-item>
-                </v-list>
-              </v-menu>
+                <!-- Menú especial -->
+                <v-menu v-else offset-y>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn large color="default" v-bind="attrs" v-on="on">
+                      {{
+                        item.status == 1
+                          ? "SI"
+                          : item.status == 0
+                          ? "NO"
+                          : item.status == 2
+                          ? "NO APLICA"
+                          : ""
+                      }}
+                    </v-btn>
+                  </template>
+
+                  <v-list>
+                    <v-list-item @click="_editServices(item.id, 1)" link>
+                      <v-list-item-title>SI</v-list-item-title>
+                    </v-list-item>
+
+                    <v-list-item @click="_editServices(item.id, 0)" link>
+                      <v-list-item-title>NO</v-list-item-title>
+                    </v-list-item>
+
+                    <v-list-item @click="_editServices(item.id, 2)" link>
+                      <v-list-item-title>NO APLICA</v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
+
+              </div>
             </td>
           </tr>
         </tbody>
       </template>
     </v-simple-table>
-    <v-btn color="success" @click="abriModalaFormato">Exportar Formato</v-btn>
 
+    <!-- Dialogs que ya estaban -->
     <v-dialog v-model="dialogFormato" max-width="30%">
       <v-card>
         <v-card-title primary-title>
-          Imprimir Formato
-          {{ tipoAreo ? "GUÍA AÉREA" : "BL" }}
+          Imprimir Formato {{ tipoAreo ? "Guía aérea" : "BL" }}
         </v-card-title>
+
         <v-card-text>
-          Imprimir Con Fondo
+          Imprimir con fondo
           <v-radio-group v-model="formatoflag">
-            <v-radio label="Si" :value="true"></v-radio>
+            <v-radio label="Sí" :value="true"></v-radio>
             <v-radio label="No" :value="false"></v-radio>
           </v-radio-group>
         </v-card-text>
+
         <v-card-actions>
-          <v-btn
-            color="success"
-            v-if="tipoAreo"
-            block
-            @click="exportarFormatoAWB()"
-          >
+          <v-btn color="success" v-if="tipoAreo" block @click="exportarFormatoAWB">
             Imprimir Formato Guía Aérea
           </v-btn>
-          <v-btn color="success" v-else block @click="exportarFormatoHBL()">
+
+          <v-btn color="success" v-else block @click="exportarFormatoHBL">
             Imprimir Formato BL
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="dialogNotificacionesLista" max-width="500">
+      <v-card>
+        <v-card-title class="text-h6">
+          Seleccione notificación
+          <v-spacer></v-spacer>
+          <v-btn icon @click="dialogNotificacionesLista = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+
+        <v-card-text>
+          <v-list dense two-line>
+            <v-list-item
+              v-for="(item, idx) in itemsNotificaciones"
+              :key="idx"
+              @click="seleccionarNotificacion(item)"
+            >
+              <v-list-item-content>
+                <v-list-item-title>{{ item.title }}</v-list-item-title>
+              </v-list-item-content>
+              <v-list-item-icon>
+                <v-icon color="primary">mdi-chevron-right</v-icon>
+              </v-list-item-icon>
+            </v-list-item>
+          </v-list>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
+<!-- Acciones movidas abajo -->
+<v-card class="mt-5 pa-3" ref="cardAcciones">
+  <v-card-title class="py-1">Acciones</v-card-title>
+
+  <div class="d-flex align-center">
+    <v-speed-dial
+      v-model="fab"
+      direction="bottom"
+      :transition="transition"
+      class="acciones-dial"
+    >
+      <template v-slot:activator>
+        <v-btn color="indigo" dark fab small>
+          <v-icon v-if="!fab">mdi-cog</v-icon>
+          <v-icon v-else>mdi-close</v-icon>
+        </v-btn>
+      </template>
+
+      <v-btn small color="info" @click="irEditar">
+        <v-icon small left>mdi-pencil</v-icon>
+        Editar
+      </v-btn>
+
+      <v-btn small color="primary" @click="abriModalaFormato">
+        <v-icon small left>mdi-printer</v-icon>
+        Imprimir
+      </v-btn>
+
+      <v-btn
+        small
+        color="orange darken-2"
+        dark
+        :loading="loadingBotonTracking"
+        @click="generarTracking"
+      >
+        <v-icon small left>mdi-link-variant</v-icon>
+        Generar tracking
+      </v-btn>
+
+      <v-btn small color="teal darken-1" @click="dialogNotificacionesLista = true">
+        <v-icon small left style="transform: rotate(-45deg)">mdi-send</v-icon>
+        Notificaciones
+      </v-btn>
+    </v-speed-dial>
+  </div>
+
+  <v-text-field
+    v-if="$store.state.house_enlace_tracking"
+    v-model="$store.state.house_enlace_tracking"
+    label="Enlace de Tracking"
+    readonly
+    outlined
+    dense
+    hide-details
+    class="mt-3"
+  >
+    <template v-slot:append>
+      <v-btn
+        icon
+        small
+        color="primary"
+        @click="_copyEnlaceTracking($store.state.house_enlace_tracking)"
+      >
+        <v-icon small>mdi-content-copy</v-icon>
+      </v-btn>
+    </template>
+  </v-text-field>
+</v-card>
+
+
   </div>
 </template>
+
 <script>
 import { mapActions } from "vuex";
 import axios from "axios";
 import moment from "moment";
+import { v4 as uuidv4 } from "uuid";
 export default {
   name: "services",
   props: {
     isFormActionsDisabled: Boolean,
+    itemsNotificaciones: {
+      type: Array,
+      default: () => [],
+    },
   },
   data: () => ({
     itemsCertificado: [
@@ -117,6 +225,10 @@ export default {
     selected_certificado: "",
     dialogFormato: false,
     formatoflag: true,
+    dialogNotificacionesLista: false,
+    loadingBotonTracking: false,
+    fab: false,
+    transition: "slide-y-reverse-transition",
   }),
   computed: {
     getDisabledPropServiceStatus() {
@@ -135,6 +247,50 @@ export default {
       "_getPortBegin",
       "_getPortEnd",
     ]),
+    irEditar() {
+      this.$emit("ir-editar");
+    },
+    seleccionarNotificacion(item) {
+      this.dialogNotificacionesLista = false;
+      this.$emit("send-notificacion", item);
+    },
+    async generarTracking() {
+      try {
+        this.loadingBotonTracking = true;
+        const token = uuidv4();
+        const data = {
+          id_house: this.$route.params.id,
+          token: token,
+          fecha: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+            .toISOString()
+            .substr(0, 10),
+        };
+        const config = {
+          method: "put",
+          url: process.env.VUE_APP_URL_MAIN + `setTrackingToken`,
+          headers: {
+            "auth-token": sessionStorage.getItem("auth-token"),
+            "Content-Type": "application/json",
+          },
+          data,
+        };
+        const response = await axios(config);
+        sessionStorage.setItem("auth-token", response.data.token);
+        if (response.data.estadoflag) {
+          this.$store.state.house_enlace_tracking =
+            "https://aco.agentedecargaonline.com/tracking/" +
+            response.data.data[0].token;
+          this.$swal({ icon: "success", text: "Enlace de tracking generado" });
+        } else {
+          this.$swal({ icon: "info", text: response.data.mensaje || "No se pudo generar tracking" });
+        }
+      } catch (err) {
+        console.error(err);
+        this.$swal({ icon: "error", text: "Error al generar tracking" });
+      } finally {
+        this.loadingBotonTracking = false;
+      }
+    },
     send() {
       alert("Jpla");
     },

@@ -23,8 +23,14 @@
           </v-card>
 
           <v-card class="mt-3 pa-3">
+            <v-card-title class="py-1">Acciones</v-card-title>
             <div class="d-flex align-center">
-              <v-speed-dial v-model="fab" :direction="'right'" :transition="transition">
+              <v-speed-dial
+                v-model="fab"
+                :direction="'top'"
+                :transition="transition"
+                class="acciones-dial"
+              >
                 <template v-slot:activator>
                   <v-btn color="indigo" dark fab small>
                     <v-icon v-if="!fab">mdi-cog</v-icon>
@@ -40,7 +46,8 @@
                   :disabled="formControlHouseReadonly"
                   @click="_setHouseEdit()"
                 >
-                  <v-icon small>mdi-content-save</v-icon>
+                  <v-icon small left>mdi-content-save</v-icon>
+                  Guardar
                 </v-btn>
                 <v-btn
                   v-else
@@ -48,11 +55,13 @@
                   color="info"
                   @click="irAVerMaster()"
                 >
-                  <v-icon small>mdi-pencil</v-icon>
+                  <v-icon small left>mdi-pencil</v-icon>
+                  Editar
                 </v-btn>
 
                 <v-btn small color="primary" @click="abrirModalFormato()">
-                  <v-icon small>mdi-printer</v-icon>
+                  <v-icon small left>mdi-printer</v-icon>
+                  Imprimir
                 </v-btn>
 
                 <v-btn
@@ -63,7 +72,8 @@
                   :loading="loadingBotonTracking"
                   @click="_generateTrackingToken"
                 >
-                  <v-icon small>mdi-link-variant</v-icon>
+                  <v-icon small left>mdi-link-variant</v-icon>
+                  Generar tracking
                 </v-btn>
 
                 <v-btn
@@ -73,7 +83,8 @@
                   :loading="loadingBotonNotificaciones"
                   @click="openNotificaciones"
                 >
-                  <v-icon small style="transform: rotate(-45deg)">mdi-send</v-icon>
+                  <v-icon small left style="transform: rotate(-45deg)">mdi-send</v-icon>
+                  Notificaciones
                 </v-btn>
 
                 <v-btn
@@ -85,7 +96,8 @@
                   :disabled="formControlHouseReadonly"
                   @click="eliminarHouse()"
                 >
-                  <v-icon small>mdi-delete</v-icon>
+                  <v-icon small left>mdi-delete</v-icon>
+                  Eliminar
                 </v-btn>
               </v-speed-dial>
             </div>
@@ -220,6 +232,15 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="loadingBotonGuardarHouse" persistent max-width="320">
+      <v-card class="pa-6 d-flex align-center justify-center" elevation="2">
+        <div class="text-center">
+          <v-progress-circular color="primary" indeterminate size="48"></v-progress-circular>
+          <div class="subtitle-1 mt-4">Guardando cambios...</div>
+        </div>
+      </v-card>
+    </v-dialog>
   </v-form>
 </template>
 <script>
@@ -243,7 +264,7 @@ export default {
     services,
   },
   data: () => ({
-    direction: "right",
+    direction: "top",
     fab: false,
     fling: false,
     hover: false,
@@ -252,7 +273,7 @@ export default {
     right: false,
     bottom: true,
     left: false,
-    transition: "slide-y-transition",
+    transition: "slide-y-reverse-transition",
     selected: [],
     errorCuentas: "",
     headers: [
@@ -533,9 +554,8 @@ export default {
     async _setHouseEdit() {
       var vm = this;
 
-      vm.loadingBotonGuardarHouse = !vm.loadingBotonGuardarHouse;
+      vm.loadingBotonGuardarHouse = true;
 
-      //vm._getnroMaster();
       var data = JSON.stringify({
         id_modality: this.$store.state.house_sentido
           ? this.$store.state.house_sentido
@@ -614,74 +634,76 @@ export default {
         data: data,
       };
 
-      await axios(config)
-        .then(async function (response) {
-          sessionStorage.setItem("auth-token", response.data.token);
+      try {
+        const response = await axios(config);
+        sessionStorage.setItem("auth-token", response.data.token);
 
-          if (response.data.status == "401") {
-            Swal.fire({
-              icon: "error",
-              text: response.data.mensaje,
-              allowOutsideClick: false,
-              allowEscapeKey: false,
-              allowEnterKey: false,
-            }).then((resSwal) => {
-              if (resSwal.isConfirmed && response.data.status == "401") {
-                router.push({ name: "Login" });
-                setTimeout(() => {
-                  window.location.reload();
-                }, 10);
-              }
-            });
-          }
-
-          vm.statusData = true;
-          await vm._getHouseList();
-          await vm._getHouseById();
-          await vm._getHouseServices();
-
-          vm.$swal({
-            icon: "success",
-            title: "Excelente",
-            text: "House actualizado éxitosamente",
-          }).then((result) => {
-            // if (vm.$store.state.copy_house.cantidad_houses_x_master > 1) {
-            //   vm.$swal({
-            //     icon: "question",
-            //     html: "<b>¿Desea actualizar los costos en el Control de Gastos ahora?</b>",
-            //     showConfirmButton: true,
-            //     confirmButtonText: "Sí",
-            //     confirmButtonColor: "#4CAF50",
-            //     showDenyButton: true,
-            //     denyButtonText: "No, en otro momento",
-            //     allowOutsideClick: false,
-            //   }).then(({ isConfirmed }) => {
-            //     if (isConfirmed) {
-            //       // vm.$router.push("/home/folderBilling/editControlGastos/view/" + vm.$store.state.copy_house.id_master);
-            //       vm.$router.push({
-            //         name: "editControlGasto",
-            //         params: {
-            //           code_master: vm.$store.state.copy_house.code_master,
-            //           id_branch: JSON.parse(sessionStorage.getItem("dataUser"))[0]
-            //             .id_branch,
-            //         },
-            //       });
-            //     }
-            //   });
-            // }
-          });
-
-          vm.loadingBotonGuardarHouse = !vm.loadingBotonGuardarHouse;
-          // vm.$router.go(-1);
-        })
-        .catch(function (error) {
-          console.log(error);
-          vm.$swal({
+        if (response.data.status == "401") {
+          vm.loadingBotonGuardarHouse = false;
+          Swal.fire({
             icon: "error",
-            title: "Lo sentimos",
-            text: error,
+            text: response.data.mensaje,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            allowEnterKey: false,
+          }).then((resSwal) => {
+            if (resSwal.isConfirmed && response.data.status == "401") {
+              router.push({ name: "Login" });
+              setTimeout(() => {
+                window.location.reload();
+              }, 10);
+            }
           });
+          return;
+        }
+
+        vm.statusData = true;
+
+        vm.loadingBotonGuardarHouse = false;
+        await vm.$swal({
+          icon: "success",
+          title: "Excelente",
+          text: "House actualizado éxitosamente",
         });
+        // Refresh data in background (non-blocking)
+        vm._getHouseList();
+        vm._getHouseById();
+        vm._getHouseServices();
+        // if (vm.$store.state.copy_house.cantidad_houses_x_master > 1) {
+        //   vm.$swal({
+        //     icon: "question",
+        //     html: "<b>¿Desea actualizar los costos en el Control de Gastos ahora?</b>",
+        //     showConfirmButton: true,
+        //     confirmButtonText: "Sí",
+        //     confirmButtonColor: "#4CAF50",
+        //     showDenyButton: true,
+        //     denyButtonText: "No, en otro momento",
+        //     allowOutsideClick: false,
+        //   }).then(({ isConfirmed }) => {
+        //     if (isConfirmed) {
+        //       // vm.$router.push("/home/folderBilling/editControlGastos/view/" + vm.$store.state.copy_house.id_master);
+        //       vm.$router.push({
+        //         name: "editControlGasto",
+        //         params: {
+        //           code_master: vm.$store.state.copy_house.code_master,
+        //           id_branch: JSON.parse(sessionStorage.getItem("dataUser"))[0]
+        //             .id_branch,
+        //         },
+        //       });
+        //     }
+        //   });
+        // }
+      } catch (error) {
+        console.log(error);
+        vm.loadingBotonGuardarHouse = false;
+        vm.$swal({
+          icon: "error",
+          title: "Lo sentimos",
+          text: error,
+        });
+      } finally {
+        vm.loadingBotonGuardarHouse = false;
+      }
     },
     eliminarHouse() {
       let vm = this;
@@ -1116,5 +1138,24 @@ export default {
 .title_button_bottom {
   text-decoration: none;
   color: #252c32;
+}
+
+.acciones-dial ::v-deep .v-speed-dial__list {
+  align-items: flex-start !important;
+}
+.acciones-dial ::v-deep .v-speed-dial__list .v-btn {
+  align-self: flex-start;
+  min-width: 180px;
+}
+.acciones-dial ::v-deep .v-speed-dial__list .v-btn .v-btn__content {
+  justify-content: flex-start;
+  width: 100%;
+}
+.acciones-dial ::v-deep .v-speed-dial__list .v-btn .v-btn__content {
+  font-size: 0.98rem;
+  line-height: 1.2;
+}
+.acciones-dial ::v-deep .v-speed-dial__list .v-btn .v-icon {
+  font-size: 22px !important;
 }
 </style>

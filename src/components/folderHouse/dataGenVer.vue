@@ -28,14 +28,24 @@
           clearable
         >
         </v-autocomplete>
-        <!-- <v-text-field
-          v-model="$store.state.house_cotizacion"
-          label="Cotización"
-        ></v-text-field> -->
       </v-col>
       <v-col cols="12" md="4">
+        <v-autocomplete
+          label="Quote aduana"
+          :items="$store.state.aduana.listQuotes2"
+          item-text="quote"
+          item-value="id"
+          v-model="$store.state.house_cotizacionaduana"
+          clearable
+        >
+        </v-autocomplete>
+      </v-col>
+    </v-row>
+
+    <v-row dense>
+      <v-col cols="12" md="4">
         <v-text-field
-          label="Modality"
+          label="Sentido"
           v-model="$store.state.houses.house.modality"
           readonly
         ></v-text-field>
@@ -55,6 +65,9 @@
           v-model="$store.state.houses.house.incoterms"
         ></v-text-field>
       </v-col>
+    </v-row>
+
+    <v-row dense>
       <v-col cols="12" md="6">
         <v-text-field
           label="Origen"
