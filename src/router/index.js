@@ -59,7 +59,7 @@ const routes = [
 
   {
     path: "/home",
-
+    meta: { requiresAuth: true },
     component: Main,
     children: [
       {
@@ -783,5 +783,15 @@ const router = new VueRouter({
       return savedPosition;
     }
   },
+});
+// Guard global de autenticación
+router.beforeEach((to, from, next) => {
+  if (to.matched.some((record) => record.meta && record.meta.requiresAuth)) {
+    const token = sessionStorage.getItem("auth-token");
+    if (!token) {
+      return next({ name: "Login" });
+    }
+  }
+  next();
 });
 export default router;

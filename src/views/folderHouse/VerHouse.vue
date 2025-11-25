@@ -207,6 +207,7 @@ export default {
       "getListBanksDetailsCargarPorSucursal",
       "verHouse",
       "fetchDataBank",
+      "getQuoteNoAsignadoHouse",
     ]),
     _setMasterContainer(id_master, id_containers, quantity) {
       var vm = this;

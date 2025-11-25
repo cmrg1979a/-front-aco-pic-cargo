@@ -320,7 +320,15 @@ export default {
       }
     },
     recargarServiciosCostos() {
-      this.$emit("recargarServiciosCostos", true);
+      //this.$emit("recargarServiciosCostos", true);
+      Swal.fire({
+        icon: "success",
+        title: "Actualización Correcta.",
+        text: "Se han activado todas las opciones, actualice los montos de los nuevos registros, y los multiplicadores respectivo.",
+        allowEnterKey: false,
+        allowOutsideClick: false,
+      }).then((res) => {
+      });
     },
   },
   computed: {

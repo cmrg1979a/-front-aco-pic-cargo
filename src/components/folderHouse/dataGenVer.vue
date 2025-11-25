@@ -4,10 +4,12 @@
     <v-row dense>
       <v-col cols="12" md="4">
         <v-text-field
+            
           readonly
           v-model="$store.state.houses.house.code_master"
           label="N° de Expedientes Master"
-        ></v-text-field>
+          
+        > </v-text-field>
       </v-col>
       <!-- <v-col cols="12" md="4">
         <v-text-field
@@ -17,18 +19,18 @@
         ></v-text-field>
       </v-col> -->
       <v-col cols="12" md="4">
-        <v-autocomplete
+        <v-text-field
           label="Quote Asociado al House"
-          :items="$store.state.pricing.listQuotes"
-          item-text="code"
-          item-value="id"
-          :search-input.sync="searchHouseCotizacion"
-          @change="asignarDatos()"
-          v-model="$store.state.house_cotizacion"
-          clearable
+          :value="quoteCodeDisplay"
+          readonly
+          @click="verCotizacion"
+          :style="quoteCodeDisplay ? 'cursor: pointer;' : ''"
+          :append-icon="quoteCodeDisplay ? 'mdi-open-in-new' : ''"
         >
-        </v-autocomplete>
+        </v-text-field>
+        
       </v-col>
+      
       <v-col cols="12" md="4">
         <v-autocomplete
           label="Quote aduana"
@@ -50,6 +52,7 @@
           readonly
         ></v-text-field>
       </v-col>
+
       <v-col cols="12" md="4">
         <v-text-field
           readonly
@@ -57,7 +60,7 @@
           label="Tipo de Embarque"
           return-object
         ></v-text-field>
-      </v-col>
+      </v-col >
       <v-col cols="12" md="4">
         <v-text-field
           label="Incoterms"
@@ -142,6 +145,8 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+
   </div>
 </template>
 <script>
@@ -156,6 +161,33 @@ export default {
       house_service_name: "",
       id_transport: null,
     };
+  },
+  computed: {
+    ...mapState([
+      "itemsModality",
+      "itemsShipment",
+      "itemsPortBegin",
+      "itemsPortEnd",
+      "itemsIncoterms",
+      "itemsServicesBegin",
+      "itemsBitacoraList",
+      "drawer",
+      "dataHouse_transporte",
+    ]),
+    quotesFiltered() {
+      // Filtrar y asegurar que cada item tenga las propiedades correctas
+      return (this.$store.state.pricing.listQuotes || []).filter(item => {
+        return item && typeof item === 'object' && item.code && item.id;
+      });
+    },
+    quoteCodeDisplay() {
+      // Obtener el código de la cotización asociada al House
+      const quoteId = this.$store.state.house_cotizacion || this.$store.state.houses.house.id_cot;
+      if (!quoteId) return '';
+      
+      const quote = this.quotesFiltered.find(q => q.id === quoteId);
+      return quote ? quote.code : '';
+    },
   },
   async mounted() {
     this.$store.state.spiner = true;
@@ -190,18 +222,6 @@ export default {
 
     // await this.getQuoteNoAsignadoHouse();
     this.$forceUpdate();
-  },
-  computed: {
-    ...mapState([
-      "itemsModality",
-      "itemsShipment",
-      "itemsPortBegin",
-      "itemsPortEnd",
-      "itemsIncoterms",
-      "itemsServicesBegin",
-      "itemsBitacoraList",
-      "drawer",
-    ]),
   },
   methods: {
     ...mapActions([
@@ -513,9 +533,13 @@ export default {
         search: textoBuscar,
       });
     },
-  },
-  computed: {
-    ...mapState(["dataHouse_transporte"]),
+    verCotizacion() {
+      const quoteId = this.$store.state.house_cotizacion || this.$store.state.houses.house.id_cot;
+      if (quoteId) {
+        this.$router.push(`/home/folderPricing/verQuote/${quoteId}`);
+      }
+    },
+
   },
 };
 </script>
