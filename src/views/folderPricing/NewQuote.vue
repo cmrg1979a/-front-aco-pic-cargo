@@ -48,21 +48,7 @@
               />
             </v-col>
           </v-row>
-          <v-row>
-            <v-col cols="12" class="align-right">
-              <v-btn color="success" class="mr-2" @click="triggerExcel">
-                <v-icon left>mdi-file-excel</v-icon>
-                Importar Excel
-              </v-btn>
-              <input
-                ref="excelInput"
-                type="file"
-                accept=".xls,.xlsx"
-                style="display: none"
-                @change="onExcelSelected"
-              />
-            </v-col>
-          </v-row>
+        
 
           <!-- <v-btn color="primary" @click="step = 2"> Continue </v-btn>
 
