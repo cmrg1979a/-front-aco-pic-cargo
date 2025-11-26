@@ -4,10 +4,12 @@
     <v-row dense>
       <v-col cols="12" md="4">
         <v-text-field
+            
           readonly
           v-model="$store.state.houses.house.code_master"
           label="N° de Expedientes Master"
-        ></v-text-field>
+          
+        > </v-text-field>
       </v-col>
       <!-- <v-col cols="12" md="4">
         <v-text-field
@@ -26,14 +28,31 @@
           :append-icon="quoteCodeDisplay ? 'mdi-open-in-new' : ''"
         >
         </v-text-field>
+        
       </v-col>
+      
+      <v-col cols="12" md="4">
+        <v-autocomplete
+          label="Quote aduana"
+          :items="$store.state.aduana.listQuotes2"
+          item-text="quote"
+          item-value="id"
+          v-model="$store.state.house_cotizacionaduana"
+          clearable
+        >
+        </v-autocomplete>
+      </v-col>
+    </v-row>
+
+    <v-row dense>
       <v-col cols="12" md="4">
         <v-text-field
-          label="Modality"
+          label="Sentido"
           v-model="$store.state.houses.house.modality"
           readonly
         ></v-text-field>
       </v-col>
+
       <v-col cols="12" md="4">
         <v-text-field
           readonly
@@ -41,7 +60,7 @@
           label="Tipo de Embarque"
           return-object
         ></v-text-field>
-      </v-col>
+      </v-col >
       <v-col cols="12" md="4">
         <v-text-field
           label="Incoterms"
@@ -49,6 +68,9 @@
           v-model="$store.state.houses.house.incoterms"
         ></v-text-field>
       </v-col>
+    </v-row>
+
+    <v-row dense>
       <v-col cols="12" md="6">
         <v-text-field
           label="Origen"
@@ -123,6 +145,8 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+
   </div>
 </template>
 <script>
@@ -515,6 +539,7 @@ export default {
         this.$router.push(`/home/folderPricing/verQuote/${quoteId}`);
       }
     },
+
   },
 };
 </script>

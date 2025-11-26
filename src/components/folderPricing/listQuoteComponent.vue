@@ -213,6 +213,22 @@
                 </template>
                 <span>Historial llamada</span>
               </v-tooltip>
+              <!--  -->
+              <v-tooltip top>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                    fab
+                    x-small
+                    v-bind="attrs"
+                    v-on="on"
+                    @click="abrirModalEnlazarHouse(item)"
+                    color="success"
+                  >
+                    <v-icon dense small>mdi-link</v-icon>
+                  </v-btn>
+                </template>
+                <span>Enlazar a House</span>
+              </v-tooltip>
             </v-btn-toggle>
           </td>
           <td @click="expand(!isExpanded)">{{ fecha(item.created) }}</td>
@@ -228,6 +244,7 @@
           <td @click="expand(!isExpanded)">{{ item.incoterms }}</td>
           <td @click="expand(!isExpanded)">{{ item.origen }}</td>
           <td @click="expand(!isExpanded)">{{ item.destino }}</td>
+          <td @click="expand(!isExpanded)">{{ displayMarketing(item) }}</td>
         </tr>
       </template>
 
@@ -424,6 +441,33 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- Modal para enlazar Houses -->
+    <v-dialog v-model="modalEnlazarHouse" max-width="900">
+      <v-card>
+        <v-card-title>
+          Enlazar Houses a Cotización {{ quoteSeleccionada ? quoteSeleccionada.codigo : '' }}
+          <v-spacer></v-spacer>
+          <v-btn icon @click="modalEnlazarHouse = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+        <v-card-text>
+          <v-data-table
+            :headers="headersHouses"
+            :items="housesDisponibles"
+            :loading="loadingHouses"
+            class="elevation-1"
+          >
+            <template v-slot:[`item.actions`]="{ item }">
+              <v-btn small color="primary" @click="enlazarHouse(item)">
+                Enlazar
+              </v-btn>
+            </template>
+          </v-data-table>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -431,6 +475,7 @@
 import moment from "moment";
 import { mapActions } from "vuex";
 import Swal from "sweetalert2";
+import axios from "axios";
 export default {
   name: "ListQuoteComponent",
   data() {
@@ -454,6 +499,18 @@ export default {
           : "",
       },
       aprobarflag: false,
+      modalEnlazarHouse: false,
+      housesDisponibles: [],
+      loadingHouses: false,
+      quoteSeleccionada: null,
+      headersHouses: [
+        { text: 'Código House', value: 'codigo' },
+        { text: 'Master', value: 'master' },
+        { text: 'Cliente', value: 'cliente' },
+        { text: 'Origen', value: 'origen' },
+        { text: 'Destino', value: 'destino' },
+        { text: 'Acciones', value: 'actions', sortable: false },
+      ],
       cabCotizaciones: [
         // {
         //   value: "acciones",
@@ -555,6 +612,13 @@ export default {
           groupable: true,
           estado: true,
         },
+        {
+          value: "marketing",
+          text: "MARKETING",
+          align: "center",
+          groupable: true,
+          estado: true,
+        },
       ],
       filtro: {
         idmarketing: null,
@@ -585,6 +649,7 @@ export default {
       "getListRecibidoCotizacion",
       "getListEnviadoCliente",
       "getModulesEntities",
+      "getMarketingList",
       "guardarNotaQuote",
       "eliminarRegistro",
       "getQuoteStatus",
@@ -592,6 +657,16 @@ export default {
       "aprobarCotizacion",
       "validarUsuarioAdmin",
     ]),
+    displayMarketing(item) {
+      // Prefer server-provided friendly name if present
+      if (item.marketing) return item.marketing;
+      const id = item.id_marketing || item.idmarketing || item.idMarketing;
+      if (!id) return "";
+      const m = (this.$store.state.pricing.listMarketing || []).find(
+        (v) => String(v.id) === String(id)
+      );
+      return m ? m.name : "";
+    },
     async iraAprobado(id) {
       let val = false;
       let msg = "";
@@ -889,6 +964,95 @@ export default {
         }
       });
     },
+    async abrirModalEnlazarHouse(quote) {
+      this.quoteSeleccionada = quote;
+      this.modalEnlazarHouse = true;
+      this.loadingHouses = true;
+      try {
+        const id_branch = JSON.parse(sessionStorage.getItem("dataUser"))[0].id_branch;
+        const response = await axios.get(
+          process.env.VUE_APP_URL_MAIN + "listado_houses",
+          {
+            params: { 
+              id_branch,
+            },
+            headers: {
+              "auth-token": sessionStorage.getItem("auth-token"),
+            },
+          }
+        );
+        console.log("✅ Houses disponibles:", response.data);
+        const allHouses = response.data.data || [];
+        const housesFiltrados = allHouses.filter(house => !house.id_cot || house.id_cot === 0 || house.id_cot === '0');
+        
+        // Mapear los campos del backend a los que espera el frontend
+        this.housesDisponibles = housesFiltrados.map(house => ({
+          id: house.id,
+          codigo: house.code_house || house.code_master || 'N/A',
+          master: house.nro_house || house.nro_hbl || 'N/A',
+          cliente: house.nameconsigner || 'Sin cliente',
+          origen: house.nameportbegin || 'N/A',
+          destino: house.nameportend || 'N/A',
+        }));
+        sessionStorage.setItem("auth-token", response.data.token);
+      } catch (error) {
+        console.error("❌ Error al cargar houses:", error);
+        this.$swal({
+          icon: "error",
+          title: "Error",
+          text: "No se pudieron cargar los Houses disponibles",
+        });
+      } finally {
+        this.loadingHouses = false;
+      }
+    },
+    async enlazarHouse(house) {
+      const result = await this.$swal({
+        title: "¿Confirmar enlace?",
+        text: `¿Desea enlazar el House ${house.codigo} a la cotización ${this.quoteSeleccionada.codigo}?`,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Sí, enlazar",
+        cancelButtonText: "Cancelar",
+      });
+
+      if (!result.isConfirmed) return;
+
+      try {
+        const response = await axios.post(
+          process.env.VUE_APP_URL_MAIN + "link_house_quote",
+          {
+            id_house: house.id,
+            id_quote: this.quoteSeleccionada.id,
+          },
+          {
+            headers: {
+              "auth-token": sessionStorage.getItem("auth-token"),
+            },
+          }
+        );
+
+        sessionStorage.setItem("auth-token", response.data.token);
+
+        if (response.data.statusBol) {
+          this.$swal({
+            icon: "success",
+            title: "Éxito",
+            text: "House enlazado exitosamente a la cotización",
+          });
+          this.modalEnlazarHouse = false;
+          // Recargar la lista de houses disponibles si se quiere seguir enlazando
+          // this.abrirModalEnlazarHouse(this.quoteSeleccionada);
+        }
+      } catch (error) {
+        console.error("❌ Error al enlazar house:", error);
+        this.$swal({
+          icon: "error",
+          title: "Error",
+          text: "No se pudo enlazar el House a la cotización",
+        });
+      }
+    },
   },
   async mounted() {
     this.$store.state.pricing.filtro = {
@@ -914,13 +1078,14 @@ export default {
       estado: "activo",
     };
     this.$store.state.spiner = true;
-    await this.getListQuote(),
-      Promise.all([
-        this.getListRecibidoCotizacion(),
-        this.getListEnviadoCliente(),
-        this.getModulesEntities(),
-        this.getQuoteStatus(),
-      ]);
+    await this.getListQuote();
+    await Promise.all([
+      this.getListRecibidoCotizacion(),
+      this.getListEnviadoCliente(),
+      this.getModulesEntities(),
+      this.getQuoteStatus(),
+      this.getMarketingList(),
+    ]);
     // await this.cargarMaster({
     //   idsentido: "",
     //   idtipocarga: "",

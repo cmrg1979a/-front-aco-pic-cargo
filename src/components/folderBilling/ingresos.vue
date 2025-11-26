@@ -43,6 +43,7 @@
                     }}
                   </p>
                 </th>
+                <th width="8%">Más acciones</th>
                 <th>Ver Proformas</th>
                 <th width="8%">Facturas Fiscales</th>
               </tr>
@@ -144,6 +145,17 @@
                     @click.stop="abrirExpandIngreso(index)"
                   >
                     EMITIR PROFORMA
+                  </v-btn>
+                </td>
+                <td>
+                  <v-btn
+                    v-if="house.id_orders"
+                    color="indigo"
+                    small
+                    dark
+                    @click.stop="abrirModalCambiarExpediente(house)"
+                  >
+                    Cambiar expediente
                   </v-btn>
                 </td>
                 <td>
@@ -1053,6 +1065,38 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <!-- CAMBIAR EXPEDIENTE (HOUSE CODE) -->
+    <v-dialog v-model="dialogCambiarExpediente" max-width="500">
+      <v-card>
+        <v-card-title class="text-h5 grey lighten-2">
+          Cambiar expediente (House)
+          <v-spacer></v-spacer>
+          <v-btn icon color="default" @click="dialogCambiarExpediente = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+        <v-card-text>
+          <v-select
+            :items="listaExpedientes"
+            v-model="selectedNuevoExpediente"
+            item-text="text"
+            item-value="value"
+            label="Seleccione nuevo expediente"
+            dense
+          ></v-select>
+          <p class="caption mb-0">Actual: {{ house.code_house }}</p>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn outlined color="red" @click="dialogCambiarExpediente = false"
+            >Cancelar</v-btn
+          >
+          <v-btn color="primary" :disabled="!selectedNuevoExpediente" @click="aplicarCambioExpediente"
+            >Guardar</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -1207,6 +1251,9 @@ export default {
         id_correlativo: "",
       },
       mostrarImpuesto: true,
+      dialogCambiarExpediente: false,
+      selectedNuevoExpediente: null,
+      listaExpedientes: [],
     };
   },
   async mounted() {
@@ -1958,6 +2005,73 @@ export default {
     abrirPdf(url) {
       window.open(url, "_blank");
     },
+    async abrirModalCambiarExpediente(house = {}) {
+      this.house = house;
+      // Cargar lista de masters y poblar el combo con sus códigos
+      await this._getMasterList();
+      const masters = (this.$store.state.itemsMasterList || []).slice();
+      this.listaExpedientes = masters.map((v) => ({
+        text: v.code_master,
+        value: v.id,
+      }));
+      this.selectedNuevoExpediente = Number(this.$route.params.id) || null;
+      this.dialogCambiarExpediente = true;
+    },
+    async aplicarCambioExpediente() {
+      if (!this.house || !this.selectedNuevoExpediente) return;
+      if (Number(this.selectedNuevoExpediente) === Number(this.$route.params.id)) {
+        this.dialogCambiarExpediente = false;
+        return;
+      }
+      const targetLabel = (this.listaExpedientes.find((x) => x.value === this.selectedNuevoExpediente) || {}).text || this.selectedNuevoExpediente;
+      const res = await Swal.fire({
+        icon: "question",
+        title: "Confirmar cambio",
+        text: `¿Desea mover el house ${this.house.code_house} (con todos sus registros) al master ${targetLabel}?`,
+        showCancelButton: true,
+        confirmButtonText: "Sí, cambiar",
+        cancelButtonText: "Cancelar",
+      });
+      if (!res.isConfirmed) return;
+
+      try {
+        const payload = {
+          id_orders: this.house.id_orders,
+          id_house: this.house.id_house,
+          id_master_origen: Number(this.$route.params.id),
+          id_master_destino: Number(this.selectedNuevoExpediente),
+        };
+        const config = {
+          method: "put",
+          url: process.env.VUE_APP_URL_MAIN + "reasignar_house",
+          headers: {
+            "auth-token": sessionStorage.getItem("auth-token"),
+            "Content-Type": "application/json",
+          },
+          data: payload,
+        };
+        const response = await axios(config);
+        if (response && response.data && response.data.estadoflag) {
+          await Swal.fire({ icon: "success", text: "Expediente actualizado" });
+          this.dialogCambiarExpediente = false;
+          await this.getListControlGastos(this.$route.params.id);
+        } else {
+          await Swal.fire({
+            icon: "warning",
+            text:
+              (response && response.data && response.data.mensaje) ||
+              "No se pudo reasignar el expediente. Se requiere soporte de backend.",
+          });
+        }
+      } catch (error) {
+        console.error(error);
+        await Swal.fire({
+          icon: "info",
+          text:
+            "Endpoint para reasignar house a otro master no disponible. Front listo; requerirá habilitar API (PUT reasignar_house).",
+        });
+      }
+    },
     async eliminarFactura(item) {
       this.dialogFacturaEmitidas = false;
       let val = false;
@@ -2048,6 +2162,8 @@ export default {
       "eliminarIngreso",
       "validarUsuarioAdmin",
       "copiarCGingresos",
+      "getCargarHouse",
+      "_getMasterList",
     ]),
     bloquearCopiarMontos(ingresos) {
       return ingresos.some((v) => v.facturado);

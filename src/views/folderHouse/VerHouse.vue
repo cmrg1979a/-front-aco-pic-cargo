@@ -61,7 +61,12 @@
         <v-col cols="12" md="4">
           <v-card>
             <v-card-text>
-              <services :isFormActionsDisabled="formControlHouseReadonly" />
+              <services
+                :isFormActionsDisabled="formControlHouseReadonly"
+                :itemsNotificaciones="getItemsNotificaciones()"
+                @send-notificacion="sendNotificacion"
+                @ir-editar="irAVerMaster"
+              />
             </v-card-text>
           </v-card>
         </v-col>
@@ -75,54 +80,7 @@
         </v-col>
       </v-row>
     </v-container>
-    <div style="position: fixed; bottom: 16px; left: 16px">
-      <v-fab-transition>
-        <v-btn fab large dark bottom left color="info" @click="irAVerMaster()">
-          <v-icon> mdi-pencil </v-icon>
-        </v-btn>
-      </v-fab-transition>
-    </div>
-    <div class="text-center">
-      <v-menu top offset-y content-class="elevation-0">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            color="success"
-            :dark="!formControlHouseReadonly"
-            fixed
-            bottom
-            right
-            v-bind="attrs"
-            v-on="on"
-            :disabled="formControlHouseReadonly"
-            :loading="loadingBotonNotificaciones"
-            @click="validarMenuNotificaciones"
-          >
-            <v-icon left color="black" style="transform: rotate(-45deg)">
-              mdi-send
-            </v-icon>
-            NOTIFICACIONES
-          </v-btn>
-        </template>
-        <v-list color="transparent" v-show="displayMenuNotificaciones">
-          <v-list-item
-            v-for="(item, index) in getItemsNotificaciones()"
-            :key="index"
-            class="px-0"
-          >
-            <v-list-item-title>
-              <v-btn
-                depressed
-                block
-                color="primary"
-                @click="sendNotificacion(item)"
-              >
-                {{ item.title }}
-              </v-btn>
-            </v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
-    </div>
+    
     <!-- <v-footer app color="white" elevation="5" height="72" inset>
         <router-link class="div__button_bottom" to="">
           <img width="30" :src="$store.state.imgFolder" alt="" />
@@ -221,7 +179,11 @@ export default {
   async mounted() {
     this.$store.state.spiner = true;
     await this.verHouse(this.$route.params);
-    await this.getQuoteNoAsignadoHouse();
+    this.$store.state.mainTitle = `${
+      (this.$store.state.houses.house && this.$store.state.houses.house.nro_hbl) || ""
+    } - ${
+      (this.$store.state.houses.house && this.$store.state.houses.house.consigner) || ""
+    }`;
     this.$store.state.spiner = false;
     await this.fetchDataBank({
       code: "",

@@ -43,6 +43,8 @@
                   v-if="item.nameservice != 'CERTIFICADO DE ORIGEN'"
                   dense
                   color="primary"
+                  :true-value="1"
+                  :false-value="0"
                   v-model="item.status"
                   :disabled="getDisabledPropServiceStatus(index)"
                   @change="toggleServiceStatusSwitch(item, index)"
@@ -117,6 +119,17 @@ export default {
   async mounted() {
     await this._validaData();
   },
+watch: {
+  "$store.state.itemsHouseServices": {
+    handler(newValue) {
+      newValue.forEach(item => {
+        this.logNameService(item);
+      });
+    },
+    deep: true
+  }
+},
+
   methods: {
     ...mapActions([
       "getQuoteDataNoAsignadaHouseByIncoterms",
@@ -124,10 +137,11 @@ export default {
       "_getPortEnd",
     ]),
     getDisabledPropServiceStatus(index) {
-      return (index) =>
-        index === 0
-          ? false
-          : !this.$store.state.itemsHouseServices[index - 1].status;
+       return !!this.isFormActionsDisabled;
+    },
+     logNameService(value) {
+    console.log("nameservice:", value); 
+     return value;
     },
     send() {
       alert("Jpla");
@@ -269,7 +283,9 @@ export default {
                 lstServices.push(itemImpuestos);
               }
 
-              vm.$store.state.itemsHouseServices = lstServices;
+              vm.$store.state.itemsHouseServices = vm._sortServicesByName(
+                lstServices
+              );
             } else {
               vm.$store.state.itemsHouseServices = [];
             }
@@ -329,15 +345,24 @@ export default {
       }
     },
     toggleServiceStatusSwitch(item, index) {
-      if (!item.status) {
-        this.$store.state.itemsHouseServices =
-          this.$store.state.itemsHouseServices.map((itemHS, i) => {
-            return {
-              ...itemHS,
-              status: i > index ? 0 : itemHS.status,
-            };
-          });
+     
+      return;
+    },
+    _sortServicesByName(list) {
+      if (!Array.isArray(list)) return [];
+      const sorted = list.slice().sort((a, b) => {
+        const A = (a.nameservice || '').toString();
+        const B = (b.nameservice || '').toString();
+        return A.localeCompare(B, 'es', { sensitivity: 'base' });
+      });
+      const idx = sorted.findIndex(
+        (s) => String(s.nameservice).toUpperCase() === 'IMPUESTOS'
+      );
+      if (idx > -1) {
+        const [imp] = sorted.splice(idx, 1);
+        sorted.push(imp);
       }
+      return sorted;
     },
     deleteService(index) {
       this.$store.state.itemsHouseServices.splice(index, 1);
@@ -406,7 +431,9 @@ export default {
               lstServices.push(itemImpuestos);
             }
 
-            vm.$store.state.itemsHouseServices = lstServices;
+            vm.$store.state.itemsHouseServices = vm._sortServicesByName(
+              lstServices
+            );
           } else {
             vm.$store.state.itemsHouseServices = [];
 

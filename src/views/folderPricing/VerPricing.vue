@@ -166,20 +166,15 @@ export default {
     this.$store.state.spiner = false;
     this.verFlag = true;
 
-    let idTipoCarga = this.$store.state.pricing.listShipment.filter(
+    // Buscar el tipo de carga y validar que existe
+    const tipoCargaItem = this.$store.state.pricing.listShipment.find(
       (v) => v.id == this.$store.state.pricing.datosPrincipales.idtipocarga
-    )[0].id_transport;
-    //
-    await Promise.all([
-      this.getPortBegin({
-        id_transport: idTipoCarga,
-        id: this.$store.state.pricing.datosPrincipales.idorigen,
-      }),
-      this.getPortEnd({
-        id_transport: idTipoCarga,
-        id: this.$store.state.pricing.datosPrincipales.iddestino,
-      }),
-
+    );
+    
+    let idTipoCarga = tipoCargaItem ? tipoCargaItem.id_transport : null;
+    
+    // Solo cargar puertos si tenemos un id_transport válido
+    const promisesToLoad = [
       this.getMarketingList(),
       this.getQuoteStatus(),
       this.getModality(),
@@ -191,10 +186,25 @@ export default {
       this.getTipoCostos(),
       this.cargarMasterDetallePercepcionAduana(),
       this.obtenerImpuestoXEmpresa(),
-
       this.getAduanaUnificar(this.$route.params.id),
       this.getInstructivoId({ id: this.$route.params.id }),
-    ]);
+    ];
+    
+    // Agregar carga de puertos solo si tenemos id_transport
+    if (idTipoCarga) {
+      promisesToLoad.unshift(
+        this.getPortBegin({
+          id_transport: idTipoCarga,
+          id: this.$store.state.pricing.datosPrincipales.idorigen,
+        }),
+        this.getPortEnd({
+          id_transport: idTipoCarga,
+          id: this.$store.state.pricing.datosPrincipales.iddestino,
+        })
+      );
+    }
+    //
+    await Promise.all(promisesToLoad);
     this.mostrarStepS = true;
 
     this.$store.state.pricing.llenadoCostos = false;
