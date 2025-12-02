@@ -79,6 +79,21 @@
           </v-card>
         </v-col>
       </v-row>
+      <div style="position: fixed; bottom: 16px; right: 16px">
+        <v-fab-transition v-if="formControlHouseReadonly">
+          <v-btn
+            fab
+            large
+            dark
+            bottom
+            left
+            color="info"
+            @click="irAVerMaster()"
+          >
+            <v-icon> mdi-pencil </v-icon>
+          </v-btn>
+        </v-fab-transition>
+      </div>
     </v-container>
     
     <!-- <v-footer app color="white" elevation="5" height="72" inset>
@@ -179,6 +194,9 @@ export default {
   async mounted() {
     this.$store.state.spiner = true;
     await this.verHouse(this.$route.params);
+    if (this.$route.name == "controlHouseVer") {
+      this.formControlHouseReadonly = true;
+    }
     this.$store.state.mainTitle = `${
       (this.$store.state.houses.house && this.$store.state.houses.house.nro_hbl) || ""
     } - ${
@@ -209,6 +227,13 @@ export default {
       "fetchDataBank",
       "getQuoteNoAsignadoHouse",
     ]),
+    irAVerMaster() {
+      this.$router.push({
+        name: "controlHouseEditar",
+        id: this.$route.params.id,
+      });
+      window.location.reload();
+    },
     _setMasterContainer(id_master, id_containers, quantity) {
       var vm = this;
       //vm._getnroMaster();
