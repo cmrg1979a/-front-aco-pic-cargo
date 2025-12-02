@@ -1,7 +1,22 @@
 <template>
   <v-card>
-    <v-card-title>Datos para rótulos en la entrega del producto</v-card-title>
+    <v-card-title class="px-2 container-narrow">
+      Datos para rótulos en la entrega del producto
+      <v-spacer></v-spacer>
+      <v-btn
+        v-if="!showNavigationButtons"
+        color="light-blue darken-2"
+        class="ma-2"
+        dark
+        small
+        @click="modificarCliente"
+      >
+        <v-icon left small>mdi-account-edit</v-icon>
+        {{ isFormReadonly ? 'EDITAR CLIENTE' : 'GUARDAR CAMBIOS' }}
+      </v-btn>
+    </v-card-title>
     <v-card-text>
+      <div class="container-narrow">
       <v-form ref="formInformacionEntrega" :readonly="isFormReadonly">
         <v-row>
           <v-col cols="12" md="6">
@@ -122,6 +137,7 @@
                   </v-col>
                 </v-row>-->
       </v-form>
+      </div>
     </v-card-text>
     <v-card-actions v-if="showNavigationButtons">
       <v-btn color="primary" @click="$store.state.entities.stepper--"
@@ -153,7 +169,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(["_getCity", "_getTown"]),
+    ...mapActions(["_getCity", "_getTown", "actualizarCliente"]),
     validarTelefono(v) {
       if (v && !/^\+?\d+$/.test(v)) {
         return "Debe ingresar un teléfono válido";
@@ -161,6 +177,32 @@ export default {
 
       return true;
     },
+    async modificarCliente() {
+      var vm = this;
+      if (vm.isFormReadonly) {
+        vm.$store.state.entities.isReadonly = false;
+        vm.$store.state.entities.isEdit = true;
+        vm.$swal({
+          icon: "info",
+          text: "Ahora puede modificar los campos",
+        });
+        return;
+      }
+
+      vm.$store.state.spiner = true;
+      await vm.actualizarCliente();
+      vm.$store.state.spiner = false;
+
+      vm.$store.state.entities.isReadonly = true;
+      vm.$store.state.entities.isEdit = false;
+    },
   },
 };
 </script>
+
+<style>
+.container-narrow {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+</style>

@@ -1,8 +1,9 @@
 <template>
   <v-card>
-      <v-card-title class="px-2">
+    <v-card-title class="px-2 container-narrow">
       <v-spacer></v-spacer>
       <v-btn
+        v-if="!showNavigationButtons"
         color="light-blue darken-2"
         class="ma-2"
         dark
@@ -10,10 +11,11 @@
         @click="modificarCliente"
       >
         <v-icon left small>mdi-account-edit</v-icon>
-        EDITAR CLIENTE
+        {{ isFormReadonly ? 'EDITAR CLIENTE' : 'GUARDAR CAMBIOS' }}
       </v-btn>
     </v-card-title>
     <v-card-text>
+      <div class="container-narrow">
       <v-form ref="formDatosCliente" :readonly="isFormReadonly">
         <v-row>
           <v-col cols="12">
@@ -85,7 +87,7 @@
                 <v-autocomplete
                   dense
                   outlined
-                  :items="$store.state.itemsDocumentsPais"
+                  :items="filteredDocumentsPais"
                   item-text="description"
                   item-value="id"
                   label="Tipo de Documento Fiscal"
@@ -263,6 +265,7 @@
                   outlined
                   label="Nombre"
                   v-model="$store.state.entities.cliente.contactoActual.nombre"
+                  :rules="[(v) => !!v || 'Dato Requerido']"
                   @change="validarContactoActual"
                 ></v-text-field>
               </v-col>
@@ -277,6 +280,7 @@
                   v-model="
                     $store.state.entities.cliente.contactoActual.id_tipotelefono
                   "
+                  :rules="[(v) => !!v || 'Dato Requerido']"
                   @change="validarContactoActual"
                 ></v-autocomplete>
               </v-col>
@@ -288,6 +292,7 @@
                   v-model="
                     $store.state.entities.cliente.contactoActual.telefono
                   "
+                  :rules="[(v) => !!v || 'Dato Requerido']"
                   @change="validarContactoActual"
                 ></v-text-field>
               </v-col>
@@ -308,7 +313,21 @@
           </v-col>
         </v-row>
       </v-form>
+      </div>
     </v-card-text>
+    <v-card-actions v-if="!showNavigationButtons">
+      <v-spacer></v-spacer>
+      <v-btn
+        color="light-blue darken-2"
+        class="ma-2"
+        dark
+        small
+        @click="modificarCliente"
+      >
+        <v-icon left small>mdi-account-edit</v-icon>
+        {{ isFormReadonly ? 'EDITAR CLIENTE' : 'GUARDAR CAMBIOS' }}
+      </v-btn>
+    </v-card-actions>
     <v-card-actions v-if="showNavigationButtons">
       <v-btn color="primary" class="ml-auto" @click="validarFormulario"
         >Agregar Más</v-btn
@@ -360,6 +379,75 @@ export default {
         this.$store.state.entities.isEdit ||
         this.$store.state.entities.isReadonly
       );
+    },
+    filteredDocumentsPais() {
+      const all = this.$store.state.itemsDocumentsPais || [];
+      const tipoPersona = this.$store.state.masterusuarios.lstTipoPersona.find(
+        (v) => v.id == this.$store.state.entities.cliente.id_tipopersona
+      );
+
+      if (!tipoPersona) return all;
+
+      const norm = (s) =>
+        (s || "")
+          .toString()
+          .trim()
+          .toUpperCase();
+
+      const isNatural = tipoPersona.descripcion === "Persona Natural";
+      const isEmpresa = tipoPersona.descripcion === "Empresa";
+
+      if (isNatural) {
+        const naturalAllowed = new Set([
+          "DNI",
+          "CEDULA",
+          "CÉDULA",
+          "PASAPORTE",
+          "TELEFONO",
+          "TELÉFONO",
+          "CARNET DE EXTRANJERIA",
+          "CARNET DE EXTRANJERÍA",
+          "CARNET DIPLOMATICO",
+          "CARNET DIPLOMÁTICO",
+        ]);
+        return all.filter(
+          (it) => naturalAllowed.has(norm(it.name)) || naturalAllowed.has(norm(it.description))
+        );
+      }
+
+      if (isEmpresa) { 
+        const isCombined = (it) => {
+          const d = norm(it.description);
+          const n = norm(it.name);
+          return (
+            d.includes("REGISTRO UNICO DE CONTRIBUYENTE") ||
+            d.includes("REGISTRO ÚNICO DE CONTRIBUYENTE") ||
+            n === "RUC/RIF" ||
+            n === "RUC / RIF"
+          );
+        };
+
+        const telefonoMatch = (it) => {
+          const d = norm(it.description);
+          const n = norm(it.name);
+          return n === "TELEFONO" || n === "TELÉFONO" || d === "TELEFONO" || d === "TELÉFONO";
+        };
+
+        const combinedItems = all.filter(isCombined);
+        if (combinedItems.length) {
+          return all.filter((it) => isCombined(it) || telefonoMatch(it));
+        }
+
+        // Fallback to RUC/RIF separate entries if combined not present
+        const isRucOrRif = (it) => {
+          const n = norm(it.name);
+          const d = norm(it.description);
+          return n === "RUC" || n === "RIF" || d === "RUC" || d === "RIF";
+        };
+        return all.filter((it) => isRucOrRif(it) || telefonoMatch(it));
+      }
+
+      return all;
     },
   },
   methods: {
@@ -594,6 +682,18 @@ export default {
     },
     async modificarCliente() {
       var vm = this;
+
+      // Si está en modo solo lectura, pasar a modo edición y no guardar todavía
+      if (vm.isFormReadonly) {
+        vm.$store.state.entities.isReadonly = false;
+        vm.$store.state.entities.isEdit = true;
+        vm.$swal({
+          icon: "info",
+          text: "Ahora puede modificar los datos del cliente",
+        });
+        return;
+      }
+
       vm.$store.state.entities.isStep1Valid = true;
       vm.$store.state.entities.isStep2Valid = true;
       vm.$store.state.entities.isStep3Valid = true;
@@ -740,6 +840,10 @@ export default {
         vm.$store.state.spiner = true;
         await vm.actualizarCliente();
         vm.$store.state.spiner = false;
+
+        // Volver a modo solo lectura después de guardar correctamente
+        vm.$store.state.entities.isReadonly = true;
+        vm.$store.state.entities.isEdit = false;
       }
     },
   },
@@ -769,5 +873,9 @@ export default {
 }
 .customFile .v-input__prepend-outer {
   margin-right: 0;
+}
+.container-narrow {
+  max-width: 1100px;
+  margin: 0 auto;
 }
 </style>

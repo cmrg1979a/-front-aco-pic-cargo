@@ -1,6 +1,21 @@
 <template>
   <v-card>
+    <v-card-title class="px-2 container-narrow">
+      <v-spacer></v-spacer>
+      <v-btn
+        v-if="!showNavigationButtons"
+        color="light-blue darken-2"
+        class="ma-2"
+        dark
+        small
+        @click="modificarProveedor"
+      >
+        <v-icon left small>mdi-account-edit</v-icon>
+        {{ isFormReadonly ? 'EDITAR PROVEEDOR' : 'GUARDAR CAMBIOS' }}
+      </v-btn>
+    </v-card-title>
     <v-card-text>
+      <div class="container-narrow">
       <v-form ref="formProv_datosProveedor" :readonly="isFormReadonly">
         <v-row>
           <v-col cols="12">
@@ -329,22 +344,25 @@
           </v-col>
         </v-row>
       </v-form>
+      </div>
     </v-card-text>
-    <v-card-actions v-if="showNavigationButtons">
-      <v-btn color="primary" class="ml-auto" @click="validarFormulario"
-        >Continuar</v-btn
-      >
-    </v-card-actions>
-    <v-card-actions class="justify-end">
+    <v-card-actions v-if="!showNavigationButtons">
+      <v-spacer></v-spacer>
       <v-btn
         color="light-blue darken-2"
         class="ma-2"
         dark
+        small
         @click="modificarProveedor"
       >
         <v-icon left small>mdi-account-edit</v-icon>
-        EDITAR PROVEEDOR
+        {{ isFormReadonly ? 'EDITAR PROVEEDOR' : 'GUARDAR CAMBIOS' }}
       </v-btn>
+    </v-card-actions>
+    <v-card-actions v-if="showNavigationButtons">
+      <v-btn color="primary" class="ml-auto" @click="validarFormulario"
+        >Continuar</v-btn
+      >
     </v-card-actions>
   </v-card>
 </template>
@@ -618,6 +636,18 @@ export default {
     },
     async modificarProveedor() {
       var vm = this;
+
+      // Si está en modo solo lectura, pasar a modo edición y no guardar todavía
+      if (vm.isFormReadonly) {
+        vm.$store.state.entities.isReadonly = false;
+        vm.$store.state.entities.isEdit = true;
+        vm.$swal({
+          icon: "info",
+          text: "Ahora puede modificar los datos del proveedor",
+        });
+        return;
+      }
+
       vm.$store.state.entities.isStep1Valid = true;
       vm.$store.state.entities.isStep2Valid = true;
       vm.$store.state.entities.isStep3Valid = true;
@@ -762,6 +792,10 @@ export default {
         vm.$store.state.spiner = true;
         await vm.actualizarProveedor();
         vm.$store.state.spiner = false;
+
+        // Volver a modo solo lectura después de guardar correctamente
+        vm.$store.state.entities.isReadonly = true;
+        vm.$store.state.entities.isEdit = false;
       }
     },
   },
@@ -789,5 +823,9 @@ export default {
 }
 .customFile .v-input__prepend-outer {
   margin-right: 0;
+}
+.container-narrow {
+  max-width: 1100px;
+  margin: 0 auto;
 }
 </style>
