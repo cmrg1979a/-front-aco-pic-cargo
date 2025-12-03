@@ -3,7 +3,7 @@
     <h3>Datos del Embarque</h3>
 
     <v-row dense>
-      <v-col cols="12" md="6">
+      <v-col cols="12" md="12">
         <!--  v-if="$store.state.house_id_trasnport.id != 3" -->
         <v-autocomplete
           :items="$store.state.itemsProveedorRolShipper"
@@ -14,25 +14,6 @@
         >
           <v-icon
             @click.native="_callModalEntitie(1)"
-            slot="append"
-            class="btn__add"
-            color="primary"
-            :disabled="isFormActionsDisabled"
-          >
-            mdi-plus
-          </v-icon>
-        </v-autocomplete>
-      </v-col>
-      <v-col cols="12" md="6">
-        <v-autocomplete
-          :items="$store.state.clientes"
-          item-text="namelong"
-          item-value="id"
-          label="Consigne HBL"
-          v-model="$store.state.house_id_consigner_real"
-        >
-          <v-icon
-            @click.native="_callModalEntitie(11)"
             slot="append"
             class="btn__add"
             color="primary"
@@ -62,6 +43,32 @@
         </v-autocomplete>
       </v-col>
       <v-col cols="12" md="6">
+        <v-text-field
+          v-model="$store.state.house_blmaster"
+          label="N° BL House"
+        ></v-text-field>
+      </v-col>
+
+      <v-col cols="12" md="6">
+        <v-autocomplete
+          :items="$store.state.clientes"
+          item-text="namelong"
+          item-value="id"
+          label="Consigne HBL"
+          v-model="$store.state.house_id_consigner_real"
+        >
+          <v-icon
+            @click.native="_callModalEntitie(11)"
+            slot="append"
+            class="btn__add"
+            color="primary"
+            :disabled="isFormActionsDisabled"
+          >
+            mdi-plus
+          </v-icon>
+        </v-autocomplete>
+      </v-col>
+      <v-col cols="12" md="6">
         <v-autocomplete
           :items="$store.state.clientes"
           item-text="namelong"
@@ -77,68 +84,10 @@
             :disabled="isFormActionsDisabled"
           >
             mdi-plus
-          </v-icon></v-autocomplete
-        >
-      </v-col>
-      <v-col cols="12" md="6" v-if="mostrarAerolineaYGuia">
-        <v-autocomplete
-          :items="itemsAirlines"
-          item-text="name"
-          item-value="id"
-          label="Aerolinea"
-          v-model="$store.state.house_id_airlines"
-        >
+          </v-icon>
         </v-autocomplete>
       </v-col>
-      <v-col cols="12" md="6">
-        <!-- {{ $store.state }} -->
-        <v-autocomplete
-          :items="itemsColoaders"
-          item-text="namelong"
-          item-value="id"
-          label="Coloader"
-          v-model="$store.state.house_id_coloader"
-          ><v-icon
-            @click.native="_callModalEntitie(17)"
-            slot="append"
-            class="btn__add"
-            color="primary"
-            :disabled="isFormActionsDisabled"
-          >
-            mdi-plus
-          </v-icon></v-autocomplete
-        >
-      </v-col>
-      <v-col cols="12" md="6" v-if="!mostrarAerolineaYGuia">
-        <v-autocomplete
-          :items="$store.state.itemsProveedorRolNaviera"
-          item-text="namelong"
-          item-value="id"
-          label="Naviera"
-          v-model="$store.state.house_id_naviera"
-          ><v-icon
-            @click.native="_callModalEntitie(2)"
-            slot="append"
-            class="btn__add"
-            color="primary"
-            :disabled="isFormActionsDisabled"
-          >
-            mdi-plus
-          </v-icon></v-autocomplete
-        >
-      </v-col>
-      <v-col cols="12" md="3">
-        <v-text-field
-          v-model="$store.state.house_blmaster"
-          label="N° BL House"
-        ></v-text-field>
-      </v-col>
-      <v-col cols="12" md="3">
-        <v-text-field
-          v-model="$store.state.house_viaje"
-          label="Viaje"
-        ></v-text-field>
-      </v-col>
+
       <v-col cols="12" md="6">
         <v-autocomplete
           :items="itemsMotonave"
@@ -146,35 +95,16 @@
           item-value="id"
           label="Motonave"
           v-model="$store.state.house_id_motonave"
-          ><!-- <v-icon slot="append" class="btn__add" color="primary">
-            mdi-plus
-          </v-icon> --></v-autocomplete
-        >
+        ></v-autocomplete>
+      </v-col>
+      <v-col cols="12" md="6">
+        <v-text-field
+          v-model="$store.state.house_viaje"
+          label="Viaje"
+        ></v-text-field>
       </v-col>
 
-      <v-col cols="12" md="3" lg="3" xl="3" v-if="!mostrarContenedor">
-        <v-text-field
-          type="number"
-          v-model="$store.state.house_bultos"
-          label="Bultos"
-        ></v-text-field>
-      </v-col>
-      <v-col cols="12" md="3" lg="3" xl="3" v-if="!mostrarContenedor">
-        <v-text-field
-          type="number"
-          v-model="$store.state.house_peso"
-          suffix="kg"
-          label="Peso"
-        ></v-text-field>
-      </v-col>
-      <v-col cols="12" md="3" lg="3" xl="3" v-if="!mostrarContenedor">
-        <v-text-field
-          type="number"
-          suffix="m3"
-          label="Volumen"
-          v-model="$store.state.house_volumen"
-        ></v-text-field>
-      </v-col>
+      
       <v-col cols="12" md="3" lg="3" xl="3">
         <v-autocomplete
           :items="itemsFleteCon"
@@ -185,6 +115,13 @@
         ></v-autocomplete>
       </v-col>
       <v-col cols="12" md="3" lg="3" xl="3">
+        <v-text-field
+          v-model="$store.state.house_monto"
+          type="number"
+          label="Monto"
+        ></v-text-field>
+      </v-col>
+      <v-col cols="12" md="3" lg="3" xl="3">
         <v-autocomplete
           :items="itemsCoinsList"
           item-text="symbol"
@@ -192,13 +129,6 @@
           label="Moneda"
           v-model="$store.state.house_id_coins"
         ></v-autocomplete>
-      </v-col>
-      <v-col cols="12" md="3" lg="3" xl="3">
-        <v-text-field
-          v-model="$store.state.house_monto"
-          type="number"
-          label="Monto"
-        ></v-text-field>
       </v-col>
       <v-col cols="12" v-if="lstHouse.length > 0">
         <v-select

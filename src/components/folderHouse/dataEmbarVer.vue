@@ -3,7 +3,7 @@
     <h3>Datos del Embarque</h3>
 
     <v-row dense>
-      <v-col cols="12" md="6">
+      <v-col cols="12" md="12">
         <!--  v-if="$store.state.house_id_trasnport.id != 3" -->
         <v-text-field
           label="Proveedor"
@@ -20,53 +20,13 @@
       </v-col>
       <v-col cols="12" md="6">
         <v-text-field
-          label="Cliente HBL"
-          v-model="$store.state.houses.house.consigner"
-          readonly
-        />
-      </v-col>
-      <v-col cols="12" md="6">
-        <v-text-field
           label="Notify HBL"
           v-model="$store.state.houses.house.notify"
           readonly
         />
       </v-col>
-      <v-col cols="12" md="6">
-        <v-text-field
-          label="Aerolinea"
-          v-model="$store.state.houses.house.aerolinea"
-          readonly
-        />
-      </v-col>
-      <v-col cols="12" md="6">
-        <v-text-field
-          label="Coloader"
-          v-model="$store.state.houses.house.coloader"
-          readonly
-        />
-      </v-col>
-      <v-col cols="12" md="6">
-        <v-text-field
-          label="Naviera"
-          v-model="$store.state.houses.house.naviera"
-          readonly
-        />
-      </v-col>
-      <v-col cols="12" md="3">
-        <v-text-field
-          v-model="$store.state.houses.house.nro_hbl"
-          label="N° BL House"
-          readonly
-        ></v-text-field>
-      </v-col>
-      <v-col cols="12" md="3">
-        <v-text-field
-          v-model="$store.state.houses.house.nro_viaje"
-          label="Viaje"
-          readonly
-        ></v-text-field>
-      </v-col>
+      
+      <!-- Fila 3: Motonave + Viaje (sin N° BL House en vista) -->
       <v-col cols="12" md="6">
         <v-text-field
           v-model="$store.state.houses.house.motonave"
@@ -74,51 +34,33 @@
           readonly
         ></v-text-field>
       </v-col>
-       <v-col cols="12" md="3" lg="3" xl="3" >
+      <v-col cols="12" md="6">
         <v-text-field
-          type="number"
-          v-model="$store.state.houses.house.bultos"
-          label="Bultos"
+          v-model="$store.state.houses.house.nro_viaje"
+          label="Viaje"
           readonly
         ></v-text-field>
       </v-col>
-       <v-col cols="12" md="3" lg="3" xl="3" >
-        <v-text-field
-          type="number"
-          v-model="$store.state.houses.house.peso"
-          suffix="kg"
-          label="Peso"
-          readonly
-        ></v-text-field>
-      </v-col>
-       <v-col cols="12" md="3" lg="3" xl="3" >
-        <v-text-field
-          type="number"
-          suffix="m3"
-          label="Volumen"
-          v-model="$store.state.houses.house.volumen"
-          readonly
-        ></v-text-field>
-      </v-col>
-       <v-col cols="12" md="3" lg="3" xl="3" >
+       
+       <v-col cols="12" md="4" lg="4" xl="4" >
         <v-text-field
           label="Condición"
           v-model="$store.state.houses.house.conditions"
           readonly
         ></v-text-field>
       </v-col>
-       <v-col cols="12" md="3" lg="3" xl="3" >
-        <v-text-field
-          label="Moneda"
-          v-model="$store.state.houses.house.moneda"
-          readonly
-        />
-      </v-col>
-       <v-col cols="12" md="3" lg="3" xl="3" >
+       <v-col cols="12" md="4" lg="4" xl="4" >
         <v-text-field
           label="Monto"
           suffix="USD"
           v-model="$store.state.houses.house.monto"
+          readonly
+        />
+      </v-col>
+       <v-col cols="12" md="4" lg="4" xl="4" >
+        <v-text-field
+          label="Moneda"
+          v-model="$store.state.houses.house.moneda"
           readonly
         />
       </v-col>

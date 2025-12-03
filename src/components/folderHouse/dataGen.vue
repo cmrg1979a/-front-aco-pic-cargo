@@ -2,7 +2,7 @@
   <div>
     <h3>Datos y Servicios a Realizar</h3>
     <v-row dense>
-      <v-col cols="12" md="6">
+      <v-col cols="12" md="4">
         <v-text-field
           readonly
           v-model="$store.state.house_master_expediente"
@@ -16,7 +16,7 @@
           label="N° de Expedientes House"
         ></v-text-field>
       </v-col> -->
-      <v-col cols="12" md="6">
+      <v-col cols="12" md="4">
         <v-autocomplete
           label="Quote Asociado al House"
           :items="$store.state.pricing.listQuotes"
@@ -30,8 +30,7 @@
         >
         </v-autocomplete>
       </v-col>
-
-      <v-col cols="12" md="6">
+      <v-col cols="12" md="4">
         <v-autocomplete
           label="Aduana Asociado al House"
           :items="$store.state.aduana.listQuotes2"
@@ -46,10 +45,10 @@
         >
         </v-autocomplete>
       </v-col>
-
+    </v-row>
+    <v-row dense>
       <v-col cols="12" md="4">
         <v-autocomplete
-          readonly
           :items="$store.state.itemsModality"
           item-text="name"
           item-value="id"
@@ -60,7 +59,6 @@
       </v-col>
       <v-col cols="12" md="4">
         <v-autocomplete
-          readonly
           :items="$store.state.itemsShipment"
           item-text="embarque"
           item-value="id"
@@ -80,7 +78,9 @@
           @change="_getDataService()"
         ></v-autocomplete>
       </v-col>
-      <v-col cols="12" md="6">
+    </v-row>
+    <v-row dense>
+      <v-col cols="12" md="4">
         <v-autocomplete
           :items="$store.state.itemsPortBegin"
           item-text="name"
@@ -90,7 +90,7 @@
           v-model="$store.state.house_origen"
         ></v-autocomplete>
       </v-col>
-      <v-col cols="12" md="6">
+      <v-col cols="12" md="4">
         <v-autocomplete
           :items="$store.state.itemsPortEnd"
           item-text="name"
@@ -99,6 +99,27 @@
           readonly
           v-model="$store.state.house_destino"
         ></v-autocomplete>
+      </v-col>
+      <v-col cols="12" md="4">
+        <v-autocomplete
+          :items="$store.state.itemsColoaders"
+          item-text="namelong"
+          item-value="id"
+          label="Coloader"
+          v-model="$store.state.house_id_coloader"
+        ></v-autocomplete>
+      </v-col>
+    </v-row>
+
+    <v-row dense class="mt-0">
+      <v-col cols="12" md="4">
+        <v-text-field type="number" v-model="$store.state.house_bultos" label="Bultos"></v-text-field>
+      </v-col>
+      <v-col cols="12" md="4">
+        <v-text-field type="number" suffix="kg" v-model="$store.state.house_peso" label="Peso"></v-text-field>
+      </v-col>
+      <v-col cols="12" md="4">
+        <v-text-field type="number" suffix="m3" v-model="$store.state.house_volumen" label="Volumen"></v-text-field>
       </v-col>
     </v-row>
 
@@ -302,6 +323,7 @@ export default {
       this._getColoaders(),
       this._getAirlines(),
       this._getNavieras(),
+      this._getProveedorRolNaviera(),
       this._getMotonave(),
       this._getContainers(),
       this._getFleteCon(),
@@ -340,7 +362,26 @@ export default {
       "itemsServicesBegin",
       "itemsBitacoraList",
       "drawer",
+      "dataHouse_transporte",
     ]),
+    esAereo() {
+      const v = this.$store.state.house_id_trasnport;
+      const id = v && typeof v === "object" ? v.id : v;
+      const shipment = this.$store.state.itemsShipment.find((s) => s.id == id);
+      return shipment && shipment.code === "Aéreo";
+    },
+    esFCL() {
+      const v = this.$store.state.house_id_trasnport;
+      const id = v && typeof v === "object" ? v.id : v;
+      const shipment = this.$store.state.itemsShipment.find((s) => s.id == id);
+      return shipment && shipment.code === "FCL";
+    },
+    esLCL() {
+      const v = this.$store.state.house_id_trasnport;
+      const id = v && typeof v === "object" ? v.id : v;
+      const shipment = this.$store.state.itemsShipment.find((s) => s.id == id);
+      return shipment && shipment.code === "LCL";
+    },
   },
   methods: {
     ...mapActions([
@@ -351,7 +392,6 @@ export default {
       "_getIncoterms",
       "_getServicesBegin",
       "_getBitacoraList",
-      "_getBitacoraLineal",
       "_getnroMaster",
       "getQuoteDataNoAsignadaHouse",
       "_getnroMaster",
@@ -361,6 +401,7 @@ export default {
       "_getColoaders",
       "_getAirlines",
       "_getNavieras",
+      "_getProveedorRolNaviera",
       "_getMotonave",
       "_getContainers",
       "_getFleteCon",
@@ -626,9 +667,6 @@ export default {
       this.$store.state.modalServices_manualMode =
         !this.$store.state.modalServices_manualMode;
     },
-  },
-  computed: {
-    ...mapState(["dataHouse_transporte"]),
   },
 };
 </script>
