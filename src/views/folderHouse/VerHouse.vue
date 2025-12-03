@@ -197,11 +197,12 @@ export default {
     if (this.$route.name == "controlHouseVer") {
       this.formControlHouseReadonly = true;
     }
-    this.$store.state.mainTitle = `${
+    const actionLabel = this.$route.name == "controlHouseEditar" ? "EDITAR" : "VER";
+    this.$store.state.mainTitle = `N° BL House ${
       (this.$store.state.houses.house && this.$store.state.houses.house.nro_hbl) || ""
     } - ${
       (this.$store.state.houses.house && this.$store.state.houses.house.consigner) || ""
-    }`;
+    } [${actionLabel}]`;
     this.$store.state.spiner = false;
     await this.fetchDataBank({
       code: "",

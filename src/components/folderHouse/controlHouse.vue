@@ -389,6 +389,24 @@ export default {
     Bitacora,
     services,
   },
+  watch: {
+    '$store.state.houses.house': function (val) {
+      if (val && (val.nro_hbl || val.consigner)) {
+        const actionLabel = this.$route.name == "controlHouseVer" ? "VER" : "EDITAR";
+        this.$store.state.mainTitle = `N° BL House ${val.nro_hbl || ""} - ${
+          val.consigner || ""
+        } [${actionLabel}]`;
+      }
+    },
+    '$store.state.copy_house': function (val) {
+      if (val && (val.nro_hbl || val.consigner || val.consigner_name || val.namelong || val.cliente)) {
+        const actionLabel = this.$route.name == "controlHouseVer" ? "VER" : "EDITAR";
+        this.$store.state.mainTitle = `N° BL House ${val.nro_hbl || ""} - ${
+          val.consigner || val.consigner_name || val.namelong || val.cliente || ""
+        } [${actionLabel}]`;
+      }
+    },
+  },
   data: () => ({
     direction: "top",
     fab: false,
@@ -434,14 +452,94 @@ export default {
     dialogFormato: false,
     formatoflag: true,
   }),
+  async created() {
+    if (
+      (this.$route.name == "controlHouseEditar" ||
+        this.$route.name == "controlHouseVer") &&
+      this.$route.params.id
+    ) {
+      this.$store.state.spiner = true;
+      try {
+        if (typeof this.verHouse === "function") {
+          await this.verHouse(this.$route.params);
+        }
+      } catch (e) {}
+
+      const houseView =
+        (this.$store.state.houses && this.$store.state.houses.house) || null;
+      if (houseView && (houseView.nro_hbl || houseView.consigner)) {
+        const actionLabel = this.$route.name == "controlHouseVer" ? "VER" : "EDITAR";
+        this.$store.state.mainTitle = `N° BL House ${
+          (houseView && houseView.nro_hbl) || ""
+        } - ${
+          (houseView && houseView.consigner) || ""
+        } [${actionLabel}]`;
+      } else {
+        await this._getHouseById();
+        const actionLabel = this.$route.name == "controlHouseVer" ? "VER" : "EDITAR";
+        this.$store.state.mainTitle = `N° BL House ${
+          (this.$store.state.copy_house &&
+            this.$store.state.copy_house.nro_hbl) || ""
+        } - ${
+          (this.$store.state.copy_house &&
+            (this.$store.state.copy_house.consigner ||
+              this.$store.state.copy_house.consigner_name ||
+              this.$store.state.copy_house.namelong ||
+              this.$store.state.copy_house.cliente ||
+              ""))
+        } [${actionLabel}]`;
+      }
+
+      if (this.$route.name == "controlHouseVer") {
+        this.formControlHouseReadonly = true;
+      }
+      this.$store.state.spiner = false;
+    }
+  },
   async mounted() {
     if (this.$route.name == "controlHouse") {
       this.$store.state.mainTitle = "CONTROL DE EXPEDIENTE HOUSE";
-    } else if (this.$route.name == "controlHouseEditar") {
-      this.$store.state.mainTitle = "CONTROL DE EXPEDIENTE HOUSE [EDITAR]";
-    } else if (this.$route.name == "controlHouseVer") {
-      this.$store.state.mainTitle = "CONTROL DE EXPEDIENTE HOUSE [MODO VISTA]";
-      this.formControlHouseReadonly = true;
+    } else if (
+      (this.$route.name == "controlHouseEditar" ||
+        this.$route.name == "controlHouseVer") &&
+      this.$route.params.id
+    ) {
+      this.$store.state.spiner = true;
+      try {
+        if (typeof this.verHouse === "function") {
+          await this.verHouse(this.$route.params);
+        }
+      } catch (e) {}
+
+      const houseView =
+        (this.$store.state.houses && this.$store.state.houses.house) || null;
+      if (houseView && (houseView.nro_hbl || houseView.consigner)) {
+        const actionLabel = this.$route.name == "controlHouseVer" ? "VER" : "EDITAR";
+        this.$store.state.mainTitle = `N° BL House ${
+          (houseView && houseView.nro_hbl) || ""
+        } - ${
+          (houseView && houseView.consigner) || ""
+        } [${actionLabel}]`;
+      } else {
+        await this._getHouseById();
+        const actionLabel = this.$route.name == "controlHouseVer" ? "VER" : "EDITAR";
+        this.$store.state.mainTitle = `N° BL House ${
+          (this.$store.state.copy_house &&
+            this.$store.state.copy_house.nro_hbl) || ""
+        } - ${
+          (this.$store.state.copy_house &&
+            (this.$store.state.copy_house.consigner ||
+              this.$store.state.copy_house.consigner_name ||
+              this.$store.state.copy_house.namelong ||
+              this.$store.state.copy_house.cliente ||
+              ""))
+        } [${actionLabel}]`;
+      }
+
+      if (this.$route.name == "controlHouseVer") {
+        this.formControlHouseReadonly = true;
+      }
+      this.$store.state.spiner = false;
     }
 
     //this._getnroHouse();
@@ -479,6 +577,7 @@ export default {
       "getListBanksDetailsCargarPorSucursal",
       "fetchDataBank",
       "cargarListadoQuoteAduana",
+      "verHouse",
     ]),
     getTipoDocumento() {
       return this.isAereo() ? "GUÍA AÉREA" : "BL";
@@ -644,7 +743,6 @@ export default {
         name: "controlHouseEditar",
         id: this.$route.params.id,
       });
-      window.location.reload();
     },
     _setMasterContainer(id_master, id_containers, quantity) {
       var vm = this;
