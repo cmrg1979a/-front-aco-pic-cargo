@@ -315,7 +315,7 @@
       </v-form>
       </div>
     </v-card-text>
-    <v-card-actions v-if="!showNavigationButtons">
+    <v-card-actions v-if="!showNavigationButtons" class="px-2 container-narrow">
       <v-spacer></v-spacer>
       <v-btn
         color="light-blue darken-2"
@@ -435,7 +435,13 @@ export default {
 
         const combinedItems = all.filter(isCombined);
         if (combinedItems.length) {
-          return all.filter((it) => isCombined(it) || telefonoMatch(it));
+          return all
+            .filter((it) => isCombined(it) || telefonoMatch(it))
+            .map((it) =>
+              isCombined(it)
+                ? { ...it, description: "REGISTRO ÚNICO DE CONTRIBUYENTE (RUC/RIF)" }
+                : it
+            );
         }
 
         // Fallback to RUC/RIF separate entries if combined not present
@@ -444,7 +450,13 @@ export default {
           const d = norm(it.description);
           return n === "RUC" || n === "RIF" || d === "RUC" || d === "RIF";
         };
-        return all.filter((it) => isRucOrRif(it) || telefonoMatch(it));
+        return all
+          .filter((it) => isRucOrRif(it) || telefonoMatch(it))
+          .map((it) =>
+            isRucOrRif(it)
+              ? { ...it, description: "REGISTRO ÚNICO DE CONTRIBUYENTE (RUC/RIF)" }
+              : it
+          );
       }
 
       return all;
