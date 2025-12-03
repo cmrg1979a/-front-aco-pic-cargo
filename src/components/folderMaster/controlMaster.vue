@@ -28,7 +28,7 @@
 
           <houselist class="mt-5" v-if="$store.state.statusData" />
         </v-col>
-        <div style="position: fixed; bottom: 16px; right: 16px">
+        <div style="position: fixed; bottom: 16px; right: 16px; z-index: 3000">
           <v-fab-transition v-if="formControlMasterReadonly">
             <v-btn
               fab
@@ -49,9 +49,10 @@
             :bottom="bottom"
             :right="right"
             :left="left"
-            :direction="direction"
+            :direction="'top'"
             :open-on-hover="hover"
             :transition="transition"
+            class="acciones-dial"
           >
             <template v-slot:activator>
               <v-btn v-model="fab" color="info" dark fab>
@@ -59,40 +60,41 @@
                 <v-icon v-else> mdi-tools </v-icon>
               </v-btn>
             </template>
+            <!-- Invertimos el orden en el DOM para que el último quede ARRIBA al abrir hacia arriba -->
             <v-btn
-              color="success"
-              @click="_setMaster()"
-              dark
-              v-if="!this.$route.params.id"
-              x-small
+              v-if="$store.state.url_folderonedrive"
+              @click="openURL({ url: $store.state.url_folderonedrive })"
+              color="yellow"
             >
-              Guardar
-            </v-btn>
-            <v-btn
-              color="success"
-              @click="_putMaster()"
-              dark
-              v-if="this.$route.params.id"
-              x-small
-            >
-              Guardar Cambios
+              <v-icon left>mdi-folder</v-icon>
+              Carpeta
             </v-btn>
             <v-btn
               v-if="$store.state.statusData"
-              x-small
               @click="addNewHouse()"
               color="primary"
               :loading="loadingBotonNuevoHouse"
             >
+              <v-icon left>mdi-home-plus</v-icon>
               Agregar House
             </v-btn>
             <v-btn
-              v-if="$store.state.url_folderonedrive"
-              x-small
-              @click="openURL({ url: $store.state.url_folderonedrive })"
-              color="yellow"
+              color="light-green lighten-1"
+              @click="_putMaster()"
+              dark
+              v-if="this.$route.params.id"
             >
-              Carpeta
+              <v-icon left>mdi-content-save</v-icon>
+              Guardar Cambios
+            </v-btn>
+            <v-btn
+              color="light-green lighten-1"
+              @click="_setMaster()"
+              dark
+              v-if="!this.$route.params.id"
+            >
+              <v-icon left>mdi-content-save</v-icon>
+              Guardar
             </v-btn>
           </v-speed-dial>
         </div>
@@ -1138,5 +1140,27 @@ export default {
 .title_button_bottom {
   text-decoration: none;
   color: #252c32;
+}
+
+.acciones-dial ::v-deep .v-speed-dial__list {
+  align-items: flex-end !important;
+}
+.acciones-dial ::v-deep .v-speed-dial__list .v-btn {
+  align-self: flex-end;
+  min-width: 220px;
+}
+.acciones-dial ::v-deep .v-speed-dial__list .v-btn .v-btn__content {
+  justify-content: flex-start;
+  width: 100%;
+  font-size: 1.2rem;
+  line-height: 1.4;
+}
+.acciones-dial ::v-deep .v-speed-dial__list .v-btn .v-icon {
+  font-size: 22px !important;
+  margin-right: 8px;
+}
+.acciones-dial {
+  position: relative;
+  z-index: 4000 !important;
 }
 </style>

@@ -93,7 +93,7 @@ export default {
   watch: {
     "$store.state.itemsHouseList": function (newValue, oldValue) {
       this.openExpand = 0;
-      // Aquí puedes realizar las acciones que necesites cuando el valor cambie
+      
     },
   },
 };

@@ -1,6 +1,21 @@
 <template>
   <v-card>
+    <v-card-title class="px-2 container-narrow">
+      <v-spacer></v-spacer>
+      <v-btn
+        v-if="!showNavigationButtons"
+        color="light-blue darken-2"
+        class="ma-2"
+        dark
+        small
+        @click="modificarProveedor"
+      >
+        <v-icon left small>mdi-account-edit</v-icon>
+        {{ isFormReadonly ? 'EDITAR PROVEEDOR' : 'GUARDAR CAMBIOS' }}
+      </v-btn>
+    </v-card-title>
     <v-card-text class="px-2">
+      <div class="container-narrow">
       <v-subheader class="px-0">
         <b>Información Bancaria</b>
 
@@ -50,6 +65,7 @@
           </v-form>
         </v-col>
       </v-row>
+      </div>
     </v-card-text>
     <v-card-actions v-if="showNavigationButtons">
       <v-btn color="primary" @click="$store.state.entities.stepper--">Regresar</v-btn>
@@ -94,7 +110,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions([]),
+    ...mapActions(["actualizarProveedor"]),
     isInternacional() {
       let val = this.$store.state.masterusuarios.lstTipoTransaccion.some(
         (v) =>
@@ -117,6 +133,25 @@ export default {
     },
     eliminarInformacionBancaria(index) {
       this.$store.state.entities.lstInformacionBancaria.splice(index, 1);
+    },
+    async modificarProveedor() {
+      var vm = this;
+      if (vm.isFormReadonly) {
+        vm.$store.state.entities.isReadonly = false;
+        vm.$store.state.entities.isEdit = true;
+        vm.$swal({
+          icon: "info",
+          text: "Ahora puede modificar los campos",
+        });
+        return;
+      }
+
+      vm.$store.state.spiner = true;
+      await vm.actualizarProveedor();
+      vm.$store.state.spiner = false;
+
+      vm.$store.state.entities.isReadonly = true;
+      vm.$store.state.entities.isEdit = false;
     },
   },
   watch: {

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div ref="contenedorServicios">
     <p>{{ selected_certificado }}</p>
 
     <h3>Servicios a Realizar</h3>
@@ -30,15 +30,14 @@
                   dense
                   color="primary"
                   v-model="item.status"
-                  :disabled="getDisabledPropServiceStatus(index)"
-                  @change="toggleServiceStatusSwitch(item, index)"
+                  :disabled="true"
                   readonly
                 ></v-switch>
 
                 <!-- Menú especial -->
                 <v-menu v-else offset-y>
                   <template v-slot:activator="{ on, attrs }">
-                    <v-btn large color="default" v-bind="attrs" v-on="on">
+                    <v-btn large color="default" v-bind="attrs" v-on="on" :disabled="true">
                       {{
                         item.status == 1
                           ? "SI"
@@ -73,8 +72,7 @@
       </template>
     </v-simple-table>
 
-    <!-- Dialogs que ya estaban -->
-    <v-dialog v-model="dialogFormato" max-width="30%">
+    <v-dialog v-model="dialogFormato" max-width="30%" v-if="false">
       <v-card>
         <v-card-title primary-title>
           Imprimir Formato {{ tipoAreo ? "Guía aérea" : "BL" }}
@@ -100,7 +98,7 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="dialogNotificacionesLista" max-width="500">
+    <v-dialog v-model="dialogNotificacionesLista" max-width="500" v-if="false">
       <v-card>
         <v-card-title class="text-h6">
           Seleccione notificación
@@ -128,77 +126,6 @@
         </v-card-text>
       </v-card>
     </v-dialog>
-
-<!-- Acciones movidas abajo -->
-<v-card class="mt-5 pa-3" ref="cardAcciones">
-  <v-card-title class="py-1">Acciones</v-card-title>
-
-  <div class="d-flex align-center">
-    <v-speed-dial
-      v-model="fab"
-      direction="bottom"
-      :transition="transition"
-      class="acciones-dial"
-    >
-      <template v-slot:activator>
-        <v-btn color="indigo" dark fab small>
-          <v-icon v-if="!fab">mdi-cog</v-icon>
-          <v-icon v-else>mdi-close</v-icon>
-        </v-btn>
-      </template>
-
-      <v-btn small color="info" @click="irEditar">
-        <v-icon small left>mdi-pencil</v-icon>
-        Editar
-      </v-btn>
-
-      <v-btn small color="primary" @click="abriModalaFormato">
-        <v-icon small left>mdi-printer</v-icon>
-        Imprimir
-      </v-btn>
-
-      <v-btn
-        small
-        color="orange darken-2"
-        dark
-        :loading="loadingBotonTracking"
-        @click="generarTracking"
-      >
-        <v-icon small left>mdi-link-variant</v-icon>
-        Generar tracking
-      </v-btn>
-
-      <v-btn small color="teal darken-1" @click="dialogNotificacionesLista = true">
-        <v-icon small left style="transform: rotate(-45deg)">mdi-send</v-icon>
-        Notificaciones
-      </v-btn>
-    </v-speed-dial>
-  </div>
-
-  <v-text-field
-    v-if="$store.state.house_enlace_tracking"
-    v-model="$store.state.house_enlace_tracking"
-    label="Enlace de Tracking"
-    readonly
-    outlined
-    dense
-    hide-details
-    class="mt-3"
-  >
-    <template v-slot:append>
-      <v-btn
-        icon
-        small
-        color="primary"
-        @click="_copyEnlaceTracking($store.state.house_enlace_tracking)"
-      >
-        <v-icon small>mdi-content-copy</v-icon>
-      </v-btn>
-    </template>
-  </v-text-field>
-</v-card>
-
-
   </div>
 </template>
 
@@ -229,17 +156,22 @@ export default {
     loadingBotonTracking: false,
     fab: false,
     transition: "slide-y-reverse-transition",
+    directionSpeedDial: "bottom",
   }),
   computed: {
     getDisabledPropServiceStatus() {
-      return (index) =>
-        index === 0
-          ? false
-          : !this.$store.state.itemsHouseServices[index - 1].status;
+      return () => true;
     },
   },
   async mounted() {
     await this._validaData();
+    this.updateSpeedDialDirection();
+    window.addEventListener("resize", this.updateSpeedDialDirection);
+    window.addEventListener("scroll", this.updateSpeedDialDirection, true);
+  },
+  beforeDestroy() {
+    window.removeEventListener("resize", this.updateSpeedDialDirection);
+    window.removeEventListener("scroll", this.updateSpeedDialDirection, true);
   },
   methods: {
     ...mapActions([
@@ -249,6 +181,23 @@ export default {
     ]),
     irEditar() {
       this.$emit("ir-editar");
+    },
+    guardarHouse() {
+      this.$emit("guardar-house");
+    },
+    eliminarHouse() {
+      this.$emit("eliminar-house");
+    },
+    updateSpeedDialDirection() {
+      this.$nextTick(() => {
+        const cont = this.$refs.contenedorServicios;
+        if (!cont) return;
+
+        const height = cont.clientHeight || 0;
+
+        const threshold = 400; // si el contenedor es muy alto, abrir hacia arriba
+        this.directionSpeedDial = height > threshold ? "top" : "bottom";
+      });
     },
     seleccionarNotificacion(item) {
       this.dialogNotificacionesLista = false;
@@ -431,7 +380,9 @@ export default {
                 lstServices.push(itemImpuestos);
               }
 
-              vm.$store.state.itemsHouseServices = lstServices;
+              vm.$store.state.itemsHouseServices = vm._sortServicesByName(
+                lstServices
+              );
             } else {
               vm.$store.state.itemsHouseServices = [];
             }
@@ -440,6 +391,22 @@ export default {
             console.log(error);
           });
       }
+    },
+    _sortServicesByName(list) {
+      if (!Array.isArray(list)) return [];
+      const sorted = list.slice().sort((a, b) => {
+        const A = (a.nameservice || '').toString();
+        const B = (b.nameservice || '').toString();
+        return A.localeCompare(B, 'es', { sensitivity: 'base' });
+      });
+      const idx = sorted.findIndex(
+        (s) => String(s.nameservice).toUpperCase() === 'IMPUESTOS'
+      );
+      if (idx > -1) {
+        const [imp] = sorted.splice(idx, 1);
+        sorted.push(imp);
+      }
+      return sorted;
     },
     showModalServices() {
       var vm = this;
@@ -674,5 +641,22 @@ export default {
 
 .btn_add {
   cursor: pointer;
+}
+
+.acciones-dial ::v-deep .v-speed-dial__list {
+  align-items: flex-start !important;
+}
+.acciones-dial ::v-deep .v-speed-dial__list .v-btn {
+  align-self: flex-start;
+  min-width: 180px;
+}
+.acciones-dial ::v-deep .v-speed-dial__list .v-btn .v-btn__content {
+  justify-content: flex-start;
+  width: 100%;
+  font-size: 0.98rem;
+  line-height: 1.2;
+}
+.acciones-dial ::v-deep .v-speed-dial__list .v-btn .v-icon {
+  font-size: 22px !important;
 }
 </style>
