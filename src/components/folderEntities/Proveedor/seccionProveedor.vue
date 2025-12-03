@@ -346,7 +346,7 @@
       </v-form>
       </div>
     </v-card-text>
-    <v-card-actions v-if="!showNavigationButtons">
+    <v-card-actions v-if="!showNavigationButtons" class="px-2 container-narrow">
       <v-spacer></v-spacer>
       <v-btn
         color="light-blue darken-2"
