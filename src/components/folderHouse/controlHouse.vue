@@ -22,8 +22,8 @@
             </v-card-text>
           </v-card>
 
-          <v-card class="mt-3 pa-3">
-            <v-card-title class="py-1">Acciones</v-card-title>
+          <v-card class="mt-3 pa-3" v-if="false">
+            <v-card-title class="py-1">Accioness</v-card-title>
             <div class="d-flex align-center">
               <v-speed-dial
                 v-model="fab"
@@ -38,6 +38,51 @@
                   </v-btn>
                 </template>
 
+                <v-btn
+                  v-if="$route.name != 'controlHouseVer'"
+                  small
+                  color="red"
+                  dark
+                  :loading="loadingBotonEliminarHouse"
+                  :disabled="formControlHouseReadonly"
+                  @click="eliminarHouse()"
+                >
+                  <v-icon small left>mdi-delete</v-icon>
+                  Eliminar
+                </v-btn>
+
+                <!-- GENERAR TRACKING (siempre visible, no deshabilitar) -->
+                <v-btn
+                  small
+                  color="orange darken-2"
+                  dark
+                  :loading="loadingBotonTracking"
+                  @click="_generateTrackingToken"
+                >
+                  <v-icon small left>mdi-link-variant</v-icon>
+                  Tracking
+                </v-btn>
+ 
+                <!-- IMPRIMIR -->
+                <v-btn small color="primary" @click="abrirModalFormato()">
+                  <v-icon small left>mdi-printer</v-icon>
+                  Imprimir
+                </v-btn>
+
+                <!-- NOTIFICACIONES -->
+                <v-btn
+                  small
+                  color="deep-purple"
+                  dark
+                  :disabled="formControlHouseReadonly"
+                  :loading="loadingBotonNotificaciones"
+                  @click="openNotificaciones"
+                >
+                  <v-icon small left style="transform: rotate(-45deg)">mdi-send</v-icon>
+                  Notificaciones
+                </v-btn>
+
+                <!-- GUARDAR / EDITAR (queda más cerca del activador, o sea abajo visualmente con direction='top') -->
                 <v-btn
                   v-if="$route.name != 'controlHouseVer'"
                   small
@@ -57,47 +102,6 @@
                 >
                   <v-icon small left>mdi-pencil</v-icon>
                   Editar
-                </v-btn>
-
-                <v-btn small color="primary" @click="abrirModalFormato()">
-                  <v-icon small left>mdi-printer</v-icon>
-                  Imprimir
-                </v-btn>
-
-                <v-btn
-                  small
-                  color="orange darken-2"
-                  dark
-                  :disabled="isBotonTrackingDisabled"
-                  :loading="loadingBotonTracking"
-                  @click="_generateTrackingToken"
-                >
-                  <v-icon small left>mdi-link-variant</v-icon>
-                  Generar tracking
-                </v-btn>
-
-                <v-btn
-                  small
-                  color="teal darken-1"
-                  :disabled="formControlHouseReadonly"
-                  :loading="loadingBotonNotificaciones"
-                  @click="openNotificaciones"
-                >
-                  <v-icon small left style="transform: rotate(-45deg)">mdi-send</v-icon>
-                  Notificaciones
-                </v-btn>
-
-                <v-btn
-                  v-if="$route.name != 'controlHouseVer'"
-                  small
-                  color="red"
-                  dark
-                  :loading="loadingBotonEliminarHouse"
-                  :disabled="formControlHouseReadonly"
-                  @click="eliminarHouse()"
-                >
-                  <v-icon small left>mdi-delete</v-icon>
-                  Eliminar
                 </v-btn>
               </v-speed-dial>
             </div>
@@ -159,6 +163,128 @@
           </v-card>
         </v-col>
       </v-row>
+       <div style="position: fixed; bottom: 16px; right: 16px; z-index: 3000">
+        <v-fab-transition v-if="formControlHouseReadonly">
+          <v-btn
+            fab
+            large
+            dark
+            bottom
+            left
+            color="info"
+            @click="irAVerMaster()"
+          >
+            <v-icon> mdi-pencil </v-icon>
+          </v-btn>
+        </v-fab-transition>
+        <v-speed-dial
+          v-else
+          v-model="fab"
+          :direction="'top'"
+          :transition="transition"
+          class="acciones-dial"
+        >
+          <template v-slot:activator>
+            <v-btn v-model="fab" color="info" dark fab>
+              <v-icon v-if="fab"> mdi-close </v-icon>
+              <v-icon v-else> mdi-tools </v-icon>
+            </v-btn>
+          </template>
+
+          <v-btn
+            color="red"
+            dark
+            :loading="loadingBotonEliminarHouse"
+            @click="eliminarHouse()"
+          >
+            <v-icon left>mdi-delete</v-icon>
+            Eliminar
+          </v-btn>
+          <v-btn
+            color="orange darken-2"
+            dark
+            :loading="loadingBotonTracking"
+            @click="_generateTrackingToken"
+          >
+            <v-icon left>mdi-link-variant</v-icon>
+            Tracking
+          </v-btn>
+          <v-btn
+            :style="{ backgroundColor: 'rgb(92, 116, 137)', color: 'white' }"
+            @click="abrirModalFormato()"
+          >
+            <v-icon left style="color: white">mdi-printer</v-icon>
+            Imprimir
+          </v-btn>
+
+
+          <v-btn
+            color="deep-purple"
+            dark
+            @click="openNotificaciones"
+          >
+            <v-icon left style="transform: rotate(-45deg)">mdi-send</v-icon>
+            Notificaciones
+          </v-btn>
+          <v-btn
+            color="light-green lighten-1"
+            dark
+            @click="_setHouseEdit()"
+          >
+            <v-icon left>mdi-content-save</v-icon>
+            Guardar
+          </v-btn>
+        </v-speed-dial>
+      </div>
+      <div
+        v-if="$store.state.house_enlace_tracking"
+        style="position: fixed; right: 88px; bottom: 16px; z-index: 3500; max-width: 420px; width: calc(100vw - 120px);"
+      >
+        <v-text-field
+          v-model="$store.state.house_enlace_tracking"
+          label="Enlace de Tracking"
+          readonly
+          outlined
+          dense
+          hide-details
+        >
+          <template v-slot:append>
+            <v-btn
+              icon
+              small
+              color="primary"
+              @click="_copyEnlaceTracking($store.state.house_enlace_tracking)"
+            >
+              <v-icon small>mdi-content-copy</v-icon>
+            </v-btn>
+          </template>
+        </v-text-field>
+      </div>
+      <!-- Menú de notificaciones reubicado fuera de la tarjeta oculta -->
+      <v-menu v-model="openMenuNotificaciones" top offset-y content-class="elevation-0">
+        <template v-slot:activator="{ on, attrs }">
+          <span v-bind="attrs" v-on="on"></span>
+        </template>
+        <v-list color="transparent" v-show="displayMenuNotificaciones">
+          <v-list-item
+            v-for="(item, index) in getItemsNotificaciones()"
+            :key="index"
+            class="px-0"
+          >
+            <v-list-item-title>
+              <v-btn
+                depressed
+                block
+                small
+                color="primary"
+                @click="sendNotificacion(item)"
+              >
+                {{ item.title }}
+              </v-btn>
+            </v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
     </v-container>
 
     <!-- Botones flotantes removidos - ahora en sección de Acciones -->
@@ -263,6 +389,24 @@ export default {
     Bitacora,
     services,
   },
+  watch: {
+    '$store.state.houses.house': function (val) {
+      if (val && (val.nro_hbl || val.consigner)) {
+        const actionLabel = this.$route.name == "controlHouseVer" ? "VER" : "EDITAR";
+        this.$store.state.mainTitle = `N° BL House ${val.nro_hbl || ""} - ${
+          val.consigner || ""
+        } [${actionLabel}]`;
+      }
+    },
+    '$store.state.copy_house': function (val) {
+      if (val && (val.nro_hbl || val.consigner || val.consigner_name || val.namelong || val.cliente)) {
+        const actionLabel = this.$route.name == "controlHouseVer" ? "VER" : "EDITAR";
+        this.$store.state.mainTitle = `N° BL House ${val.nro_hbl || ""} - ${
+          val.consigner || val.consigner_name || val.namelong || val.cliente || ""
+        } [${actionLabel}]`;
+      }
+    },
+  },
   data: () => ({
     direction: "top",
     fab: false,
@@ -308,14 +452,94 @@ export default {
     dialogFormato: false,
     formatoflag: true,
   }),
+  async created() {
+    if (
+      (this.$route.name == "controlHouseEditar" ||
+        this.$route.name == "controlHouseVer") &&
+      this.$route.params.id
+    ) {
+      this.$store.state.spiner = true;
+      try {
+        if (typeof this.verHouse === "function") {
+          await this.verHouse(this.$route.params);
+        }
+      } catch (e) {}
+
+      const houseView =
+        (this.$store.state.houses && this.$store.state.houses.house) || null;
+      if (houseView && (houseView.nro_hbl || houseView.consigner)) {
+        const actionLabel = this.$route.name == "controlHouseVer" ? "VER" : "EDITAR";
+        this.$store.state.mainTitle = `N° BL House ${
+          (houseView && houseView.nro_hbl) || ""
+        } - ${
+          (houseView && houseView.consigner) || ""
+        } [${actionLabel}]`;
+      } else {
+        await this._getHouseById();
+        const actionLabel = this.$route.name == "controlHouseVer" ? "VER" : "EDITAR";
+        this.$store.state.mainTitle = `N° BL House ${
+          (this.$store.state.copy_house &&
+            this.$store.state.copy_house.nro_hbl) || ""
+        } - ${
+          (this.$store.state.copy_house &&
+            (this.$store.state.copy_house.consigner ||
+              this.$store.state.copy_house.consigner_name ||
+              this.$store.state.copy_house.namelong ||
+              this.$store.state.copy_house.cliente ||
+              ""))
+        } [${actionLabel}]`;
+      }
+
+      if (this.$route.name == "controlHouseVer") {
+        this.formControlHouseReadonly = true;
+      }
+      this.$store.state.spiner = false;
+    }
+  },
   async mounted() {
     if (this.$route.name == "controlHouse") {
       this.$store.state.mainTitle = "CONTROL DE EXPEDIENTE HOUSE";
-    } else if (this.$route.name == "controlHouseEditar") {
-      this.$store.state.mainTitle = "CONTROL DE EXPEDIENTE HOUSE [EDITAR]";
-    } else if (this.$route.name == "controlHouseVer") {
-      this.$store.state.mainTitle = "CONTROL DE EXPEDIENTE HOUSE [MODO VISTA]";
-      this.formControlHouseReadonly = true;
+    } else if (
+      (this.$route.name == "controlHouseEditar" ||
+        this.$route.name == "controlHouseVer") &&
+      this.$route.params.id
+    ) {
+      this.$store.state.spiner = true;
+      try {
+        if (typeof this.verHouse === "function") {
+          await this.verHouse(this.$route.params);
+        }
+      } catch (e) {}
+
+      const houseView =
+        (this.$store.state.houses && this.$store.state.houses.house) || null;
+      if (houseView && (houseView.nro_hbl || houseView.consigner)) {
+        const actionLabel = this.$route.name == "controlHouseVer" ? "VER" : "EDITAR";
+        this.$store.state.mainTitle = `N° BL House ${
+          (houseView && houseView.nro_hbl) || ""
+        } - ${
+          (houseView && houseView.consigner) || ""
+        } [${actionLabel}]`;
+      } else {
+        await this._getHouseById();
+        const actionLabel = this.$route.name == "controlHouseVer" ? "VER" : "EDITAR";
+        this.$store.state.mainTitle = `N° BL House ${
+          (this.$store.state.copy_house &&
+            this.$store.state.copy_house.nro_hbl) || ""
+        } - ${
+          (this.$store.state.copy_house &&
+            (this.$store.state.copy_house.consigner ||
+              this.$store.state.copy_house.consigner_name ||
+              this.$store.state.copy_house.namelong ||
+              this.$store.state.copy_house.cliente ||
+              ""))
+        } [${actionLabel}]`;
+      }
+
+      if (this.$route.name == "controlHouseVer") {
+        this.formControlHouseReadonly = true;
+      }
+      this.$store.state.spiner = false;
     }
 
     //this._getnroHouse();
@@ -353,6 +577,7 @@ export default {
       "getListBanksDetailsCargarPorSucursal",
       "fetchDataBank",
       "cargarListadoQuoteAduana",
+      "verHouse",
     ]),
     getTipoDocumento() {
       return this.isAereo() ? "GUÍA AÉREA" : "BL";
@@ -518,7 +743,6 @@ export default {
         name: "controlHouseEditar",
         id: this.$route.params.id,
       });
-      window.location.reload();
     },
     _setMasterContainer(id_master, id_containers, quantity) {
       var vm = this;
@@ -1141,21 +1365,24 @@ export default {
 }
 
 .acciones-dial ::v-deep .v-speed-dial__list {
-  align-items: flex-start !important;
+  align-items: flex-end !important;
 }
 .acciones-dial ::v-deep .v-speed-dial__list .v-btn {
-  align-self: flex-start;
-  min-width: 180px;
+  align-self: flex-end;
+  min-width: 220px;
 }
 .acciones-dial ::v-deep .v-speed-dial__list .v-btn .v-btn__content {
   justify-content: flex-start;
   width: 100%;
-}
-.acciones-dial ::v-deep .v-speed-dial__list .v-btn .v-btn__content {
-  font-size: 0.98rem;
-  line-height: 1.2;
+  font-size: 1.2rem;
+  line-height: 1.4;
 }
 .acciones-dial ::v-deep .v-speed-dial__list .v-btn .v-icon {
   font-size: 22px !important;
+  margin-right: 8px;
+}
+.acciones-dial {
+  position: relative;
+  z-index: 4000 !important;
 }
 </style>

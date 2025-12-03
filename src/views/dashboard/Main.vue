@@ -180,19 +180,7 @@
         :disabled="$store.state.entities.disabledBtnSave"
         >Guardar Proveedor</v-btn
       >
-
-      <v-btn
-        v-if="
-          getNameUrl() == 'editarProveedor' &&
-          $store.state.entities.showBtnSaveFlag
-        "
-        color="success"
-        class="ml-auto"
-        dark
-        @click="modificarProveedor"
-        :disabled="$store.state.entities.disabledBtnSave"
-        >Guardar Cambios Proveedor</v-btn
-      >
+ 
 
       <label class="monto" v-if="routeAduana.includes(getNameUrl())">
         {{

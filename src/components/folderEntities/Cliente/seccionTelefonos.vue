@@ -1,8 +1,9 @@
 <template>
   <v-card>
-    <v-card-title class="px-2">
+    <v-card-title class="px-2 container-narrow">
       <v-spacer></v-spacer>
       <v-btn
+        v-if="!showNavigationButtons"
         color="light-blue darken-2"
         class="ma-2"
         dark
@@ -10,10 +11,11 @@
         @click="modificarCliente"
       >
         <v-icon left small>mdi-account-edit</v-icon>
-        EDITAR CLIENTE
+        {{ isFormReadonly ? 'EDITAR CLIENTE' : 'GUARDAR CAMBIOS' }}
       </v-btn>
     </v-card-title>
     <v-card-text class="px-2">
+      <div class="container-narrow">
       <!-- ===== TELÉFONOS PROVEEDOR ===== -->
       <v-subheader class="px-0">
         <b>Teléfono Principal</b>
@@ -200,6 +202,7 @@
           </v-row>
         </v-col>
       </v-row>
+      </div>
     </v-card-text>
     <v-card-actions v-if="showNavigationButtons">
       <v-btn color="primary" @click="$store.state.entities.stepper--"
@@ -312,6 +315,18 @@ export default {
     },
     async modificarCliente() {
       var vm = this;
+
+      // Si está en modo solo lectura, pasar a modo edición y no guardar todavía
+      if (vm.isFormReadonly) {
+        vm.$store.state.entities.isReadonly = false;
+        vm.$store.state.entities.isEdit = true;
+        vm.$swal({
+          icon: "info",
+          text: "Ahora puede modificar los campos",
+        });
+        return;
+      }
+
       vm.$store.state.entities.isStep1Valid = true;
       vm.$store.state.entities.isStep2Valid = true;
       vm.$store.state.entities.isStep3Valid = true;
@@ -345,6 +360,10 @@ export default {
         vm.$store.state.spiner = true;
         await vm.actualizarCliente();
         vm.$store.state.spiner = false;
+
+        // Volver a modo solo lectura después de guardar correctamente
+        vm.$store.state.entities.isReadonly = true;
+        vm.$store.state.entities.isEdit = false;
       }
     },
   },
@@ -377,3 +396,10 @@ export default {
   },
 };
 </script>
+
+<style>
+.container-narrow {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+</style>

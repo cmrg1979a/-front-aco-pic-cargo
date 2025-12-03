@@ -1,6 +1,21 @@
 <template>
   <v-card>
+    <v-card-title class="px-2 container-narrow">
+      <v-spacer></v-spacer>
+      <v-btn
+        v-if="!showNavigationButtons"
+        color="light-blue darken-2"
+        class="ma-2"
+        dark
+        small
+        @click="modificarCliente"
+      >
+        <v-icon left small>mdi-account-edit</v-icon>
+        {{ isFormReadonly ? 'EDITAR CLIENTE' : 'GUARDAR CAMBIOS' }}
+      </v-btn>
+    </v-card-title>
     <v-card-text class="px-2">
+      <div class="container-narrow">
       <v-subheader class="px-0">
         <b>Información Bancaria</b>
 
@@ -103,6 +118,7 @@
           </v-form>
         </v-col>
       </v-row>
+      </div>
     </v-card-text>
     <v-card-actions v-if="showNavigationButtons">
       <v-btn color="primary" @click="$store.state.entities.stepper--"
@@ -158,7 +174,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions([]),
+    ...mapActions(["actualizarCliente"]),
     isInternacional() {
       let val = this.$store.state.masterusuarios.lstTipoTransaccion.some(
         (v) =>
@@ -195,6 +211,25 @@ export default {
         vm.$store.state.entities.stepper = 5;
       }
     },
+    async modificarCliente() {
+      var vm = this;
+      if (vm.isFormReadonly) {
+        vm.$store.state.entities.isReadonly = false;
+        vm.$store.state.entities.isEdit = true;
+        vm.$swal({
+          icon: "info",
+          text: "Ahora puede modificar los campos",
+        });
+        return;
+      }
+
+      vm.$store.state.spiner = true;
+      await vm.actualizarCliente();
+      vm.$store.state.spiner = false;
+
+      vm.$store.state.entities.isReadonly = true;
+      vm.$store.state.entities.isEdit = false;
+    },
   },
   watch: {
     "$store.state.entities.isStep4Valid": {
@@ -208,3 +243,10 @@ export default {
   },
 };
 </script>
+
+<style>
+.container-narrow {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+</style>

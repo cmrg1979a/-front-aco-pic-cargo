@@ -71,7 +71,7 @@
     </v-row>
 
     <v-row dense>
-      <v-col cols="12" md="6">
+      <v-col cols="12" md="4">
         <v-text-field
           label="Origen"
           readonly
@@ -79,7 +79,7 @@
           @update:search-input="recargarPuertoOrigen"
         ></v-text-field>
       </v-col>
-      <v-col cols="12" md="6">
+      <v-col cols="12" md="4">
         <v-text-field
           label="Destino"
           readonly
@@ -87,6 +87,66 @@
           @update:search-input="recargarPuertoDestino"
         ></v-text-field>
       </v-col>
+      <v-col cols="12" md="4" v-if="esAereo">
+        <v-text-field
+          label="Aerolínea"
+          :value="$store.state.houses.house.aerolinea"
+          readonly
+        ></v-text-field>
+      </v-col>
+      <v-col cols="12" md="4" v-else-if="esFCL">
+        <v-text-field
+          label="Naviera"
+          :value="$store.state.houses.house.naviera"
+          readonly
+        ></v-text-field>
+      </v-col>
+      <v-col cols="12" md="4" v-else-if="esLCL">
+        <v-text-field
+          label="Coloader"
+          :value="$store.state.houses.house.coloader"
+          readonly
+        ></v-text-field>
+      </v-col>
+    </v-row>
+
+    <v-row dense>
+      <template v-if="esLCL">
+        <v-col cols="12" md="4">
+          <v-text-field label="Bultos" :value="$store.state.houses.house.bultos" readonly></v-text-field>
+        </v-col>
+        <v-col cols="12" md="4">
+          <v-text-field label="Peso" suffix="kg" :value="$store.state.houses.house.peso" readonly></v-text-field>
+        </v-col>
+        <v-col cols="12" md="4">
+          <v-text-field label="Volumen" suffix="m3" :value="$store.state.houses.house.volumen" readonly></v-text-field>
+        </v-col>
+      </template>
+      <template v-else-if="esAereo">
+        <v-col cols="12" md="4">
+          <v-text-field label="Bultos" :value="$store.state.houses.house.bultos" readonly></v-text-field>
+        </v-col>
+        <v-col cols="12" md="4">
+          <v-text-field label="Peso" suffix="kg" :value="$store.state.houses.house.peso" readonly></v-text-field>
+        </v-col>
+        <v-col cols="12" md="4">
+          <v-text-field label="Peso Cargable" suffix="kg" :value="$store.state.houses.house.peso_cargable" readonly></v-text-field>
+        </v-col>
+      </template>
+      <template v-else-if="esFCL">
+        <v-col cols="12" md="3">
+          <v-text-field label="Tipo de contenedor" :value="($store.state.house_id_containers && $store.state.house_id_containers.name) || ''" readonly></v-text-field>
+        </v-col>
+        <v-col cols="12" md="3">
+          <v-text-field label="Cantidad de contenedores" :value="$store.state.house_cantidad" readonly></v-text-field>
+        </v-col>
+        <v-col cols="12" md="3">
+          <v-text-field label="Peso" suffix="kg" :value="$store.state.houses.house.peso" readonly></v-text-field>
+        </v-col>
+        <v-col cols="12" md="3">
+          <v-text-field label="Volumen" suffix="m3" :value="$store.state.houses.house.volumen" readonly></v-text-field>
+        </v-col>
+      </template>
     </v-row>
 
     <v-dialog v-model="$store.state.modalServices_manualMode" max-width="400">
@@ -174,6 +234,18 @@ export default {
       "drawer",
       "dataHouse_transporte",
     ]),
+    esAereo() {
+      const s = (this.$store.state.houses.house && this.$store.state.houses.house.shipment) || '';
+      return String(s).toLowerCase().includes('aéreo') || String(s).toLowerCase().includes('aereo');
+    },
+    esFCL() {
+      const s = (this.$store.state.houses.house && this.$store.state.houses.house.shipment) || '';
+      return String(s).toUpperCase() === 'FCL';
+    },
+    esLCL() {
+      const s = (this.$store.state.houses.house && this.$store.state.houses.house.shipment) || '';
+      return String(s).toUpperCase() === 'LCL';
+    },
     quotesFiltered() {
       // Filtrar y asegurar que cada item tenga las propiedades correctas
       return (this.$store.state.pricing.listQuotes || []).filter(item => {

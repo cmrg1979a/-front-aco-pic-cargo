@@ -1055,6 +1055,8 @@ export default {
     },
   },
   async mounted() {
+    this.$store.state.mainTitle = 'LISTADO DE COTIZACIONES';
+
     this.$store.state.pricing.filtro = {
       id_marketing: "",
       id_status: "",
