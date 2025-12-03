@@ -9,16 +9,6 @@ module.exports = {
     appleMobileWebAppCapable: "yes",
     appleMobileWebAppStatusBarStyle: "#252C32",
   },
-  devServer: {
-    // Hot Module Replacement - Actualizaciones en vivo
-    hot: true,
-    watchOptions: {
-      poll: 1000,
-      aggregateTimeout: 300,
-      ignored: /node_modules/,
-    },
-    liveReload: true,
-  },
   configureWebpack: {
     resolve: {
       alias: {
