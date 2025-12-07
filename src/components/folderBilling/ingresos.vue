@@ -32,20 +32,9 @@
                 <th width="12%" style="background: #fff9c4">Total Deuda</th>
                 <th width="6%">Acción</th>
                 <th width="6%">Abonos</th>
-                <th width="8%">
-                  Proformas del Sistema
-                  <p class="mb-0 text-no-wrap" style="font-size: 0.7rem">
-                    Fecha Última Factura:
-                    {{
-                      (house.ingresos.length &&
-                        house.ingresos[house.ingresos.length - 1].fecha) ||
-                      "S/E"
-                    }}
-                  </p>
-                </th>
                 <th width="8%">Más acciones</th>
                 <th>Ver Proformas</th>
-                <th width="8%">Facturas Fiscales</th>
+                <th width="8%">Facturas y Proformas</th>
               </tr>
             </thead>
             <tbody>
@@ -137,19 +126,6 @@
                 <td>
                   <v-btn
                     v-if="house.id_orders"
-                    color="pink"
-                    small
-                    :dark="!isBotonEmitirProformaDisabled(house)"
-                    :disabled="isBotonEmitirProformaDisabled(house)"
-                    @click="abrirModalFacturar(house)"
-                    @click.stop="abrirExpandIngreso(index)"
-                  >
-                    EMITIR PROFORMA
-                  </v-btn>
-                </td>
-                <td>
-                  <v-btn
-                    v-if="house.id_orders"
                     color="indigo"
                     small
                     dark
@@ -169,7 +145,19 @@
                     small
                     @click.stop="abrirModalFacturasFiscales(house)"
                   >
-                    PROFORMA FISCAL
+                    FACTURA FISCAL
+                  </v-btn>
+                  <v-btn
+                    v-if="house.id_orders"
+                    color="pink"
+                    small
+                    class="mt-1"
+                    :dark="!isBotonEmitirProformaDisabled(house)"
+                    :disabled="isBotonEmitirProformaDisabled(house)"
+                    @click="abrirModalFacturar(house)"
+                    @click.stop="abrirExpandIngreso(index)"
+                  >
+                    EMITIR PROFORMA
                   </v-btn>
                 </td>
               </tr>
