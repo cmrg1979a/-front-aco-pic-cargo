@@ -187,96 +187,121 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="item of egreso.detalle" :key="item.id">
-                <td>{{ item.nombre_proveedor }}</td>
-                <td>{{ item.concepto }}</td>
-                <td style="background: #d6f4ff">
-                  {{ parseFloat(item.monto_pr).toFixed(2) }}
-                </td>
-                <td style="background: #d6f4ff" v-if="mostrarImpuesto">
-                  {{ parseFloat(item.igv_pr).toFixed(2) }}
-                </td>
-                <td style="background: #d6f4ff">
-                  {{ parseFloat(item.total_pr).toFixed(2) }}
-                </td>
-                <td style="background: #ffd6d6">
-                  {{ parseFloat(item.monto_op).toFixed(2) }}
-                </td>
-                <td style="background: #ffd6d6" v-if="mostrarImpuesto">
-                  {{ parseFloat(item.igv_op).toFixed(2) }}
-                </td>
-                <td style="background: #ffd6d6">
-                  {{ parseFloat(item.total_op).toFixed(2) }}
-                </td>
-                <td style="background: #d8ffde">
-                  {{ parseFloat(item.montoopcuentabanco).toFixed(2) }}
-                  {{ item.acronym }}
-                </td>
-                <td style="background: #d8ffde" v-if="mostrarImpuesto">
-                  {{ parseFloat(item.igvopcuentabanco).toFixed(2) }}
-                  {{ item.acronym }}
-                </td>
-                <td style="background: #d8ffde">
-                  {{ parseFloat(item.totalopcuentabanco).toFixed(2) }}
-                  {{ item.acronym }}
-                </td>
-                <td style="background: #d8ffde">
-                  {{ item.tipocambio == 1 ? "No Aplica" : item.tipocambio }}
-                </td>
-                <td class="text-center">
-                  <v-chip
-                    v-if="item.statusadmin == 1 && item.pagado == 1"
-                    small
-                    class="mx-auto"
-                    color="green"
-                    outlined
-                    text-color="green"
+              <template
+                v-for="(grupo, idx) in groupDetallePorCliente(egreso.detalle)"
+              >
+                <tr
+                  class="blue lighten-5"
+                  :key="`header-${grupo.id_house || grupo.code_house || grupo.consigner || idx}`"
+                  style="cursor: pointer"
+                  @click="toggleCliente(egreso, grupo)"
+                >
+                  <td
+                    :colspan="mostrarImpuesto ? 16 : 13"
+                    class="font-weight-bold"
                   >
-                    SI
-                  </v-chip>
-                  <v-chip
-                    v-if="item.statusadmin == 1 && item.pagado == 0"
-                    small
-                    class="mx-auto"
-                    color="orange"
-                    outlined
-                    text-color="orange"
-                  >
-                    SI
-                  </v-chip>
-                </td>
-                <td class="text-center">{{ item.fecha_pago_letra }}</td>
-                <td>
-                  <v-chip
-                    v-if="item.pagado == 1"
-                    small
-                    class="ma-2"
-                    color="green"
-                    text-color="white"
-                  >
-                    Pagado
-                  </v-chip>
-                </td>
-                <td>
-                  <v-icon
-                    class="btn__add mr-2"
-                    dense
-                    color="orange"
-                    v-if="item.pagado == 0"
-                    @click.native="_editEgreso(item)"
-                  >
-                    mdi-pencil
-                  </v-icon>
-                  <v-icon
-                    class="btn__add"
-                    dense
-                    color="red"
-                    v-if="!item.statusadmin && item.pagado == 0"
-                    @click.native="_delEngreso(item)"
-                    >mdi-delete</v-icon
-                  >
-                </td>
-              </tr>
+                    Cliente:
+                    {{ grupo.consigner }}
+                    <span v-if="grupo.code_house">
+                      - {{ grupo.code_house }}
+                    </span>
+                  </td>
+                </tr>
+                <tr
+                  v-for="item in grupo.items"
+                  v-if="isClienteAbierto(egreso, grupo)"
+                  :key="`item-${grupo.id_house || grupo.code_house || grupo.consigner || item.id}`"
+                >
+                  <td>{{ item.nombre_proveedor }}</td>
+                  <td>{{ item.concepto }}</td>
+                  <td style="background: #d6f4ff">
+                    {{ parseFloat(item.monto_pr).toFixed(2) }}
+                  </td>
+                  <td style="background: #d6f4ff" v-if="mostrarImpuesto">
+                    {{ parseFloat(item.igv_pr).toFixed(2) }}
+                  </td>
+                  <td style="background: #d6f4ff">
+                    {{ parseFloat(item.total_pr).toFixed(2) }}
+                  </td>
+                  <td style="background: #ffd6d6">
+                    {{ parseFloat(item.monto_op).toFixed(2) }}
+                  </td>
+                  <td style="background: #ffd6d6" v-if="mostrarImpuesto">
+                    {{ parseFloat(item.igv_op).toFixed(2) }}
+                  </td>
+                  <td style="background: #ffd6d6">
+                    {{ parseFloat(item.total_op).toFixed(2) }}
+                  </td>
+                  <td style="background: #d8ffde">
+                    {{ parseFloat(item.montoopcuentabanco).toFixed(2) }}
+                    {{ item.acronym }}
+                  </td>
+                  <td style="background: #d8ffde" v-if="mostrarImpuesto">
+                    {{ parseFloat(item.igvopcuentabanco).toFixed(2) }}
+                    {{ item.acronym }}
+                  </td>
+                  <td style="background: #d8ffde">
+                    {{ parseFloat(item.totalopcuentabanco).toFixed(2) }}
+                    {{ item.acronym }}
+                  </td>
+                  <td style="background: #d8ffde">
+                    {{ item.tipocambio == 1 ? "No Aplica" : item.tipocambio }}
+                  </td>
+                  <td class="text-center">
+                    <v-chip
+                      v-if="item.statusadmin == 1 && item.pagado == 1"
+                      small
+                      class="mx-auto"
+                      color="green"
+                      outlined
+                      text-color="green"
+                    >
+                      SI
+                    </v-chip>
+                    <v-chip
+                      v-if="item.statusadmin == 1 && item.pagado == 0"
+                      small
+                      class="mx-auto"
+                      color="orange"
+                      outlined
+                      text-color="orange"
+                    >
+                      SI
+                    </v-chip>
+                  </td>
+                  <td class="text-center">{{ item.fecha_pago_letra }}</td>
+                  <td>
+                    <v-chip
+                      v-if="item.pagado == 1"
+                      small
+                      class="ma-2"
+                      color="green"
+                      text-color="white"
+                    >
+                      Pagado
+                    </v-chip>
+                  </td>
+                  <td>
+                    <v-icon
+                      class="btn__add mr-2"
+                      dense
+                      color="orange"
+                      v-if="item.pagado == 0"
+                      @click.native="_editEgreso(item)"
+                    >
+                      mdi-pencil
+                    </v-icon>
+                    <v-icon
+                      class="btn__add"
+                      dense
+                      color="red"
+                      v-if="!item.statusadmin && item.pagado == 0"
+                      @click.native="_delEngreso(item)"
+                      >mdi-delete</v-icon
+                    >
+                  </td>
+                </tr>
+              </template>
             </tbody>
           </v-simple-table>
         </v-expansion-panel-content>
@@ -1405,6 +1430,7 @@ export default {
       isDataTableLoading: false,
       mostrarImpuesto: true,
       egreso: {},
+      clientesAbiertos: {},
     };
   },
   async mounted() {
@@ -1419,6 +1445,57 @@ export default {
       this.$store.state.enterprises.impuesto.mostrarimpuesto;
   },
   methods: {
+    clienteKey(egreso, grupo) {
+      const base = egreso.id_proveedor || egreso.id_master || "";
+      const id_house = grupo.id_house || "";
+      const code_house = grupo.code_house || "";
+      const consigner = grupo.consigner || "";
+      return `${base}-${id_house}-${code_house}-${consigner}`;
+    },
+    toggleCliente(egreso, grupo) {
+      const key = this.clienteKey(egreso, grupo);
+      this.$set(
+        this.clientesAbiertos,
+        key,
+        !this.clientesAbiertos[key]
+      );
+    },
+    isClienteAbierto(egreso, grupo) {
+      const key = this.clienteKey(egreso, grupo);
+      return !!this.clientesAbiertos[key];
+    },
+    groupDetallePorCliente(detalle) {
+      if (!detalle || !Array.isArray(detalle)) {
+        return [];
+      }
+
+      const gruposMap = new Map();
+
+      detalle.forEach((item) => {
+        const id_house = item.id_house || null;
+        const code_house = item.code_house || "";
+        const consigner = item.consigner || "";
+
+        // clave estable: si hay id_house se usa, si no, combina consigner+code_house
+        const key =
+          id_house !== null && id_house !== undefined
+            ? `house-${id_house}`
+            : `client-${consigner}-${code_house}`;
+
+        if (!gruposMap.has(key)) {
+          gruposMap.set(key, {
+            id_house,
+            code_house,
+            consigner,
+            items: [],
+          });
+        }
+
+        gruposMap.get(key).items.push(item);
+      });
+
+      return Array.from(gruposMap.values());
+    },
     abrirExpandEgreso(index) {},
     abrirModalCuentaBancaria() {
       this.dialogCuentaBancaria = true;
