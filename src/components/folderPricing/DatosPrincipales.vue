@@ -13,7 +13,7 @@
                   dense
                   :rules="[(v) => !!v || 'Dato requerido']"
                   class="my-1"
-                  :items="$store.state.pricing.listMarketing"
+                  :items="listMarketingActivos"
                   item-text="name"
                   item-value="id"
                   v-model="$store.state.pricing.datosPrincipales.id_marketing"
@@ -333,6 +333,17 @@ export default {
   },
   computed: {
     ...mapState(["registroClienteFlag", ""]),
+    listMarketingActivos() {
+      let list = this.$store.state.pricing.listMarketing || [];
+      // Solo activos y ordenados por posición, igual que en FolderMarketing/list.vue
+      return list
+        .filter((m) => m.status === 1 || m.status === true)
+        .sort((a, b) => {
+          const pa = a.position || 0;
+          const pb = b.position || 0;
+          return pa - pb;
+        });
+    },
     incoterms() {
       let Icoterms = [];
       [...this.$store.state.pricing.listIncoterms].forEach((element) => {
