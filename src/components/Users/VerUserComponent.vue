@@ -1,5 +1,5 @@
 <template>
-  <v-card class="cardDatos">
+  <v-card class="cardDatos pa-4">
     <v-tabs
       v-model="tab"
       background-color="teal darken-4"
@@ -204,9 +204,10 @@
                 <v-radio label="Administrativo" :value="2"></v-radio>
               </v-radio-group>
             </v-col> -->
-            <v-col cols="12">
-              Activo/ Inactivo
+            <v-col cols="12" class="d-flex align-center">
+              <span class="mr-4">Activo/ Inactivo</span>
               <v-switch
+                hide-details
                 :label="
                   $store.state.user.model.status == 1 ? 'Activo' : 'Inactivo'
                 "
@@ -562,17 +563,18 @@ export default {
 
 <style scoped>
 .cardDatos {
-  max-width: 80%;
+  width: 100%;
+  max-width: 100%;
 }
 .items {
-  min-height: 700px !important;
+  min-height: 60vh !important;
 }
 .iconDepartamento {
   cursor: pointer;
 }
 @media (max-width: 1000px) {
   .cardDatos {
-    min-width: 100% !important;
+    width: 100% !important;
   }
   .items {
     min-height: auto !important;
