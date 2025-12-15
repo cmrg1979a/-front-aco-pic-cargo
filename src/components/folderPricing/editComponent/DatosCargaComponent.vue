@@ -137,6 +137,7 @@
                     <th>Cant. Bultos</th>
                     <th>Peso</th>
                     <th>Volumen</th>
+                    <th>Peso cargable (kg/m³)</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -146,6 +147,9 @@
                     </td>
                     <td>{{ $store.state.pricing.datosPrincipales.peso }}</td>
                     <td>{{ $store.state.pricing.datosPrincipales.volumen }}</td>
+                    <td>
+                      {{ pesoCargable !== null ? pesoCargable + ' kg/m³' : '' }}
+                    </td>
                   </tr>
                 </tbody>
               </v-simple-table>
@@ -368,6 +372,8 @@
                   <tr>
                     <td>#</td>
                     <td>Uni(s)</td>
+                    <td>Medidas (L x A x H)</td>
+                    <td>Peso x Bulto</td>
                     <td>Peso (Kg.)</td>
                     <td>Volumen (m <sup>3</sup>)</td>
                     <td></td>
@@ -386,6 +392,13 @@
                         hide-details
                         @input="recalcularCalculadora"
                       ></v-text-field>
+                    </td>
+                    <td>
+                      {{ medida.largo }} x {{ medida.ancho }} x
+                      {{ medida.alto }}
+                    </td>
+                    <td>
+                      {{ medida.pesoXBulto }}
                     </td>
                     <td>
                       <v-text-field
@@ -420,8 +433,11 @@
                   <tr>
                     <td>{{ tblTotal.descripcion }}</td>
                     <td>{{ tblTotal.uni }}</td>
+                    <td></td>
+                    <td></td>
                     <td>{{ tblTotal.peso }}</td>
                     <td>{{ tblTotal.volumen }}</td>
+                    <td></td>
                   </tr>
                 </tbody>
               </v-simple-table>
@@ -680,6 +696,10 @@ export default {
           uni: this.fromMedidas.bultos,
           peso: parseFloat(peso).toFixed(2),
           volumen: parseFloat(this.fromMedidas.bultos * volumen).toFixed(2),
+          largo: this.fromMedidas.largo,
+          ancho: this.fromMedidas.ancho,
+          alto: this.fromMedidas.alto,
+          pesoXBulto: this.fromMedidas.peso,
         });
         this.fromMedidas ==
           {
@@ -763,6 +783,17 @@ export default {
             this.id_percepcionaduana;
         }
       });
+    },
+  },
+  computed: {
+    pesoCargable() {
+      const datos = this.$store.state.pricing.datosPrincipales || {};
+      const peso = parseFloat(datos.peso || 0);
+      const volumen = parseFloat(datos.volumen || 0);
+      if (!peso || !volumen) return null;
+      const valor = peso / volumen;
+      if (!isFinite(valor)) return null;
+      return parseFloat(valor.toFixed(2));
     },
   },
 };
