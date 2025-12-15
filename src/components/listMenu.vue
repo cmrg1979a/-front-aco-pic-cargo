@@ -161,6 +161,12 @@
               </p>
               <p
                 class="my-1 px-5 text-resumen"
+                v-if="isAereoPricing && pesoCargable !== null"
+              >
+                Kilos/Volumen (peso cargable): {{ pesoCargable }} kg/m³
+              </p>
+              <p
+                class="my-1 px-5 text-resumen"
                 v-if="
                   $store.state.pricing.datosPrincipales.containers.length > 0
                 "
@@ -276,6 +282,35 @@ export default {
     ...mapState(["itemsList", "itemsMenu", "datosPrincipales"]),
     actualizarCostosFlag() {
       return this.$store.state.pricing.actualizarCostosFlag;
+    },
+    isAereoPricing() {
+      const pricing = this.$store.state.pricing;
+      if (!pricing || !pricing.listShipment || !pricing.datosPrincipales) {
+        return false;
+      }
+
+      const tipo = pricing.datosPrincipales.idtipocarga;
+      const id = tipo && typeof tipo === "object" ? tipo.id : tipo;
+      if (!id) return false;
+
+      const items = pricing.listShipment || [];
+      const it = items.find((v) => v.id == id);
+      return it && it.code === "Aéreo";
+    },
+    pesoCargable() {
+      const pricing = this.$store.state.pricing;
+      if (!pricing || !pricing.datosPrincipales) return null;
+
+      const datos = pricing.datosPrincipales;
+      const peso = parseFloat(datos.peso || 0);
+      const volumen = parseFloat(datos.volumen || 0);
+
+      if (!this.isAereoPricing || !peso || !volumen) return null;
+
+      const valor = peso / volumen;
+      if (!isFinite(valor)) return null;
+
+      return parseFloat(valor.toFixed(2));
     },
   },
   methods: {
