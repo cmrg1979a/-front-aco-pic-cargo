@@ -129,9 +129,19 @@
                     color="indigo"
                     small
                     dark
+                    class="mb-1"
                     @click.stop="abrirModalCambiarExpediente(house)"
                   >
                     Cambiar expediente
+                  </v-btn>
+                  <v-btn
+                    v-if="house.id_orders"
+                    color="red darken-1"
+                    small
+                    dark
+                    @click.stop="eliminarHouseIngreso(house)"
+                  >
+                    Eliminar
                   </v-btn>
                 </td>
                 <td>
@@ -1260,6 +1270,65 @@ export default {
     }, 2000);
   },
   methods: {
+    async eliminarHouseIngreso(house) {
+      let vm = this;
+
+      Swal.fire({
+        icon: "question",
+        title: "ADVERTENCIA",
+        text:
+          "¿Está seguro que desea eliminar todo el registro de ingresos de este expediente (house)?",
+        showDenyButton: true,
+        confirmButtonText: "Si",
+        denyButtonText: "No",
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          try {
+            const config = {
+              method: "put",
+              url:
+                process.env.VUE_APP_URL_MAIN +
+                "setHouseIngresosDelete/" +
+                house.id_house,
+              headers: {
+                "auth-token": sessionStorage.getItem("auth-token"),
+                "Content-Type": "application/json",
+              },
+            };
+
+            const response = await axios(config);
+
+            if (response.data && response.data.status == "401") {
+              Swal.fire({
+                icon: "error",
+                text: response.data.mensaje,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                allowEnterKey: false,
+              });
+              return;
+            }
+
+            if (response.data && response.data.statusBol) {
+              Swal.fire({
+                icon: "success",
+                title: "REGISTRO ELIMINADO.",
+              });
+
+              await vm.getListControlGastos(vm.$route.params.id);
+              vm.$emit("recalcularProfit");
+            }
+          } catch (error) {
+            console.log(error);
+            Swal.fire({
+              icon: "error",
+              title: "Lo sentimos",
+              text: error,
+            });
+          }
+        }
+      });
+    },
     _openDebs(house) {
       this.house = house;
       this.dialogDebs = true;
