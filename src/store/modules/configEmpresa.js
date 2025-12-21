@@ -287,22 +287,23 @@ const actions = {
   },
   async guardarCostos({ commit }, data) {
     data.id_branch = JSON.parse(sessionStorage.getItem("dataUser"))[0].id_branch;
-    var config = {
+    const config = {
       method: "post",
       url: process.env.VUE_APP_URL_MAIN + `guardar_costos_config`,
       headers: {
         "auth-token": sessionStorage.getItem("auth-token"),
         "Content-Type": "application/json",
       },
-      data: data,
+      data,
     };
-    await axios(config)
-      .then(function (response) {
-        let data = response.data;
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+    try {
+      const response = await axios(config);
+      const resData = response.data;
+      return resData;
+    } catch (error) {
+      console.log("Error al guardar costos de configuración:", error);
+      throw error;
+    }
   },
   async OmitirConfiguracionCost({ commit }) {
     if (!JSON.parse(sessionStorage.getItem("dataUser"))) {
