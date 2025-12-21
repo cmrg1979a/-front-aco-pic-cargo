@@ -76,7 +76,12 @@
           :class="[
             item.aprobadoflag || item.status_code == 4
               ? 't-green-approved'
-              : item.status_code == 3
+              : item.status_code == 3 ||
+                (item.status &&
+                  item.status
+                    .toString()
+                    .toLowerCase()
+                    .includes('COTIZANDO SEGURO'))
               ? 't-red'
               : item.status_code == 5
               ? 't-green'
