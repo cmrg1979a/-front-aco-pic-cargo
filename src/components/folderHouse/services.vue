@@ -23,7 +23,8 @@
         <thead>
           <tr>
             <!-- <th width="25%" class="text-left">Ubicación/Tramo</th> -->
-            <th width="45%" class="text-left">Servicio</th>
+            <th width="20%" class="text-left">Fecha realizado</th>
+            <th width="40%" class="text-left">Servicio</th>
             <th width="25%" class="text-center">Realizado (Sí/No)</th>
             <th width="5%" class="text-center">Acciones</th>
           </tr>
@@ -35,6 +36,7 @@
             :key="item.id"
           >
             <!-- <td>{{ item.namebegend }}</td> -->
+            <td>{{ formatFecha(item.updated_at) }}</td>
             <td>{{ item.nameservice }}</td>
 
             <td>
@@ -137,11 +139,21 @@ watch: {
       "_getPortEnd",
     ]),
     getDisabledPropServiceStatus(index) {
-       return !!this.isFormActionsDisabled;
+      return !!this.isFormActionsDisabled;
     },
-     logNameService(value) {
-    console.log("nameservice:", value); 
-     return value;
+    logNameService(value) {
+      console.log("nameservice:", value);
+      return value;
+    },
+    formatFecha(val) {
+      if (!val) return "";
+      try {
+        const d = moment(val);
+        if (!d.isValid()) return String(val);
+        return d.format("DD/MM/YYYY");
+      } catch (e) {
+        return String(val);
+      }
     },
     send() {
       alert("Jpla");
@@ -271,8 +283,20 @@ watch: {
             if (response.data.estadoflag) {
               let lstServices = [];
               let itemImpuestos = null;
-              response.data.data.map((item, i) => {
-                if (item.nameservice.toUpperCase() == "IMPUESTOS") {
+              response.data.data.map((it, i) => {
+                // Regla: todos en 0 (No) excepto si updated_at y created_at son distintos,
+                // en cuyo caso se respeta el status que viene del backend.
+                const changed =
+                  it.updated_at &&
+                  it.created_at &&
+                  it.updated_at !== it.created_at;
+
+                const item = {
+                  ...it,
+                  status: changed ? it.status : 0,
+                };
+
+                if ((item.nameservice || '').toUpperCase() == "IMPUESTOS") {
                   itemImpuestos = item;
                 } else {
                   lstServices.push(item);
@@ -345,8 +369,10 @@ watch: {
       }
     },
     toggleServiceStatusSwitch(item, index) {
-     
-      return;
+      // Solo actualiza el estado local. La fecha mostrada proviene de update_at del backend.
+      // El backend actualizará update_at cuando se guarde el House (setHouseEdit).
+      const isOn = item.status === 1 || item.status === "1" || item.status === true;
+      item.status = isOn ? 1 : 0;
     },
     _sortServicesByName(list) {
       if (!Array.isArray(list)) return [];
@@ -418,6 +444,7 @@ watch: {
                 position_begend: item.position_begend,
                 nameservice: item.namegroupservice,
                 status: 0,
+                updated_at: null,
               };
 
               if (item.namegroupservice.toUpperCase() == "IMPUESTOS") {

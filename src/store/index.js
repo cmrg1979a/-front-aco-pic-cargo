@@ -78,6 +78,7 @@ export default new Vuex.Store({
     nro_manifiesto: "",
     url_folderonedrive: "",
     fecha_libre_almacenaje: "",
+    fecha_libre_sobreestadia: "",
     almacen_recepcion: "",
     dias_sobreestadia: 0,
     registroClienteFlag: false,

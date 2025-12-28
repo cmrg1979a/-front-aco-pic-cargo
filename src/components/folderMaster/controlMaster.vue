@@ -25,8 +25,9 @@
               <dataFechas />
             </v-card-text>
           </v-card>
-
-          <houselist class="mt-5" v-if="$store.state.statusData" />
+        </v-col>
+        <v-col cols="12">
+          <houselist v-if="$store.state.statusData" />
         </v-col>
         <div style="position: fixed; bottom: 16px; right: 16px; z-index: 3000">
           <v-fab-transition v-if="formControlMasterReadonly">
@@ -608,7 +609,11 @@ export default {
           code_master: vm.$store.state.master_expediente,
           id_cot: vm.$store.state.master_cotizanion,
           id_modality: vm.$store.state.master_sentido,
-          id_shipment: vm.$store.state.master_id_trasnport.id,
+          id_shipment:
+            vm.$store.state.master_id_trasnport &&
+            vm.$store.state.master_id_trasnport.id
+              ? vm.$store.state.master_id_trasnport.id
+              : vm.$store.state.master_id_trasnport,
           id_incoterms: vm.$store.state.master_incoterms,
           id_port_begin: vm.$store.state.master_origen,
           id_port_begin:
@@ -730,12 +735,17 @@ export default {
           nro_cuotas: vm.$store.state.nro_cuotas,
           grupalflag: vm.$store.state.grupalflag,
           fecha_libre_almacenaje: vm.$store.state.fecha_libre_almacenaje,
+          fecha_libre_sobreestadia:
+            vm.$store.state.fecha_libre_sobreestadia || null,
           almacen_recepcion: vm.$store.state.almacen_recepcion,
           dias_sobreestadia: vm.$store.state.dias_sobreestadia,
           id_canal: vm.$store.state.id_canal,
           nro_manifiesto: vm.$store.state.nro_manifiesto,
           namecampaign: vm.$store.state.namecampaign,
           master_itemsContainers: vm.$store.state.master_itemsContainers,
+          vuelo: vm.$store.state.master_vuelo || null,
+          nro_containers: vm.$store.state.master_nro_containers || null,
+          nro_precinto: vm.$store.state.master_nro_precinto || null,
         });
 
         var config = {
@@ -1036,12 +1046,18 @@ export default {
           nro_cuotas: vm.$store.state.nro_cuotas,
           grupalflag: vm.$store.state.grupalflag,
           fecha_libre_almacenaje: vm.$store.state.fecha_libre_almacenaje,
+          fecha_libre_sobreestadia:
+            vm.$store.state.fecha_libre_sobreestadia || null,
           almacen_recepcion: vm.$store.state.almacen_recepcion,
           dias_sobreestadia: vm.$store.state.dias_sobreestadia,
           id_canal: vm.$store.state.id_canal,
           nro_manifiesto: vm.$store.state.nro_manifiesto,
           namecampaign: vm.$store.state.namecampaign,
           master_itemsContainers: vm.$store.state.master_itemsContainers,
+          // Nuevos campos para embarque
+          vuelo: vm.$store.state.master_vuelo || null,
+          nro_containers: vm.$store.state.master_nro_containers || null,
+          nro_precinto: vm.$store.state.master_nro_precinto || null,
         });
 
         var config = {

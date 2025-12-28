@@ -66,7 +66,7 @@
       <template v-slot:label="{ item }">
         <router-link
           v-if="item.route"
-          :to="{ name: item.route }"
+          :to="getRouteForItem(item)"
           class="treeview-label full-width-link"
           style="text-decoration: none; color: inherit"
         >
@@ -344,28 +344,19 @@ export default {
 
       return true;
     },
-    handleTreeviewItemClick(item) {
-      if (item) {
-        if (item.length > 0) {
-          if (item[0].route) {
-            this.$router.push({ name: item[0].route }, () => {});
-            let ruta = this.$route.name;
-            // if (this.router.includes(ruta)) {
-            //   this.$nextTick(() => {
-            //     setTimeout(() => {
-            //       window.location.reload();
-            //     }, 100);
-            //   });
-            // }
-            this.$store.state.drawer = false;
-          }
-        }
+    getRouteForItem(item) {
+      if (!item || !item.route) {
+        return {};
       }
+      return { name: item.route };
     },
     handleClickTree(selected) {
       const item = selected[0];
       if (item && item.route) {
-        this.$router.push({ name: item.route });
+        const route = this.getRouteForItem(item);
+        if (route && route.name) {
+          this.$router.push(route);
+        }
       }
     },
   },

@@ -69,7 +69,7 @@
         </v-row>
       </v-col>
 
-      <v-col cols="12" md="12">
+      <v-col cols="12" md="4">
         <v-autocomplete
           :items="itemsModality"
           item-text="name"
@@ -79,7 +79,7 @@
           v-model="$store.state.master_sentido"
         ></v-autocomplete>
       </v-col>
-      <v-col cols="12" md="12">
+      <v-col cols="12" md="4">
         <v-autocomplete
           :items="itemsShipment"
           item-text="embarque"
@@ -90,7 +90,7 @@
           @change="_activePort($store.state.master_id_trasnport.id_transport)"
         ></v-autocomplete>
       </v-col>
-      <v-col cols="12" md="12">
+      <v-col cols="12" md="4">
         <v-autocomplete
           :items="itemsIncoterms"
           item-text="name"
@@ -142,6 +142,42 @@
           v-model="$store.state.master_id_operador"
         ></v-autocomplete>
       </v-col>
+      <v-col cols="12" md="6" v-if="isAereo()">
+        <v-autocomplete
+          :items="$store.state.itemsProveedorRolAgente"
+          item-text="namelong"
+          item-value="id"
+          label="Agente"
+          v-model="$store.state.master_id_agente"
+        ></v-autocomplete>
+      </v-col>
+      <v-col cols="12" md="6" v-if="isFCL() || isLCL()">
+        <v-autocomplete
+          :items="$store.state.itemsProveedorRolColoader"
+          item-text="namelong"
+          item-value="id"
+          label="Coloader"
+          v-model="$store.state.master_id_coloader"
+        ></v-autocomplete>
+      </v-col>
+      <!--
+      <v-col cols="12" md="6">
+        <v-autocomplete
+          :items="$store.state.clientes"
+          item-text="namelong"
+          item-value="id"
+          label="Notify Master MBL"
+          v-model="$store.state.master_id_notify"
+        ></v-autocomplete>
+      </v-col>
+      -->
+      <v-col cols="12" md="6">
+        <v-text-field
+          :type="obtenerInputTypeBLMaster"
+          v-model="$store.state.master_blmaster"
+          :label="obtenerLabelBLMaster"
+        ></v-text-field>
+      </v-col>
     </v-row>
   </div>
 </template>
@@ -169,6 +205,9 @@ export default {
         this._getIncoterms(),
         this.cargarMasterDetalleCanal(),
         this._getOperador(),
+        this.cargarClientes(),
+        this._getProveedorRolAgente(),
+        this._getProveedorRolColoader(),
         this._validaDatass(),
       ]);
     if (!this.$route.params.id) {
@@ -190,6 +229,12 @@ export default {
       "drawer",
       "itemsContainers",
     ]),
+    obtenerLabelBLMaster() {
+      return this.isAereo() ? "BL Máster Nro." : "BL Máster";
+    },
+    obtenerInputTypeBLMaster() {
+      return this.isAereo() ? "number" : "text";
+    },
   },
   methods: {
     ...mapActions([
@@ -205,6 +250,9 @@ export default {
       "_getOperador",
       "_getHouseList",
       "cargarMasterDetalleCanal",
+      "cargarClientes",
+      "_getProveedorRolAgente",
+      "_getProveedorRolColoader",
     ]),
 
     async _activePort(id_transport) {
@@ -322,6 +370,12 @@ export default {
             vm.$store.state.master_id_motonave =
               response.data.data[0].id_motonave;
             vm.$store.state.master_viaje = response.data.data[0].nro_viaje;
+            // Nuevos campos de embarque
+            vm.$store.state.master_vuelo = response.data.data[0].vuelo;
+            vm.$store.state.master_nro_containers =
+              response.data.data[0].nro_containers;
+            vm.$store.state.master_nro_precinto =
+              response.data.data[0].nro_precinto;
             vm.$store.state.master_bultos = response.data.data[0].bultos;
             vm.$store.state.master_peso = response.data.data[0].peso;
             vm.$store.state.master_volumen = response.data.data[0].volumen;
@@ -334,6 +388,8 @@ export default {
             vm.$store.state.comentario = response.data.data[0].comentario;
             vm.$store.state.fecha_libre_almacenaje =
               response.data.data[0].fecha_libre_almacenaje;
+            vm.$store.state.fecha_libre_sobreestadia =
+              response.data.data[0].fecha_libre_sobreestadia;
             vm.$store.state.almacen_recepcion =
               response.data.data[0].almacen_recepcion;
             vm.$store.state.dias_sobreestadia =
@@ -442,6 +498,54 @@ export default {
         }
       }
 
+      return val;
+    },
+    isAereo() {
+      let val = false;
+      let id = this.$store.state.master_id_trasnport.id
+        ? this.$store.state.master_id_trasnport.id
+        : this.$store.state.master_id_trasnport;
+
+      let code =
+        this.itemsShipment.filter((v) => v.id == id).length > 0
+          ? this.itemsShipment.filter((v) => v.id == id)[0].code
+          : "";
+
+      if (code == "Aéreo") {
+        val = true;
+      }
+      return val;
+    },
+    isLCL() {
+      let val = false;
+      let id = this.$store.state.master_id_trasnport.id
+        ? this.$store.state.master_id_trasnport.id
+        : this.$store.state.master_id_trasnport;
+
+      let code =
+        this.itemsShipment.filter((v) => v.id == id).length > 0
+          ? this.itemsShipment.filter((v) => v.id == id)[0].code
+          : "";
+
+      if (code == "LCL") {
+        val = true;
+      }
+      return val;
+    },
+    isFCL() {
+      let val = false;
+      let id = this.$store.state.master_id_trasnport.id
+        ? this.$store.state.master_id_trasnport.id
+        : this.$store.state.master_id_trasnport;
+
+      let code =
+        this.itemsShipment.filter((v) => v.id == id).length > 0
+          ? this.itemsShipment.filter((v) => v.id == id)[0].code
+          : "";
+
+      if (code == "FCL") {
+        val = true;
+      }
       return val;
     },
     isImportacion() {

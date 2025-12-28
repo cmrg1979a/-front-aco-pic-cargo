@@ -26,6 +26,21 @@
         ></v-text-field>
       </v-col>
       <v-col cols="12" md="6">
+        <v-select
+          :items="$store.state.masterusuarios.lstCanales"
+          item-text="descripcion"
+          item-value="id"
+          v-model="$store.state.id_canal"
+          label="Canal"
+        ></v-select>
+      </v-col>
+      <v-col cols="12" md="6">
+        <v-text-field
+          label="Almacén Recepción"
+          v-model="$store.state.almacen_recepcion"
+        ></v-text-field>
+      </v-col>
+      <v-col cols="12" md="6">
         <v-text-field
           v-model="$store.state.fecha_libre_almacenaje"
           type="date"
@@ -33,13 +48,7 @@
         ></v-text-field>
       </v-col>
 
-      <v-col cols="12" md="6">
-        <v-text-field
-          label="Almacén Recepción"
-          v-model="$store.state.almacen_recepcion"
-        ></v-text-field>
-      </v-col>
-
+      <!-- Solo FCL: Días libres de sobreestadía y fecha límite de sobreestadía -->
       <v-col cols="12" md="6" v-if="!(isAereo() || isLCL())">
         <v-text-field
           label="Días Libres de Sobreestadía."
@@ -47,6 +56,13 @@
           suffix="Día(s)"
           v-model="$store.state.dias_sobreestadia"
           min="0"
+        ></v-text-field>
+      </v-col>
+      <v-col cols="12" md="6" v-if="!(isAereo() || isLCL())">
+        <v-text-field
+          v-model="$store.state.fecha_libre_sobreestadia"
+          type="date"
+          label="Libre de Sobreestadía Hasta"
         ></v-text-field>
       </v-col>
 
@@ -66,15 +82,6 @@
             label="Ganancia Operaciones"
           ></v-text-field>
         </v-col> -->
-      <v-col cols="12" md="6">
-        <v-select
-          :items="$store.state.masterusuarios.lstCanales"
-          item-text="descripcion"
-          item-value="id"
-          v-model="$store.state.id_canal"
-          label="Canal"
-        ></v-select>
-      </v-col>
       <v-col cols="12" md="6">
         <v-text-field
           type="number"
