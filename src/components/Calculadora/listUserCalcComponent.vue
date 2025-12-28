@@ -672,16 +672,20 @@ export default {
       ],
       itemResumen: [],
       headers: [
-        { text: "Acciones", value: "accion" },
-        { text: "Fecha Última Actualizacion", value: "usuario_updated" },
+        // { text: "Acciones", value: "accion" },
+        // { text: "Fecha Última Actualizacion", value: "usuario_updated" },
         { text: "Cliente", value: "usuario_nombre" },
+        { text: "Teléfono", value: "usuario_email" },
         { text: "Correo", value: "usuario_email" },
-        { text: "Teléfono", value: "usuario_telefono" },
-        { text: "Estatus Última Llamada", value: "status_description" },
-        { text: "Último comentario", value: "usuario_ultimo_comentario" },
-        { text: "Ejecutivo comentario", value: "usuario_entities_name" },
-        { text: "Modo de Registro", value: "usuario_origen" },
-        { text: "", value: "data-table-expand" },
+        { text: "Origen", value: "usuario_email" },
+        { text: "Destino", value: "usuario_email" },
+        { text: "Peso", value: "usuario_email" },
+        { text: "Volumen", value: "usuario_email" },
+        { text: "Valor Mercancia", value: "usuario_email" },
+        { text: "Tipo Mercancía", value: "usuario_email" },
+        { text: "Departamento", value: "usuario_telefono" },
+        { text: "Distrito", value: "usuario_telefono" },
+        { text: "Acciones", value: "accion" },
       ],
       headersCall: [
         { text: "Acciones", value: "action" },
@@ -700,7 +704,8 @@ export default {
         date: "",
         comentario: "",
         fecha: new Date(),
-        identities: JSON.parse(sessionStorage.getItem("dataUser"))[0].id_entitie,
+        identities: JSON.parse(sessionStorage.getItem("dataUser"))[0]
+          .id_entitie,
       },
       calls: [],
       datos: {
@@ -737,7 +742,7 @@ export default {
     };
   },
   async mounted() {
-    this.$store.state.spiner = true;
+    //this.$store.state.spiner = true;
     await this.getModulesEntities();
     moment.locale("es");
     let fechahora = moment(this.fecha).format("YYYY-MM-DDTHH:mm");
@@ -751,7 +756,7 @@ export default {
       index++;
     });
 
-    this.$store.state.spiner = false;
+    //this.$store.state.spiner = false;
   },
   methods: {
     ...mapActions([

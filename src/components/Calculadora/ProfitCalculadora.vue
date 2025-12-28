@@ -2,11 +2,18 @@
   <v-container>
     <v-row>
       <v-col cols="12">
-        <v-pagination
-          v-model="opcionCalculadora"
-          :length="2"
-          circle
-        ></v-pagination>
+        <center>
+          <v-btn
+            :class="opcionCalculadora == opcion.id ? 'Active' : 'Inactive'"
+            v-for="(opcion, index) in opciones"
+            :key="index"
+            class="mx-1"
+            small
+            @click="opcionCalculadora = opcion.id"
+          >
+            {{ opcion.nombre }}
+          </v-btn>
+        </center>
       </v-col>
       <v-col cols="12">
         <v-btn color="success" small @click="abrirModal">Nuevo</v-btn>
@@ -17,10 +24,20 @@
             {{ item.estado ? "Activo" : "Anulado" }}
           </template>
           <template v-slot:[`item.action`]="{ item }">
-            <v-btn color="warning" v-if="item.estado" icon @click="abrirModalEditar(item)">
+            <v-btn
+              color="warning"
+              v-if="item.estado"
+              icon
+              @click="abrirModalEditar(item)"
+            >
               <v-icon>mdi-pencil</v-icon>
             </v-btn>
-            <v-btn color="error" v-if="item.estado" icon @click="borrarProfit(item)">
+            <v-btn
+              color="error"
+              v-if="item.estado"
+              icon
+              @click="borrarProfit(item)"
+            >
               <v-icon>mdi-delete</v-icon>
             </v-btn>
           </template>
@@ -29,54 +46,112 @@
     </v-row>
     <v-dialog v-model="dialogNuevoProfit" scrollable persistent max-width="30%">
       <v-card>
-        <v-form ref="frmNuevo">
-          <v-card-title v-if="nuevoflag"> Nuevo Profit </v-card-title>
-          <v-card-title v-if="editarflag"> Actualizar Profit </v-card-title>
-          <v-card-text>
-            <v-text-field
-              type="number"
-              name="Profit"
-              label="Profit"
-              v-model="profit"
-              :rules="[(v) => !!v || 'Dato Requerido']"
-            />
-            <v-text-field
-              type="number"
-              name="Peso"
-              label="Peso"
-              v-model="peso"
-              :rules="[(v) => !!v || 'Dato Requerido']"
-            />
-            <v-text-field
-              type="number"
-              name="volumen"
-              label="Volumen"
-              v-model="volumen"
-              :rules="[(v) => !!v || 'Dato Requerido']"
-            />
-            <v-text-field
-              type="number"
-              name="valor"
-              label="Valor"
-              v-model="valor"
-              :rules="[(v) => !!v || 'Dato Requerido']"
-            />
-            <v-text-field
-              type="number"
-              name="M³ "
-              label="M³ "
-              v-model="metromc"
-              :rules="[(v) => !!v || 'Dato Requerido']"
-            />
-            <v-text-field
-              type="number"
-              name="M³ Adicional"
-              label="M³ Adicional"
-              v-model="metromcad"
-              :rules="[(v) => !!v || 'Dato Requerido']"
-            />
-          </v-card-text>
-        </v-form>
+        <v-card-title v-if="nuevoflag"> Nuevo Profit </v-card-title>
+        <v-card-title v-if="editarflag"> Actualizar Profit </v-card-title>
+        <v-card-text>
+          <v-form ref="frmNuevo">
+            <v-row>
+              <v-col cols="12" class="py-0 my-0">
+                <v-text-field
+                  outlined
+                  dense
+                  type="number"
+                  name="Profit"
+                  label="Profit"
+                  v-model="profit"
+                  :rules="[(v) => (!!v && v >= 0) || 'Dato Requerido']"
+                  @input="activarPesoMax"
+                />
+              </v-col>
+              <v-col cols="6" class="py-0 my-0">
+                <v-text-field
+                  outlined
+                  dense
+                  type="number"
+                  name="Peso Min"
+                  label="Peso Min"
+                  v-model="pesomin"
+                  :rules="[(v) => (!!v && v >= 0) || 'Dato Requerido']"
+                  :disabled="pesominflag"
+                  @input="activarVolumenMax"
+              /></v-col>
+              <v-col cols="6" class="py-0 my-0">
+                <v-text-field
+                  outlined
+                  dense
+                  type="number"
+                  name="Peso Máximo"
+                  label="Peso Máximo"
+                  v-model="pesomax"
+                  :rules="[(v) => (!!v && v >= 0) || 'Dato Requerido']"
+                  :disabled="pesomaxflag"
+                  @input="activarVolumenMax"
+              /></v-col>
+              <v-col cols="6" class="py-0 my-0">
+                <v-text-field
+                  outlined
+                  dense
+                  type="number"
+                  name="volumen Mínimo"
+                  label="Volumen Mínimo"
+                  v-model="volumenmin"
+                  :disabled="volumenminflag"
+                  @input="activarValorMercanciaMax"
+                  :rules="[(v) => (!!v && v >= 0) || 'Dato Requerido']"
+              /></v-col>
+              <v-col cols="6" class="py-0 my-0">
+                <v-text-field
+                  outlined
+                  dense
+                  type="number"
+                  name="volumen Máximo"
+                  label="Volumen Máximo"
+                  v-model="volumenmax"
+                  :rules="[(v) => (!!v && v >= 0) || 'Dato Requerido']"
+                  :disabled="volumenmaxflag"
+                  @input="activarValorMercanciaMax"
+              /></v-col>
+              <v-col cols="6" class="py-0 my-0">
+                <v-text-field
+                  outlined
+                  dense
+                  type="number"
+                  name="valor Mercancia Mínimo"
+                  label="Valor Mercancia Mínimo"
+                  v-model="valormin"
+                  :rules="[(v) => (!!v && v >= 0) || 'Dato Requerido']"
+                  :disabled="valorminflag"
+                />
+              </v-col>
+              <v-col cols="6" class="py-0 my-0">
+                <v-text-field
+                  outlined
+                  dense
+                  type="number"
+                  name="valor Mercancía Máxima"
+                  label="Valor Mercancía Máxima"
+                  v-model="valormax"
+                  :rules="[(v) => (!!v && v >= 0) || 'Dato Requerido']"
+                  :disabled="valormaxflag"
+                  @input="activarMetroCCAdiconal"
+                />
+              </v-col>
+              <v-col cols="6" class="py-0 my-0">
+                <v-text-field
+                  outlined
+                  dense
+                  type="number"
+                  name="M³ Adicional"
+                  label="M³ Adicional"
+                  v-model="metromcad"
+                  :rules="[(v) => (!!v && v >= 0) || 'Dato Requerido']"
+                  :disabled="metromcadflag"
+                />
+              </v-col>
+            </v-row>
+          </v-form>
+        </v-card-text>
+
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
@@ -130,22 +205,33 @@ export default {
       dialogNuevoProfit: false,
       headers: [
         { value: "profit", text: "PROFIT" },
-        { value: "peso", text: "PESO" },
-        { value: "volumen", text: "VOLUMEN" },
-        { value: "valor", text: "VALOR DE CARGA" },
+        { value: "pesomin", text: "PESO MÍNIMO" },
+        { value: "pesomax", text: "PESO MÁXIMO" },
+        { value: "volumenmin", text: "VOLUMEN MÍNIMO" },
+        { value: "volumenmax", text: "VOLUMEN MÁXIMO" },
+        { value: "valormin", text: "VALOR DE CARGA MÍNIMO" },
+        { value: "valormax", text: "VALOR DE CARGA MÁXIMO" },
         { value: "estado", text: "Estado" },
-        { value: "metromc", text: "M³" },
         { value: "metromcad", text: "M³ Adicional" },
         { value: "action", text: "" },
       ],
       items: [],
       id: null,
-      profit: 0,
-      peso: 0,
-      volumen: 0,
-      valor: 0,
-      metromc: 0,
+      profit: null,
+      pesomin: 0,
+      pesominflag: true,
+      pesomax: 0,
+      pesomaxflag: true,
+      volumenmin: 0,
+      volumenminflag: true,
+      volumenmax: 0,
+      volumenmaxflag: true,
+      valormin: 0,
+      valorminflag: true,
+      valormax: 0,
+      valormaxflag: true,
       metromcad: 0,
+      metromcadflag: true,
       nuevoflag: true,
       editarflag: false,
     };
@@ -162,18 +248,46 @@ export default {
         let data = {
           id_modality: this.id_modality,
           shimpent: this.type,
-          profit: this.profit,
-          peso: this.peso,
-          volumen: this.volumen,
-          valor: this.valor,
           opcion: this.$store.state.calculadoras.opcionCalculadora,
-          metromc: this.metromc,
+          profit: this.profit,
+          pesomin: this.pesomin,
+          pesomax: this.pesomax,
+          volumenmin: this.volumenmin,
+          volumenmax: this.volumenmax,
+          valormin: this.valormin,
+          valormax: this.valormax,
           metromcad: this.metromcad,
         };
         await this.postGuardarProfit(data);
         this.dialogNuevoProfit = false;
         await this.getProfitList(data);
       }
+    },
+    activarPesoMax() {
+      if (!!this.profit) {
+        // this.pesomin = 0.5;
+        this.pesominflag = false;
+        this.pesomaxflag = false;
+      } else {
+        this.$refs.frmNuevo.reset();
+        this.pesominflag = true;
+        this.pesomaxflag = true;
+      }
+    },
+    activarVolumenMax() {
+      if (this.pesomin && this.pesomax) {
+        this.volumenminflag = false;
+        this.volumenmaxflag = false;
+      }
+    },
+    activarValorMercanciaMax() {
+      if (this.volumenmin && this.volumenmax) {
+        this.valorminflag = false;
+        this.valormaxflag = false;
+      }
+    },
+    activarMetroCCAdiconal() {
+      this.metromcadflag = false;
     },
     borrarProfit(item) {
       let data = {
@@ -260,8 +374,15 @@ export default {
         (v) => v.opcion == this.opcionCalculadora
       );
     },
+    opciones: {
+      get() {
+        return this.$store.state.calculadoras.opciones;
+      },
+      set(value) {
+        this.$store.commit("setOpcion", value); // o una mutation/action de Vuex
+      },
+    },
   },
 };
 </script>
 
-<style></style>

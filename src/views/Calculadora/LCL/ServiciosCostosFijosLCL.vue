@@ -2,12 +2,12 @@
   <v-card>
     <v-container fluid>
       <v-tabs centered v-model="tab">
-        <v-tab href="#fletelst" active>Flete Listado </v-tab>
+        <v-tab href="#flete">Carga Másiva Flete</v-tab>
+        <v-tab href="#fletelst" active>Listado Fletes </v-tab>
         <!-- <v-tab href="#section">Secciones </v-tab> -->
         <v-tab href="#serv">Servicios </v-tab>
         <v-tab href="#cost">Costos Fijos</v-tab>
         <v-tab href="#profit">Profit</v-tab>
-        <v-tab href="#flete">Flete</v-tab>
         <v-tab href="#Transporte">Transporte</v-tab>
       </v-tabs>
       <v-tabs-items v-model="tab">
@@ -73,6 +73,7 @@ export default {
       "getProfitList",
       "getDepartamentos",
       "getTransporte",
+      "getOpciones",
     ]),
   },
   async mounted() {
@@ -82,6 +83,7 @@ export default {
     };
 
     await Promise.all([
+      this.getOpciones(),
       this._getModality(),
       this._getPais(),
       this.GetTipoCosto(data),
@@ -97,4 +99,13 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+.Active {
+  background: #1b5e20 !important;
+  color: #ffffff !important;
+}
+.Inactive {
+  background: #C8E6C9 !important;
+  color: #424242 !important;
+}
+</style>

@@ -1,11 +1,18 @@
 <template>
   <v-container>
     <v-col cols="12">
-      <v-pagination
-        v-model="opcionCalculadora"
-        :length="2"
-        circle
-      ></v-pagination>
+      <center>
+        <v-btn
+          :class="opcionCalculadora == opcion.id ? 'Active' : 'Inactive'"
+          v-for="(opcion, index) in opciones"
+          :key="index"
+          class="mx-1"
+          small
+          @click="opcionCalculadora = opcion.id"
+        >
+          {{ opcion.nombre }}
+        </v-btn>
+      </center>
     </v-col>
     <v-row>
       <v-col cols="12" style="text-align: right">
@@ -132,8 +139,14 @@ export default {
         (v) => v.opcion == this.opcionCalculadora
       );
     },
+    opciones: {
+      get() {
+        return this.$store.state.calculadoras.opciones;
+      },
+      set(value) {
+        this.$store.commit("setOpcion", value); // o una mutation/action de Vuex
+      },
+    },
   },
 };
 </script>
-
-<style></style>

@@ -743,6 +743,11 @@ const routes = [
         component: () =>
           import("../views/Calculadora/AEREO/ServiciosCostosFijosAereo"),
       },
+      {
+        path: "folterCalculadora/cotizacion/:id",
+        name: "UserCalculadoraVer",
+        component: () => import("../views/Calculadora/UserCalculadoraVer"),
+      },
     ],
   },
   {

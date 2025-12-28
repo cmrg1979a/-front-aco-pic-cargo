@@ -18,6 +18,7 @@ const state = {
   lstDistritos: [],
   lstTransporte: [],
   opcionCalculadora: 1,
+  opciones:[]
 };
 const mutations = {
   setOpcion(state, opcion) {
@@ -74,6 +75,10 @@ const mutations = {
   },
   SET_LST_COSTOS(state, data) {
     state.lstCostos = data;
+  },
+  SET_LST_OPCIONES(state, data) {
+    console.log(data)
+    state.opciones = data;
   },
 };
 
@@ -762,6 +767,28 @@ const actions = {
     if (response.data.estadoflag) {
       console.log(response.data);
       commit("SET_LST_COSTOS_TRANSPORTE", response.data.data);
+    }
+  },
+  async getOpciones({ commit }) {
+    let branch = JSON.parse(sessionStorage.getItem("dataBranch"));
+    let id_pais = branch[0].id_pais;
+    
+    var headers = {
+      "auth-token": sessionStorage.getItem("auth-token"),
+      "Content-Type": "application/json",
+    };
+
+    var config = {
+      method: "get",
+      url: process.env.VUE_APP_URL_MAIN + "calc/cargar/opciones",
+      headers: headers,
+      // params: data,
+    };
+    let response = await axios(config);
+
+    if (response.data.estadoflag) {
+      console.log(response.data)
+      commit("SET_LST_OPCIONES", response.data.data);
     }
   },
   async getDepartamentos({ commit }, data) {
