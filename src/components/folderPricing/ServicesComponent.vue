@@ -88,9 +88,7 @@
           <h4 class="mb-2">OPCIONAL</h4>
           <v-checkbox
             dense
-            v-for="service in $store.state.pricing.listServices.filter(
-              (v) => v.codebegend == 'OP'
-            )"
+            v-for="service in serviciosOpcionalesUnicos"
             :key="service.id"
             v-model="service.status"
             @change="showConfirmationDialog(service)"
@@ -101,6 +99,7 @@
           </v-checkbox>
           <v-text-field
             prefix="$"
+            :color="requiereValorMercancia ? 'red' : ''"
             :error-messages="$store.state.pricing.errorValorMercancia"
             v-model="$store.state.pricing.datosPrincipales.amount"
             label="Valor de la mercancia"
@@ -110,7 +109,7 @@
             placeholder="Valor de la mercancia..."
             autocomplete="off"
             dense
-            v-if="requiereValorMercancia"
+            :required="requiereValorMercancia"
             :rules="[
               (v) => !requiereValorMercancia || (!!v && Number(v) > 0) || 'Dato Requerido',
               (v) => !v || /^(?!0\d+|\d*e)\d*(?:\.\d+)?$/.test(v) || 'Debe ser un número real entero positivo',
@@ -286,8 +285,7 @@ export default {
         "seguro",
         "impuesto",
         "impuestos",
-        "almacen",
-        "almacen aduanero",
+        "aduana en destino",
       ];
       return services.some((s) => {
         if (!s) return false;
@@ -296,6 +294,19 @@ export default {
         const name = normalize(s.service);
         return keywords.some((k) => name.includes(k));
       });
+    },
+    serviciosOpcionalesUnicos() {
+      const services = this.$store.state.pricing.listServices || [];
+      const vistos = new Set();
+      return services
+        .filter((v) => v.codebegend == "OP")
+        .filter((s) => {
+          const name = (s.service || "").trim().toLowerCase();
+          if (!name) return true;
+          if (vistos.has(name)) return false;
+          vistos.add(name);
+          return true;
+        });
     },
     
     agregarNotaServicioDesmarcado(service) {

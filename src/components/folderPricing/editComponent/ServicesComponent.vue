@@ -79,9 +79,7 @@
           <h4 class="mb-2">OPCIONAL</h4>
           <v-checkbox
             dense
-            v-for="service in $store.state.pricing.listServices.filter(
-              (v) => v.codebegend == 'OP'
-            )"
+            v-for="service in serviciosOpcionalesUnicos"
             :key="service.id"
             v-model="service.status"
             @change="showConfirmationDialog(service)"
@@ -92,6 +90,7 @@
           </v-checkbox>
           <v-text-field
             prefix="$"
+            :color="requiereValorMercancia ? 'red' : ''"
             :error-messages="$store.state.pricing.errorValorMercancia"
             v-model="$store.state.pricing.datosPrincipales.amount"
             label="Valor de la mercancia"
@@ -101,10 +100,11 @@
             placeholder="Valor de la mercancia..."
             autocomplete="off"
             dense
+            :required="requiereValorMercancia"
             :rules="[
-              (v) => !!v || 'Dato Requerido',
+              (v) => !requiereValorMercancia || (!!v && Number(v) > 0) || 'Dato Requerido',
               (v) =>
-                /^(?!0\d+|\d*e)\d*(?:\.\d+)?$/.test(v) ||
+                !v || /^(?!0\d+|\d*e)\d*(?:\.\d+)?$/.test(v) ||
                 'Debe ser un número real entero positivo',
             ]"
             @input="recargarCostos()"
@@ -175,6 +175,7 @@ export default {
       "getTipoCostos",
     ]),
     recargarCostos() {
+      this.$store.state.pricing.errorValorMercancia = "";
       this.$store.state.pricing.actualizarCostosFlag =
         !this.$store.state.pricing.actualizarCostosFlag;
     },
@@ -264,6 +265,37 @@ export default {
           });
         }
       });
+    },
+  },
+  computed: {
+    requiereValorMercancia() {
+      const services = this.$store.state.pricing.listServices || [];
+      const normalize = (str) =>
+        String(str || "")
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+      const keywords = ["seguro", "impuesto", "impuestos", "aduana en destino"];
+      return services.some((s) => {
+        if (!s) return false;
+        const checked = s.status === true || s.status === 1;
+        if (!checked) return false;
+        const name = normalize(s.service || s.namegroupservice);
+        return keywords.some((k) => name.includes(k));
+      });
+    },
+    serviciosOpcionalesUnicos() {
+      const services = this.$store.state.pricing.listServices || [];
+      const vistos = new Set();
+      return services
+        .filter((v) => v.codebegend == "OP")
+        .filter((s) => {
+          const name = (s.service || s.namegroupservice || "").trim().toLowerCase();
+          if (!name) return true;
+          if (vistos.has(name)) return false;
+          vistos.add(name);
+          return true;
+        });
     },
   },
 };
