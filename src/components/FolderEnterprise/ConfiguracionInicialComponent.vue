@@ -4,7 +4,7 @@
       <v-row>
         <v-col cols="12">
           <center>
-            <p class="text-azul">4. CONFIGURACIÓN TARIFAS DE SERVICIOsssssssssssss</p>
+            <p class="text-azul">4. CONFIGURACIÓN TARIFAS DE SERVICIOS</p>
           </center>
         </v-col>
         <v-row v-if="!subirCostos" class="mx-10 my-1">

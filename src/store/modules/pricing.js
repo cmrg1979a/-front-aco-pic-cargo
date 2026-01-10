@@ -3974,6 +3974,7 @@ const actions = {
       numerobultos: state.datosPrincipales.numerobultos,
       peso: state.datosPrincipales.peso,
       volumen: state.datosPrincipales.volumen,
+      tiempo_transito: state.datosPrincipales.tiempo_transito,
       contenedores: miMixin.methods.formatearContainer({
         containers: state.datosPrincipales.containers,
       }),

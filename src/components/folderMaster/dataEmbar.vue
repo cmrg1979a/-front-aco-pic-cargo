@@ -2,184 +2,115 @@
   <div>
     <h3>Datos del Embarque</h3>
 
+    <!-- FILA 1: Motonave/Vuelo y Viaje -->
     <v-row dense>
       <v-col cols="12" md="6">
-        <v-autocomplete
-          :items="$store.state.itemsProveedorRolAgente"
-          item-text="namelong"
-          item-value="id"
-          label="Agente"
-          v-model="$store.state.master_id_agente"
-        >
-          <v-icon
-            @click.native="_callModalEntitie(1)"
-            slot="append"
-            class="btn__add"
-            color="primary"
-            :disabled="isFormActionsDisabled"
-          >
-            mdi-plus
-          </v-icon>
-        </v-autocomplete>
-      </v-col>
-      <!-- <v-col cols="12" md="6">
-        <v-autocomplete
-          :items="$store.state.clientes"
-          item-text="namelong"
-          item-value="id"
-          :label="obtenerLabelConsignerMasterMBL"
-          v-model="$store.state.master_id_consigner"
-        >
-          <v-icon
-            @click.native="_callModalEntitie(11)"
-            slot="append"
-            class="btn__add"
-            color="primary"
-            :disabled="isFormActionsDisabled"
-          >
-            mdi-plus
-          </v-icon>
-        </v-autocomplete>
-      </v-col> -->
-      <v-col cols="12" md="6">
-        <v-autocomplete
-          :items="$store.state.clientes"
-          item-text="namelong"
-          item-value="id"
-          :label="obtenerLabelNotifyMasterMBL"
-          v-model="$store.state.master_id_notify"
-        >
-          <v-icon
-            @click.native="_callModalEntitie(11)"
-            slot="append"
-            class="btn__add"
-            color="primary"
-            :disabled="isFormActionsDisabled"
-          >
-            mdi-plus
-          </v-icon></v-autocomplete
-        >
+        <template v-if="isFCL() || isLCL()">
+          <v-autocomplete
+            :items="itemsMotonave"
+            item-text="name"
+            item-value="id"
+            label="Motonave"
+            v-model="$store.state.master_id_motonave"
+          />
+        </template>
+        <template v-else-if="isAereo()">
+          <v-text-field
+            v-model="$store.state.master_vuelo"
+            label="Vuelo"
+          />
+        </template>
       </v-col>
       <v-col cols="12" md="6">
-        <v-autocomplete
-          :items="$store.state.itemsProveedorRolAerolinea"
-          item-text="namelong"
-          item-value="id"
-          label="Aerolinea"
-          v-model="$store.state.master_id_airlines"
-          v-show="mostrarCboAerolinea"
-        ></v-autocomplete>
-      </v-col>
-      <v-col cols="12" md="6" v-if="!(isAereo() || isFCL())">
-        <v-autocomplete
-          :items="$store.state.itemsProveedorRolColoader"
-          item-text="namelong"
-          item-value="id"
-          label="Coloader"
-          v-model="$store.state.master_id_coloader"
-          ><v-icon
-            @click.native="_callModalEntitie(17)"
-            slot="append"
-            class="btn__add"
-            color="primary"
-            :disabled="isFormActionsDisabled"
-          >
-            mdi-plus
-          </v-icon></v-autocomplete
-        >
-      </v-col>
-      <v-col cols="12" md="6" v-if="!(isAereo() || isLCL())">
-        <v-autocomplete
-          :items="$store.state.itemsProveedorRolNaviera"
-          item-text="namelong"
-          item-value="id"
-          label="Naviera"
-          v-model="$store.state.master_id_naviera"
-          ><v-icon
-            @click.native="_callModalEntitie(2)"
-            slot="append"
-            class="btn__add"
-            color="primary"
-            :disabled="isFormActionsDisabled"
-          >
-            mdi-plus
-          </v-icon></v-autocomplete
-        >
-      </v-col>
-      <v-col cols="12" md="3">
-        <v-text-field
-          :type="obtenerInputTypeBLMaster"
-          v-model="$store.state.master_blmaster"
-          :label="obtenerLabelBLMaster"
-        ></v-text-field>
-      </v-col>
-      <v-col cols="12" md="3">
         <v-text-field
           v-model="$store.state.master_viaje"
           label="Viaje"
-        ></v-text-field>
+        />
       </v-col>
-      <v-col cols="12" md="6">
-        <v-autocomplete
-          :items="itemsMotonave"
-          item-text="name"
-          item-value="id"
-          label="Motonave"
-          v-model="$store.state.master_id_motonave"
-          ><!-- <v-icon slot="append" class="btn__add" color="primary">
-            mdi-plus
-          </v-icon> --></v-autocomplete
-        >
-      </v-col>
+    </v-row>
 
-      <!-- <v-col cols="12" md="3" lg="3" xl="3">
-        <v-text-field
-          type="number"
-          v-model="$store.state.master_bultos"
-          label="Bultos"
-        ></v-text-field>
-      </v-col>
-      <v-col cols="12" md="3" lg="3" xl="3">
-        <v-text-field
-          type="number"
-          v-model="$store.state.master_peso"
-          suffix="kg"
-          label="Peso"
-        ></v-text-field>
-      </v-col>
-      <v-col cols="12" md="3" lg="3" xl="3">
-        <v-text-field
-          type="number"
-          suffix="m3"
-          label="Volumen"
-          v-model="$store.state.master_volumen"
-        ></v-text-field>
-      </v-col> -->
-      <v-col cols="12" md="3" lg="3" xl="3">
+    <!-- FILA 2: FCL vs LCL/Aéreo -->
+    <v-row dense>
+      <template v-if="isFCL()">
+        <!-- FCL: Tipo de Contenedor, Cantidad, Número de Contenedor, Sello -->
+        <v-col cols="12" md="3">
+          <v-autocomplete
+            :items="itemsContainers"
+            item-text="name"
+            item-value="id"
+            return-object
+            label="Tipo de Contenedor"
+            v-model="$store.state.master_id_containers"
+          />
+        </v-col>
+        <v-col cols="12" md="3">
+          <v-text-field
+            type="number"
+            v-model="$store.state.master_cantidad"
+            label="Cantidad"
+          />
+        </v-col>
+        <v-col cols="12" md="3">
+          <v-text-field
+            v-model="$store.state.master_nro_containers"
+            label="Número de Contenedor"
+          />
+        </v-col>
+        <v-col cols="12" md="3">
+          <v-text-field
+            v-model="$store.state.master_nro_precinto"
+            label="Sello"
+          />
+        </v-col>
+      </template>
+      <template v-else>
+        <!-- LCL/Aéreo: Peso, Volumen, Peso Cargable -->
+        <v-col cols="12" md="4">
+          <v-text-field
+            type="number"
+            suffix="kg"
+            label="Peso"
+            v-model="$store.state.master_peso"
+          />
+        </v-col>
+        <v-col cols="12" md="4">
+          <v-text-field
+            type="number"
+            suffix="m3"
+            label="Volumen"
+            v-model="$store.state.master_volumen"
+          />
+        </v-col>
+        <v-col cols="12" md="4" v-if="isAereo()">
+          <v-text-field
+            :value="pesoCargable"
+            label="Peso Cargable"
+            suffix="kg"
+            readonly
+          />
+        </v-col>
+      </template>
+    </v-row>
+
+    <!-- FILA 3: Tipo de flete y Monto -->
+    <v-row dense>
+      <v-col cols="12" md="6">
         <v-autocomplete
           :items="itemsFleteCon"
           item-text="name"
           item-value="id"
           label="Condición"
           v-model="$store.state.master_id_condicion"
-        ></v-autocomplete>
+        />
       </v-col>
-      <v-col cols="12" md="6" lg="6" xl="6">
-        <v-autocomplete
-          :items="itemsCoinsList"
-          item-text="symbol"
-          item-value="id"
-          label="Moneda"
-          v-model="$store.state.master_id_coins"
-        ></v-autocomplete>
-      </v-col>
-      <v-col cols="12" md="6" lg="6" xl="6">
+      <v-col cols="12" md="6">
         <v-text-field
           v-model="$store.state.master_monto"
           type="number"
           label="Monto"
-        ></v-text-field>
+        />
       </v-col>
+    </v-row>
 
       <!--  <v-col cols="4">
         <v-autocomplete
@@ -371,6 +302,13 @@ export default {
         this.itemsProveedorList.filter(
           (item) => item.rol.toUpperCase() === tipoProveedor.toUpperCase()
         );
+    },
+    pesoCargable() {
+      if (this.isFCL()) return "";
+      const kg = parseFloat(this.$store.state.master_peso || 0);
+      const m3 = parseFloat(this.$store.state.master_volumen || 0);
+      const chargeable = Math.max(kg, m3 * 166.66);
+      return isNaN(chargeable) ? 0 : parseFloat(chargeable.toFixed(2));
     },
   },
   methods: {

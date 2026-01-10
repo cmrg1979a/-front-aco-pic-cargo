@@ -262,6 +262,28 @@
                 value="AGRUPADO"
               ></v-radio>
             </v-radio-group>
+
+            <v-divider class="my-4"></v-divider>
+
+            <v-switch
+              v-model="cambiarStatus"
+              label="¿Desea cambiar el estatus de la cotización?"
+              inset
+            ></v-switch>
+
+            <v-slide-y-transition>
+              <div v-if="cambiarStatus">
+                <v-select
+                  v-model="selectedStatusId"
+                  :items="$store.state.pricing.listQuoteStatus"
+                  item-text="name"
+                  item-value="id"
+                  label="Nuevo estatus de la cotización"
+                  dense
+                  outlined
+                ></v-select>
+              </div>
+            </v-slide-y-transition>
           </v-form>
         </v-card-text>
 
@@ -395,6 +417,8 @@ export default {
       imprimirFlag: false,
       loading: false,
       dialogCambioNombreSecciones: false,
+      cambiarStatus: false,
+      selectedStatusId: null,
     };
   },
   mounted() {
@@ -536,11 +560,31 @@ export default {
       this.previewFlag = true;
       this.dialogCambioNombreSecciones = false;
       this.$store.state.pricing.bloquearBtnImprimir = false;
+      const list = this.$store.state.pricing.listQuoteStatus || [];
+      const estatusDefault = list.find(
+        (estatus) =>
+          estatus.defaultstatus === 1 ||
+          estatus.defaultstatus === "1" ||
+          estatus.defaultstatus === true
+      );
+
+      if (estatusDefault) {
+        this.selectedStatusId = estatusDefault.id;
+      } else if (list.length > 0) {
+        this.selectedStatusId = list[0].id;
+      } else {
+        this.selectedStatusId = null;
+      }
+      this.cambiarStatus = false;
     },
     async generarPreview() {
       if (this.$refs.frmReporte.validate()) {
         this.$store.state.spiner = true;
         this.previewFlag = false;
+        if (this.cambiarStatus && this.selectedStatusId) {
+          this.$store.state.pricing.datosPrincipales.id_status =
+            this.selectedStatusId;
+        }
         await this.obtenerDatosEmpresa();
         this.predataCotizacion = await this.predata({
           tipo: this.tiporeporte,

@@ -1,5 +1,5 @@
 <template>
-  <v-card class="cardDatos">
+  <v-card class="cardDatos pa-4">
     <v-tabs
       v-model="tab"
       background-color="teal darken-4"
@@ -15,6 +15,26 @@
 
       <!-- <v-tab href="#sucursal"> Sucursal </v-tab> -->
     </v-tabs>
+    <v-card-actions class="justify-end px-5 pt-4 pb-0">
+      <v-btn
+        v-if="tab == 'posicion'"
+        @click="guardarUsuario()"
+        color="success"
+        dark
+        small
+      >
+        Guardar
+      </v-btn>
+      <v-btn
+        v-else
+        @click="continuar()"
+        color="success"
+        outlined
+        small
+      >
+        Siguiente
+      </v-btn>
+    </v-card-actions>
     <v-tabs-items v-model="tab">
       <v-tab-item value="datos" class="px-5 items">
         <v-form ref="frmDatos">
@@ -214,9 +234,10 @@
               ></v-text-field>
             </v-col> -->
 
-            <v-col cols="12">
-              Activo/ Inactivo
+            <v-col cols="12" class="d-flex align-center">
+              <span class="mr-4">Activo/ Inactivo</span>
               <v-switch
+                hide-details
                 :label="
                   $store.state.user.model.status == 1 ? 'Activo' : 'Inactivo'
                 "
@@ -339,19 +360,6 @@
         </v-row>
       </v-tab-item> -->
     </v-tabs-items>
-    <v-btn
-      v-if="tab == 'posicion'"
-      @click="guardarUsuario()"
-      class="mt-10"
-      block
-      color="success"
-      dark
-    >
-      guardar
-    </v-btn>
-    <v-btn v-else @click="continuar()" class="mt-10" block color="success" dark>
-      siguiente
-    </v-btn>
 
     <v-snackbar v-model="snackbar" outlined vertical color="info">
       El departamento, define como se comportará el usuario para el llendo de
@@ -663,7 +671,8 @@ export default {
 
 <style scoped>
 .cardDatos {
-  max-width: 80%;
+  width: 100%;
+  max-width: 100%;
 }
 .items {
   min-height: 50vh !important;
@@ -676,7 +685,7 @@ export default {
 }
 @media (max-width: 1000px) {
   .cardDatos {
-    min-width: 100% !important;
+    width: 100% !important;
   }
   .items {
     min-height: auto !important;

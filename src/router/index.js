@@ -747,6 +747,16 @@ const routes = [
         path: "folterCalculadora/cotizacion/:id",
         name: "UserCalculadoraVer",
         component: () => import("../views/Calculadora/UserCalculadoraVer"),
+        path: "folderPlantillas/servicios_tarifas",
+        name: "ServiciosTarifasPlantillas",
+        component: () =>
+          import("../views/FolderPlantillas/ServiciosTarifas.vue"),
+      },
+      {
+        path: "folderConfig/estatus_defecto",
+        name: "EstatusDefecto",
+        component: () =>
+          import("../views/FolderConfig/EstatusDefecto.vue"),
       },
     ],
   },

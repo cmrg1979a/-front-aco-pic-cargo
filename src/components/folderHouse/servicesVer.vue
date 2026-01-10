@@ -8,7 +8,8 @@
       <template v-slot:default>
         <thead>
           <tr>
-            <th width="45%" class="text-left">Servicio</th>
+            <th width="20%" class="text-left">Fecha realizado</th>
+            <th width="40%" class="text-left">Servicio</th>
             <th width="25%" class="text-center">Realizado (Sí/No)</th>
           </tr>
         </thead>
@@ -19,6 +20,7 @@
             :key="item.id"
             :style="`background:${item.color}`"
           >
+            <td>{{ formatFecha(item.updated_at) }}</td>
             <td>{{ item.nameservice }}</td>
 
             <td>
@@ -203,6 +205,16 @@ export default {
       this.dialogNotificacionesLista = false;
       this.$emit("send-notificacion", item);
     },
+    formatFecha(val) {
+      if (!val) return "";
+      try {
+        const d = moment(val);
+        if (!d.isValid()) return String(val);
+        return d.format("DD/MM/YYYY");
+      } catch (e) {
+        return String(val);
+      }
+    },
     async generarTracking() {
       try {
         this.loadingBotonTracking = true;
@@ -368,8 +380,20 @@ export default {
             if (response.data.estadoflag) {
               let lstServices = [];
               let itemImpuestos = null;
-              response.data.data.map((item, i) => {
-                if (item.nameservice.toUpperCase() == "IMPUESTOS") {
+              response.data.data.map((it, i) => {
+                // Regla: todos en 0 (No) excepto si updated_at y created_at son distintos,
+                // en cuyo caso se respeta el status que viene del backend.
+                const changed =
+                  it.updated_at &&
+                  it.created_at &&
+                  it.updated_at !== it.created_at;
+
+                const item = {
+                  ...it,
+                  status: changed ? it.status : 0,
+                };
+
+                if ((item.nameservice || '').toUpperCase() == "IMPUESTOS") {
                   itemImpuestos = item;
                 } else {
                   lstServices.push(item);
@@ -518,6 +542,7 @@ export default {
             response.data.data.map((item, i) => {
               const dataService = {
                 id_begend: item.id_begend,
+                updated_at: item.updated_at,
                 namebegend: item.namebegend,
                 position_begend: item.position_begend,
                 nameservice: item.namegroupservice,

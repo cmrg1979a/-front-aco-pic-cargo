@@ -62,6 +62,7 @@
                   <th>Cant. Bultos</th>
                   <th>Peso</th>
                   <th>Volumen</th>
+                  <th>Peso cargable (kg/m³)</th>
                 </tr>
               </thead>
               <tbody>
@@ -71,6 +72,9 @@
                   </td>
                   <td>{{ $store.state.aduana.datosPrincipales.peso }}</td>
                   <td>{{ $store.state.aduana.datosPrincipales.volumen }}</td>
+                  <td>
+                    {{ pesoCargable !== null ? pesoCargable + ' kg/m³' : '' }}
+                  </td>
                 </tr>
               </tbody>
             </v-simple-table>
@@ -306,6 +310,17 @@ export default {
             v.code == "I"
         )
       );
+    },
+  },
+  computed: {
+    pesoCargable() {
+      const datos = this.$store.state.aduana.datosPrincipales || {};
+      const peso = parseFloat(datos.peso || 0);
+      const volumen = parseFloat(datos.volumen || 0);
+      if (!peso || !volumen) return null;
+      const valor = peso / volumen;
+      if (!isFinite(valor)) return null;
+      return parseFloat(valor.toFixed(2));
     },
   },
 };
