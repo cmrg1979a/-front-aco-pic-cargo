@@ -6139,6 +6139,7 @@ const actions = {
   generaInstructivo({ dispatch }) {
     // -------------------------------------------------------
     state.listServiciosInstructivo = [];
+
     state.listServices.forEach((element) => {
       state.listServiciosInstructivo.push({
         name: element.service,
@@ -6154,8 +6155,9 @@ const actions = {
     GenerarCostosInstrictivo(state.tiporeporte);
     GenerarImpInstructivo();
   },
-  generaInstructivoparaguardata({ dispatch }) {
+  async generaInstructivoparaguardata({ dispatch }) {
     state.listIngresosInstructivoAprobar = [];
+
     let isImport = state.listModality.some(
       (v) => v.id == state.datosPrincipales.idsentido && v.code == "I"
     );
@@ -6172,451 +6174,453 @@ const actions = {
       (v) => v.id_entitie == state.datosPrincipales.id_pricing
     )[0].name;
 
-    state.opcionCostos
-      .filter((v) => !!v.selected)
-      .forEach(async (opcion) => {
-        let igvIngresos = 0;
-        let totalImpuestosIGV = 0;
-        let montoIngresos = 0;
-        let totalIngresos = 0;
-        let igvCostos = 0;
-        let montoCostos = 0;
-        let totalCostos = 0;
-        let dataIngresos = [];
-        let dataCostos = [];
-        totalFleteVentas = await calcularTotalFleteVentaPorOpcion(
-          opcion.listCostos
-        );
+    const opcionesSeleccionadas = state.opcionCostos.filter(
+      (v) => !!v.selected
+    );
+
+    for (const opcion of opcionesSeleccionadas) {
+      let igvIngresos = 0;
+      let totalImpuestosIGV = 0;
+      let montoIngresos = 0;
+      let totalIngresos = 0;
+      let igvCostos = 0;
+      let montoCostos = 0;
+      let totalCostos = 0;
+      let dataIngresos = [];
+      let dataCostos = [];
+      totalFleteVentas = await calcularTotalFleteVentaPorOpcion(
         opcion.listCostos
-          .filter((v) => v.esventaflag == 1 && v.status == 1)
-          .forEach((element) => {
-            let orden = 1;
-            let name = "";
+      );
+      opcion.listCostos
+        .filter((v) => v.esventaflag == 1 && v.status == 1)
+        .forEach((element) => {
+          let orden = 1;
+          let name = "";
 
-            // ------------------------------------
+          // ------------------------------------
 
-            let montoDetails = 0;
-            let codePorcentaje = [5, 13, 14];
-            if (
-              state.listMultiplicador.some(
-                (v) => v.id == element.id_multiplicador
-              )
-                ? state.listMultiplicador.some(
-                    (v) =>
-                      v.id == element.id_multiplicador &&
-                      !codePorcentaje.includes(v.code)
-                  )
-                : false
-            ) {
-              montoDetails +=
-                (state.listMultiplicador.some(
-                  (v) => v.id == element.id_multiplicador
-                )
-                  ? state.listMultiplicador.filter(
-                      (v) => v.id == element.id_multiplicador
-                    )[0].valor
-                  : 0) *
-                element.costounitario *
-                miMixin.methods.calcularFac(
-                  state.listMultiplicador.filter(
-                    (v) => v.id == element.id_multiplicador
-                  ).length > 0
-                    ? state.listMultiplicador.filter(
-                        (v) => v.id == element.id_multiplicador
-                      )[0].code
-                    : "N",
-                  state.datosPrincipales.volumen,
-                  state.datosPrincipales.peso,
-                  state.datosPrincipales.containers,
-                  state.datosPrincipales.amount
-                );
-            } else {
-              montoDetails += miMixin.methods.calcularValor(
-                state.datosPrincipales.amount,
-                totalFleteVentas,
-                state.listMultiplicador.some(
-                  (v) => v.id == element.id_multiplicador
-                )
-                  ? state.listMultiplicador.filter(
-                      (v) => v.id == element.id_multiplicador
-                    )[0].code
-                  : "",
-                state.listMultiplicador.some(
+          let montoDetails = 0;
+          let codePorcentaje = [5, 13, 14];
+          if (
+            state.listMultiplicador.some(
+              (v) => v.id == element.id_multiplicador
+            )
+              ? state.listMultiplicador.some(
                   (v) =>
                     v.id == element.id_multiplicador &&
-                    (v.code == 14 || v.code == 13 || v.code == 5)
+                    !codePorcentaje.includes(v.code)
                 )
-                  ? state.listMultiplicador.some(
-                      (v) =>
-                        v.id == element.id_multiplicador &&
-                        (v.code == 14 || v.code == 13)
-                    )
-                    ? element.cif
-                    : element.seguro
-                  : 0
-              );
-            }
-
-            // Creando el agrupamiento
-            if (element.esfleteflag == 1 && isImport) {
-              name =
-                state.listTipoCostos.length > 0
-                  ? state.listTipoCostos.filter((v) => v.codigo == "FL")[0].name
-                  : "";
-              orden = 1;
-            }
-            if (element.esorigenflag == 1) {
-              if (!isImport) {
-                totalImpuestosIGV += parseFloat(montoDetails);
-              }
-              name =
-                state.listTipoCostos.length > 0
-                  ? state.listTipoCostos.filter((v) => v.codigo == "OR")[0].name
-                  : "";
-              orden = 2;
-            }
-            if (element.eslocalflag == 1) {
-              //
-              totalImpuestosIGV += parseFloat(montoDetails);
-              name =
-                state.listTipoCostos.length > 0
-                  ? state.listTipoCostos.filter((v) => v.codigo == "LO")[0].name
-                  : "";
-              orden = 3;
-            }
-            if (element.esaduanaflag == 1) {
-              totalImpuestosIGV += parseFloat(montoDetails);
-              orden = 4;
-              name =
-                state.listTipoCostos.length > 0
-                  ? state.listTipoCostos.filter((v) => v.codigo == "AD")[0].name
-                  : "";
-            }
-            if (element.esfleteflag == 1 && !isImport) {
-              name =
-                state.listTipoCostos.length > 0
-                  ? state.listTipoCostos.filter((v) => v.codigo == "FL")[0].name
-                  : "";
-              orden = 5;
-            }
-            if (element.esalmacenflag == 1) {
-              if (isImport) {
-                totalImpuestosIGV += parseFloat(montoDetails);
-              }
-              orden = 6;
-              name =
-                state.listTipoCostos.length > 0
-                  ? state.listTipoCostos.filter((v) => v.codigo == "AL")[0].name
-                  : "";
-            }
-            dataIngresos.push({
-              descripcion: name,
-              service: element.nameservice,
-              valor: montoDetails,
-              orden: orden,
-              igv: 0,
-              total: montoDetails,
-            });
-
-            igvIngresos += parseFloat(0);
-            montoIngresos += parseFloat(montoDetails);
-            totalIngresos += parseFloat(montoDetails);
-          });
-
-        opcion.listCostos
-          .filter((v) => v.esopcionflag == 1 && v.status == 1)
-          .forEach((element) => {
-            let orden = 1;
-            let name = "";
-            // Creando el agrupamiento
-            if (element.esfleteflag == 1 && isImport) {
-              name =
-                state.listTipoCostos.length > 0
-                  ? state.listTipoCostos.filter((v) => v.codigo == "FL")[0].name
-                  : "";
-              orden = 1;
-            }
-            if (element.esorigenflag == 1) {
-              name =
-                state.listTipoCostos.length > 0
-                  ? state.listTipoCostos.filter((v) => v.codigo == "OR")[0].name
-                  : "";
-              orden = 2;
-            }
-            if (element.eslocalflag == 1) {
-              // totalImpuestosIGV += montoDetails;
-              name =
-                state.listTipoCostos.length > 0
-                  ? state.listTipoCostos.filter((v) => v.codigo == "LO")[0].name
-                  : "";
-              orden = 3;
-            }
-            if (element.esaduanaflag == 1) {
-              // totalImpuestosIGV += montoDetails;
-              orden = 4;
-              name =
-                state.listTipoCostos.length > 0
-                  ? state.listTipoCostos.filter((v) => v.codigo == "AD")[0].name
-                  : "";
-            }
-            if (element.esfleteflag == 1 && !isImport) {
-              name =
-                state.listTipoCostos.length > 0
-                  ? state.listTipoCostos.filter((v) => v.codigo == "FL")[0].name
-                  : "";
-              orden = 5;
-            }
-            if (element.esalmacenflag == 1) {
-              // totalImpuestosIGV += montoDetails;
-              orden = 6;
-              name =
-                state.listTipoCostos.length > 0
-                  ? state.listTipoCostos.filter((v) => v.codigo == "AL")[0].name
-                  : "";
-            }
-            // ------------------------------------
-
-            let montoDetails = 0;
-            if (
-              state.listMultiplicador.filter(
+              : false
+          ) {
+            montoDetails +=
+              (state.listMultiplicador.some(
                 (v) => v.id == element.id_multiplicador
-              ).length > 0
+              )
                 ? state.listMultiplicador.filter(
                     (v) => v.id == element.id_multiplicador
-                  )[0].code != 5 &&
-                  state.listMultiplicador.filter(
-                    (v) => v.id == element.id_multiplicador
-                  )[0].code != 13 &&
-                  state.listMultiplicador.filter(
-                    (v) => v.id == element.id_multiplicador
-                  )[0].code != 14
-                : false
-            ) {
-              montoDetails +=
-                (state.listMultiplicador.filter(
+                  )[0].valor
+                : 0) *
+              element.costounitario *
+              miMixin.methods.calcularFac(
+                state.listMultiplicador.filter(
                   (v) => v.id == element.id_multiplicador
                 ).length > 0
                   ? state.listMultiplicador.filter(
                       (v) => v.id == element.id_multiplicador
-                    )[0].valor
-                  : 0) *
-                element.costounitario *
-                miMixin.methods.calcularFac(
-                  state.listMultiplicador.filter(
+                    )[0].code
+                  : "N",
+                state.datosPrincipales.volumen,
+                state.datosPrincipales.peso,
+                state.datosPrincipales.containers,
+                state.datosPrincipales.amount
+              );
+          } else {
+            montoDetails += miMixin.methods.calcularValor(
+              state.datosPrincipales.amount,
+              totalFleteVentas,
+              state.listMultiplicador.some(
+                (v) => v.id == element.id_multiplicador
+              )
+                ? state.listMultiplicador.filter(
                     (v) => v.id == element.id_multiplicador
-                  ).length > 0
-                    ? state.listMultiplicador.filter(
-                        (v) => v.id == element.id_multiplicador
-                      )[0].code
-                    : "N",
-                  state.datosPrincipales.volumen,
-                  state.datosPrincipales.peso,
-                  state.datosPrincipales.containers,
-                  state.datosPrincipales.amount
-                );
-            } else {
-              montoDetails += miMixin.methods.calcularValor(
-                state.datosPrincipales.amount,
-                totalFleteVentas,
-                state.listMultiplicador.some(
+                  )[0].code
+                : "",
+              state.listMultiplicador.some(
+                (v) =>
+                  v.id == element.id_multiplicador &&
+                  (v.code == 14 || v.code == 13 || v.code == 5)
+              )
+                ? state.listMultiplicador.some(
+                    (v) =>
+                      v.id == element.id_multiplicador &&
+                      (v.code == 14 || v.code == 13)
+                  )
+                  ? element.cif
+                  : element.seguro
+                : 0
+            );
+          }
+
+          // Creando el agrupamiento
+          if (element.esfleteflag == 1 && isImport) {
+            name =
+              state.listTipoCostos.length > 0
+                ? state.listTipoCostos.filter((v) => v.codigo == "FL")[0].name
+                : "";
+            orden = 1;
+          }
+          if (element.esorigenflag == 1) {
+            if (!isImport) {
+              totalImpuestosIGV += parseFloat(montoDetails);
+            }
+            name =
+              state.listTipoCostos.length > 0
+                ? state.listTipoCostos.filter((v) => v.codigo == "OR")[0].name
+                : "";
+            orden = 2;
+          }
+          if (element.eslocalflag == 1) {
+            //
+            totalImpuestosIGV += parseFloat(montoDetails);
+            name =
+              state.listTipoCostos.length > 0
+                ? state.listTipoCostos.filter((v) => v.codigo == "LO")[0].name
+                : "";
+            orden = 3;
+          }
+          if (element.esaduanaflag == 1) {
+            totalImpuestosIGV += parseFloat(montoDetails);
+            orden = 4;
+            name =
+              state.listTipoCostos.length > 0
+                ? state.listTipoCostos.filter((v) => v.codigo == "AD")[0].name
+                : "";
+          }
+          if (element.esfleteflag == 1 && !isImport) {
+            name =
+              state.listTipoCostos.length > 0
+                ? state.listTipoCostos.filter((v) => v.codigo == "FL")[0].name
+                : "";
+            orden = 5;
+          }
+          if (element.esalmacenflag == 1) {
+            if (isImport) {
+              totalImpuestosIGV += parseFloat(montoDetails);
+            }
+            orden = 6;
+            name =
+              state.listTipoCostos.length > 0
+                ? state.listTipoCostos.filter((v) => v.codigo == "AL")[0].name
+                : "";
+          }
+          dataIngresos.push({
+            descripcion: name,
+            service: element.nameservice,
+            valor: montoDetails,
+            orden: orden,
+            igv: 0,
+            total: montoDetails,
+          });
+
+          igvIngresos += parseFloat(0);
+          montoIngresos += parseFloat(montoDetails);
+          totalIngresos += parseFloat(montoDetails);
+        });
+
+      opcion.listCostos
+        .filter((v) => v.esopcionflag == 1 && v.status == 1)
+        .forEach((element) => {
+          let orden = 1;
+          let name = "";
+          // Creando el agrupamiento
+          if (element.esfleteflag == 1 && isImport) {
+            name =
+              state.listTipoCostos.length > 0
+                ? state.listTipoCostos.filter((v) => v.codigo == "FL")[0].name
+                : "";
+            orden = 1;
+          }
+          if (element.esorigenflag == 1) {
+            name =
+              state.listTipoCostos.length > 0
+                ? state.listTipoCostos.filter((v) => v.codigo == "OR")[0].name
+                : "";
+            orden = 2;
+          }
+          if (element.eslocalflag == 1) {
+            // totalImpuestosIGV += montoDetails;
+            name =
+              state.listTipoCostos.length > 0
+                ? state.listTipoCostos.filter((v) => v.codigo == "LO")[0].name
+                : "";
+            orden = 3;
+          }
+          if (element.esaduanaflag == 1) {
+            // totalImpuestosIGV += montoDetails;
+            orden = 4;
+            name =
+              state.listTipoCostos.length > 0
+                ? state.listTipoCostos.filter((v) => v.codigo == "AD")[0].name
+                : "";
+          }
+          if (element.esfleteflag == 1 && !isImport) {
+            name =
+              state.listTipoCostos.length > 0
+                ? state.listTipoCostos.filter((v) => v.codigo == "FL")[0].name
+                : "";
+            orden = 5;
+          }
+          if (element.esalmacenflag == 1) {
+            // totalImpuestosIGV += montoDetails;
+            orden = 6;
+            name =
+              state.listTipoCostos.length > 0
+                ? state.listTipoCostos.filter((v) => v.codigo == "AL")[0].name
+                : "";
+          }
+          // ------------------------------------
+
+          let montoDetails = 0;
+          if (
+            state.listMultiplicador.filter(
+              (v) => v.id == element.id_multiplicador
+            ).length > 0
+              ? state.listMultiplicador.filter(
                   (v) => v.id == element.id_multiplicador
-                )
+                )[0].code != 5 &&
+                state.listMultiplicador.filter(
+                  (v) => v.id == element.id_multiplicador
+                )[0].code != 13 &&
+                state.listMultiplicador.filter(
+                  (v) => v.id == element.id_multiplicador
+                )[0].code != 14
+              : false
+          ) {
+            montoDetails +=
+              (state.listMultiplicador.filter(
+                (v) => v.id == element.id_multiplicador
+              ).length > 0
+                ? state.listMultiplicador.filter(
+                    (v) => v.id == element.id_multiplicador
+                  )[0].valor
+                : 0) *
+              element.costounitario *
+              miMixin.methods.calcularFac(
+                state.listMultiplicador.filter(
+                  (v) => v.id == element.id_multiplicador
+                ).length > 0
                   ? state.listMultiplicador.filter(
                       (v) => v.id == element.id_multiplicador
                     )[0].code
-                  : "",
-                state.listMultiplicador.some(
-                  (v) =>
-                    v.id == element.id_multiplicador &&
-                    (v.code == 14 || v.code == 13 || v.code == 5)
-                )
-                  ? state.listMultiplicador.some(
-                      (v) =>
-                        v.id == element.id_multiplicador &&
-                        (v.code == 14 || v.code == 13)
-                    )
-                    ? element.cif
-                    : element.seguro
-                  : 0
+                  : "N",
+                state.datosPrincipales.volumen,
+                state.datosPrincipales.peso,
+                state.datosPrincipales.containers,
+                state.datosPrincipales.amount
               );
-            }
-            dataCostos.push({
-              proveedor: modules.state.provedores.filter(
-                (v) => v.id == element.id_proveedor
-              )[0].namelong,
-              service: element.nameservice,
-              valor: montoDetails,
-              orden: orden,
-              igv: 0,
-              total: montoDetails,
-              id: modules.state.provedores.filter(
-                (v) => v.id == element.id_proveedor
-              )[0].id,
-            });
-            igvCostos += 0;
-            montoCostos += parseFloat(montoDetails);
-            totalCostos += parseFloat(montoDetails);
+          } else {
+            montoDetails += miMixin.methods.calcularValor(
+              state.datosPrincipales.amount,
+              totalFleteVentas,
+              state.listMultiplicador.some(
+                (v) => v.id == element.id_multiplicador
+              )
+                ? state.listMultiplicador.filter(
+                    (v) => v.id == element.id_multiplicador
+                  )[0].code
+                : "",
+              state.listMultiplicador.some(
+                (v) =>
+                  v.id == element.id_multiplicador &&
+                  (v.code == 14 || v.code == 13 || v.code == 5)
+              )
+                ? state.listMultiplicador.some(
+                    (v) =>
+                      v.id == element.id_multiplicador &&
+                      (v.code == 14 || v.code == 13)
+                  )
+                  ? element.cif
+                  : element.seguro
+                : 0
+            );
+          }
+          dataCostos.push({
+            proveedor: modules.state.provedores.filter(
+              (v) => v.id == element.id_proveedor
+            )[0].namelong,
+            service: element.nameservice,
+            valor: montoDetails,
+            orden: orden,
+            igv: 0,
+            total: montoDetails,
+            id: modules.state.provedores.filter(
+              (v) => v.id == element.id_proveedor
+            )[0].id,
+          });
+          igvCostos += 0;
+          montoCostos += parseFloat(montoDetails);
+          totalCostos += parseFloat(montoDetails);
+        });
+
+      dataIngresos = dataIngresos.sort((a, b) => {
+        if (a.orden < b.orden) return -1;
+        if (a.orden > b.orden) return 1;
+      });
+      // ------------------------------------------------ dataIngresos
+      const resultIngresos = [];
+      let currentProviderIngresos = null;
+      let subvalorIngresos = 0;
+      let subtotalIngresos = 0;
+      let subigvIngresos = 0;
+
+      for (const item of dataIngresos) {
+        if (currentProviderIngresos === null) {
+          currentProviderIngresos = item.descripcion;
+          subvalorIngresos += item.valor;
+          subtotalIngresos += item.total;
+          subigvIngresos += 0;
+        } else if (currentProviderIngresos === item.descripcion) {
+          subvalorIngresos += item.valor;
+          subtotalIngresos += item.total;
+          subigvIngresos += 0;
+        } else {
+          // Agregar la fila de subtotal
+          resultIngresos.push({
+            descripcion: "SubTotal",
+            service: "",
+            valor: subvalorIngresos,
+            igv: 0,
+            total: subtotalIngresos,
           });
 
-        dataIngresos = dataIngresos.sort((a, b) => {
-          if (a.orden < b.orden) return -1;
-          if (a.orden > b.orden) return 1;
-        });
-        // ------------------------------------------------ dataIngresos
-        const resultIngresos = [];
-        let currentProviderIngresos = null;
-        let subvalorIngresos = 0;
-        let subtotalIngresos = 0;
-        let subigvIngresos = 0;
-
-        for (const item of dataIngresos) {
-          if (currentProviderIngresos === null) {
-            currentProviderIngresos = item.descripcion;
-            subvalorIngresos += item.valor;
-            subtotalIngresos += item.total;
-            subigvIngresos += 0;
-          } else if (currentProviderIngresos === item.descripcion) {
-            subvalorIngresos += item.valor;
-            subtotalIngresos += item.total;
-            subigvIngresos += 0;
-          } else {
-            // Agregar la fila de subtotal
-            resultIngresos.push({
-              descripcion: "SubTotal",
-              service: "",
-              valor: subvalorIngresos,
-              igv: 0,
-              total: subtotalIngresos,
-            });
-
-            // Reiniciar para el nuevo proveedor
-            currentProviderIngresos = item.descripcion;
-            subvalorIngresos = item.valor;
-            subtotalIngresos = item.total;
-            subigvIngresos = 0;
-          }
-
-          // Agregar el elemento actual
-          resultIngresos.push(item);
+          // Reiniciar para el nuevo proveedor
+          currentProviderIngresos = item.descripcion;
+          subvalorIngresos = item.valor;
+          subtotalIngresos = item.total;
+          subigvIngresos = 0;
         }
-        resultIngresos.push({
-          descripcion: "SubTotal",
-          service: "",
-          valor: subvalorIngresos,
-          igv: 0,
-          total: subtotalIngresos,
-        });
-        dataIngresos = resultIngresos;
 
-        // ------------------------------------------------
-        dataCostos = dataCostos.sort((a, b) => {
-          if (a.proveedor < b.proveedor) return -1;
-          if (a.proveedor > b.proveedor) return 1;
-        });
-        //---------------------------------------------------
-
-        const result = [];
-        let id = null;
-        let currentProvider = null;
-        let subtotal = 0;
-        let valor = 0;
-        let igv = 0;
-        for (const item of dataCostos) {
-          if (currentProvider === null) {
-            id = item.id;
-            currentProvider = item.proveedor;
-            valor += item.valor;
-            subtotal += item.total;
-            igv += 0;
-          } else if (currentProvider === item.proveedor) {
-            id = item.id;
-            valor += item.valor;
-            subtotal += item.total;
-            igv += 0;
-          } else {
-            // Agregar la fila de subtotal
-            result.push({
-              id: "",
-              proveedor: "SubTotal",
-              service: "",
-              valor: valor,
-              orden: 1,
-              igv: 0,
-              total: subtotal,
-            });
-
-            // Reiniciar para el nuevo proveedor
-
-            currentProvider = item.proveedor;
-            valor = item.valor;
-            subtotal = item.total;
-            igv = 0;
-          }
-
-          // Agregar el elemento actual
-          result.push(item);
-        }
-        result.push({
-          id: "",
-          proveedor: "SubTotal",
-          service: "",
-          valor: valor,
-          orden: 1,
-          igv: "",
-          total: subtotal,
-        });
-        dataCostos = result;
-        //---------------------------------------------------
-        let iso = JSON.parse(sessionStorage.getItem("iso_pais"));
-        // console.log('totalImpuestosIGV',totalImpuestosIGV);
-        dataIngresos.push({
-          descripcion: `TOTAL`,
-          valor: parseFloat(montoIngresos).toFixed(2),
-          service: `Total sin ${
-            enterprise.state.impuesto.nombre_impuesto
-          } ${miMixin.methods.currencyFormat(
-            parseFloat(totalIngresos).toFixed(2)
-          )}     |      ${
-            enterprise.state.impuesto.nombre_impuesto
-          }: ${miMixin.methods.currencyFormat(
-            parseFloat(
-              (totalImpuestosIGV * enterprise.state.impuesto.impuesto) / 100
-            ).toFixed(2)
-          )} `,
-          igv: parseFloat(igvIngresos).toFixed(2),
-          total:
-            iso == 9589
-              ? parseFloat(totalIngresos) +
-                parseFloat(
-                  (totalImpuestosIGV * enterprise.state.impuesto.impuesto) / 100
-                )
-              : parseFloat(totalIngresos),
-        });
-        dataCostos.push({
-          proveedor: "TOTAL",
-          valor: parseFloat(montoCostos).toFixed(2),
-          igv: parseFloat(igvCostos).toFixed(2),
-          total: parseFloat(montoCostos).toFixed(2),
-        });
-        //
-        state.listIngresosInstructivoAprobar.push({
-          nro_propuesta: opcion.nro_propuesta,
-          dataIngresos: dataIngresos,
-          nro_propuesta: opcion.nro_propuesta,
-          dataCostos: dataCostos,
-          totalIngresos: totalIngresos,
-          totalCostos: totalCostos,
-          dataVentas: dataIngresos,
-        });
-        // state.listCostosInstructivoAprobar.push({
-        // });
-        // state.totalIngresosAprobar.push({
-        //   nro_propuesta: opcion.nro_propuesta,
-        // });
-        // state.totalCostosAprobar.push({
-        //   nro_propuesta: opcion.nro_propuesta,
-        // });
+        // Agregar el elemento actual
+        resultIngresos.push(item);
+      }
+      resultIngresos.push({
+        descripcion: "SubTotal",
+        service: "",
+        valor: subvalorIngresos,
+        igv: 0,
+        total: subtotalIngresos,
       });
+      dataIngresos = resultIngresos;
+
+      // ------------------------------------------------
+      dataCostos = dataCostos.sort((a, b) => {
+        if (a.proveedor < b.proveedor) return -1;
+        if (a.proveedor > b.proveedor) return 1;
+      });
+      //---------------------------------------------------
+
+      const result = [];
+      let id = null;
+      let currentProvider = null;
+      let subtotal = 0;
+      let valor = 0;
+      let igv = 0;
+      for (const item of dataCostos) {
+        if (currentProvider === null) {
+          id = item.id;
+          currentProvider = item.proveedor;
+          valor += item.valor;
+          subtotal += item.total;
+          igv += 0;
+        } else if (currentProvider === item.proveedor) {
+          id = item.id;
+          valor += item.valor;
+          subtotal += item.total;
+          igv += 0;
+        } else {
+          // Agregar la fila de subtotal
+          result.push({
+            id: "",
+            proveedor: "SubTotal",
+            service: "",
+            valor: valor,
+            orden: 1,
+            igv: 0,
+            total: subtotal,
+          });
+
+          // Reiniciar para el nuevo proveedor
+
+          currentProvider = item.proveedor;
+          valor = item.valor;
+          subtotal = item.total;
+          igv = 0;
+        }
+
+        // Agregar el elemento actual
+        result.push(item);
+      }
+      result.push({
+        id: "",
+        proveedor: "SubTotal",
+        service: "",
+        valor: valor,
+        orden: 1,
+        igv: "",
+        total: subtotal,
+      });
+      dataCostos = result;
+      //---------------------------------------------------
+      let iso = JSON.parse(sessionStorage.getItem("iso_pais"));
+      // console.log('totalImpuestosIGV',totalImpuestosIGV);
+      dataIngresos.push({
+        descripcion: `TOTAL`,
+        valor: parseFloat(montoIngresos).toFixed(2),
+        service: `Total sin ${
+          enterprise.state.impuesto.nombre_impuesto
+        } ${miMixin.methods.currencyFormat(
+          parseFloat(totalIngresos).toFixed(2)
+        )}     |      ${
+          enterprise.state.impuesto.nombre_impuesto
+        }: ${miMixin.methods.currencyFormat(
+          parseFloat(
+            (totalImpuestosIGV * enterprise.state.impuesto.impuesto) / 100
+          ).toFixed(2)
+        )} `,
+        igv: parseFloat(igvIngresos).toFixed(2),
+        total:
+          iso == 9589
+            ? parseFloat(totalIngresos) +
+              parseFloat(
+                (totalImpuestosIGV * enterprise.state.impuesto.impuesto) / 100
+              )
+            : parseFloat(totalIngresos),
+      });
+      dataCostos.push({
+        proveedor: "TOTAL",
+        valor: parseFloat(montoCostos).toFixed(2),
+        igv: parseFloat(igvCostos).toFixed(2),
+        total: parseFloat(montoCostos).toFixed(2),
+      });
+      //
+      state.listIngresosInstructivoAprobar.push({
+        nro_propuesta: opcion.nro_propuesta,
+        dataIngresos: dataIngresos,
+        nro_propuesta: opcion.nro_propuesta,
+        dataCostos: dataCostos,
+        totalIngresos: totalIngresos,
+        totalCostos: totalCostos,
+        dataVentas: dataIngresos,
+      });
+      // state.listCostosInstructivoAprobar.push({
+      // });
+      // state.totalIngresosAprobar.push({
+      //   nro_propuesta: opcion.nro_propuesta,
+      // });
+      // state.totalCostosAprobar.push({
+      //   nro_propuesta: opcion.nro_propuesta,
+      // });
+    }
 
     //
   },
@@ -6745,9 +6749,25 @@ const actions = {
         status: element.status == true ? "SI" : "NO",
       });
     });
+    // Validación defensiva: evitar errores cuando no se pudo generar la data
+    if (
+      !state.listIngresosInstructivoAprobar ||
+      !state.listIngresosInstructivoAprobar.length ||
+      !state.listIngresosInstructivoAprobar[0]
+    ) {
+      Swal.fire({
+        icon: "error",
+        title: "Ocurrió un error",
+        text:
+          "No se pudieron calcular los ingresos y costos del instructivo. Verifique que existan opciones seleccionadas y costos configurados.",
+        showConfirmButton: true,
+      });
+      return;
+    }
     let listIngresosInstructivo = [
       ...state.listIngresosInstructivoAprobar[0].dataIngresos,
     ];
+
     let listCostosInstructivo = [
       ...state.listIngresosInstructivoAprobar[0].dataCostos,
     ];
