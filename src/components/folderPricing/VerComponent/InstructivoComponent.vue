@@ -156,7 +156,7 @@
         <h3>
           INSTRUCTIVO COMPRA
           {{ $store.state.pricing.listInstructivo[0].expediente }} - N°{{
-            $store.state.pricing.listIngresosInstructivo[page - 1].nro_propuesta
+            nroPropuestaActual
           }}
         </h3>
 
@@ -335,8 +335,7 @@
                 </thead>
                 <tbody>
                   <tr
-                    v-for="(venta, index) in $store.state.pricing
-                      .listIngresosInstructivo[page - 1].opcion"
+                    v-for="(venta, index) in ingresosInstructivoActual"
                     :key="index"
                     :class="[
                       venta.descripcion === 'TOTAL'
@@ -383,8 +382,7 @@
                 </thead>
                 <tbody>
                   <tr
-                    v-for="(costo, index) in $store.state.pricing
-                      .listCostosInstructivo[page - 1].opcion"
+                    v-for="(costo, index) in costosInstructivoActual"
                     :key="index"
                     :class="[
                       costo.proveedor === 'TOTAL'
@@ -432,8 +430,7 @@
                 </thead>
                 <tbody>
                   <tr
-                    v-for="(costo, index) in $store.state.pricing
-                      .listImpuestosInstructivo[page - 1].opcion"
+                    v-for="(costo, index) in impuestosInstructivoActual"
                     :key="index"
                     :class="[
                       costo.name === 'TOTAL'
@@ -659,6 +656,44 @@ export default {
       id_opcion: '0',
       id_opcion_house: '0',
     };
+  },
+  computed: {
+    ingresosInstructivoActual() {
+      const lista = this.$store.state.pricing.listIngresosInstructivo;
+      const index = this.page - 1;
+      if (!lista || !lista.length || index < 0 || index >= lista.length) {
+        return [];
+      }
+      const item = lista[index];
+      return item && item.opcion ? item.opcion : [];
+    },
+    costosInstructivoActual() {
+      const lista = this.$store.state.pricing.listCostosInstructivo;
+      const index = this.page - 1;
+      if (!lista || !lista.length || index < 0 || index >= lista.length) {
+        return [];
+      }
+      const item = lista[index];
+      return item && item.opcion ? item.opcion : [];
+    },
+    impuestosInstructivoActual() {
+      const lista = this.$store.state.pricing.listImpuestosInstructivo;
+      const index = this.page - 1;
+      if (!lista || !lista.length || index < 0 || index >= lista.length) {
+        return [];
+      }
+      const item = lista[index];
+      return item && item.opcion ? item.opcion : [];
+    },
+    nroPropuestaActual() {
+      const lista = this.$store.state.pricing.listIngresosInstructivo;
+      const index = this.page - 1;
+      if (!lista || !lista.length || index < 0 || index >= lista.length) {
+        return "";
+      }
+      const item = lista[index];
+      return item && item.nro_propuesta ? item.nro_propuesta : "";
+    },
   },
 
   async mounted() {
