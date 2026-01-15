@@ -1109,6 +1109,7 @@ export default {
               let url = await vm.createCarpetaOneDrive({
                 name: vm.$store.state.master_nro_expediente,
               });
+              console.log("url2", url);
               if (url) {
                 await vm.actualizarMaster({
                   id: response.data.data[0].insertid,

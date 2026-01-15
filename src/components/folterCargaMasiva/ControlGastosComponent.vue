@@ -576,6 +576,7 @@ export default {
             let url = await this.createCarpetaOneDrive({
               name: response[0].nro_master,
             });
+            console.log("url1", url);
             if (url) {
               await this.actualizarMaster({
                 id: response[0].id_master,
