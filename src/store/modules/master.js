@@ -13,9 +13,14 @@ const actions = {
         "Content-Type": "application/json",
       },
     };
-    let res = await axios(config).then(async function (response) {
-      return response.data.data;
-    });
+    let res = await axios(config)
+      .then(async function (response) {
+        return response.data.data;
+      })
+      .catch((e) => {
+        console.error(e);
+        return false;
+      });
     return res;
   },
   async actualizarMaster(__, { id = 0, url = "" }) {
@@ -54,33 +59,32 @@ const actions = {
       },
     };
 
-    await axios(config)
-      .then(function (response) {
-        sessionStorage.setItem("auth-token", response.data.token);
+    await axios(config).then(function (response) {
+      sessionStorage.setItem("auth-token", response.data.token);
 
-        let res = response.data;
-        if (res.status == "401") {
-          Swal.fire({
-            icon: "error",
-            text: res.mensaje,
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            allowEnterKey: false,
-          }).then((resSwal) => {
-            if (resSwal.isConfirmed && res.status == "401") {
-              router.push({ name: "Login" });
-              setTimeout(() => {
-                window.location.reload();
-              }, 10);
-            }
-          });
-        } else {
-          Swal.fire({
-            icon: res.estadoflag == true ? "success" : "error",
-            text: res.mensaje,
-          });
-        }
-      });
+      let res = response.data;
+      if (res.status == "401") {
+        Swal.fire({
+          icon: "error",
+          text: res.mensaje,
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          allowEnterKey: false,
+        }).then((resSwal) => {
+          if (resSwal.isConfirmed && res.status == "401") {
+            router.push({ name: "Login" });
+            setTimeout(() => {
+              window.location.reload();
+            }, 10);
+          }
+        });
+      } else {
+        Swal.fire({
+          icon: res.estadoflag == true ? "success" : "error",
+          text: res.mensaje,
+        });
+      }
+    });
   },
 };
 
