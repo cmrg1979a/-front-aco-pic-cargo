@@ -182,9 +182,14 @@ export default {
           "Content-Type": "application/json",
         },
       };
-      let res = await axios(config).then(async function (response) {
-        return response.data.data;
-      });
+      let res = await axios(config)
+        .then(async function (response) {
+          return response.data.data;
+        })
+        .catch((e) => {
+          console.log(e);
+          return false;
+        });
       return res;
     },
     async actualizarMaster({ id = 0, url = "" }) {
