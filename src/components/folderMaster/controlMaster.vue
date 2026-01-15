@@ -1119,15 +1119,15 @@ export default {
             }
             // vm._getHouseServices();
             // vm._setMasterHouse(response.data.data[0].insertid);
-            await vm._setHouse(response.data.data[0].insertid);
+            await vm._setHouse(response.data.data[0].id);
 
             vm.$store.state.itemsHouseList = [];
-            vm.$store.state.master_insertId = response.data.data[0].insertid;
+            vm.$store.state.master_insertId = response.data.data[0].id;
 
             vm.$router.push({
               name: "controlMasterEditar",
               params: {
-                id: response.data.data[0].insertid,
+                id: response.data.data[0].id,
               },
             });
             window.location.reload();
