@@ -6444,18 +6444,17 @@ const actions = {
                 : 0
             );
           }
+          const proveedorEncontrado = modules.state.provedores.find(
+            (v) => v.id == element.id_proveedor
+          );
           dataCostos.push({
-            proveedor: modules.state.provedores.filter(
-              (v) => v.id == element.id_proveedor
-            )[0].namelong,
+            proveedor: proveedorEncontrado ? proveedorEncontrado.namelong : "",
             service: element.nameservice,
             valor: montoDetails,
             orden: orden,
             igv: 0,
             total: montoDetails,
-            id: modules.state.provedores.filter(
-              (v) => v.id == element.id_proveedor
-            )[0].id,
+            id: proveedorEncontrado ? proveedorEncontrado.id : null,
           });
           igvCostos += 0;
           montoCostos += parseFloat(montoDetails);
