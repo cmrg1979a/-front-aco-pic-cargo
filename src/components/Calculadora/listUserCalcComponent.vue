@@ -674,7 +674,7 @@ export default {
       headers: [
         // { text: "Acciones", value: "accion" },
         // { text: "Fecha Última Actualizacion", value: "usuario_updated" },
-        { text: "Cliente", value: "usuario_nombre" },
+        { text: "Cliente", value: "nombre" },
         { text: "Tipo", value: "tipo" },
         { text: "Puerto Origen", value: "port_origen" },
         { text: "Puerto Destino", value: "port_destino" },
@@ -683,6 +683,7 @@ export default {
         // { text: "", value: "servicios" },
         { text: "Valor Mercancía", value: "valormercancia" },
         { text: "Correo", value: "email" },
+        { text: "Tel.", value: "telefono" },
       ],
       headersCall: [
         { text: "Acciones", value: "action" },
