@@ -1521,6 +1521,7 @@ const actions = {
       state.datosPrincipales.telefonoproveedor = res.telefonoproveedor;
       state.datosPrincipales.direccionproveedor = res.direccionproveedor;
       state.datosPrincipales.id_status = res.statusquote;
+      state.datosPrincipales.nameStatusQuote = res.namestatusquote;
       state.datosPrincipales.descripcioncarga = res.descripcionmercancia;
       state.datosPrincipales.fecha_inicio = res.fecha_inicio;
       // --------------------------------------------------------------
@@ -1535,7 +1536,7 @@ const actions = {
       state.datosPrincipales.amount = res.monto;
       // --------------------------------------------------------------
       state.opcionCostos = [];
-
+      console.log(res.id_status);
       res.opcioncostos.forEach((element) => {
         state.opcionCostos.push({
           id: element.id,

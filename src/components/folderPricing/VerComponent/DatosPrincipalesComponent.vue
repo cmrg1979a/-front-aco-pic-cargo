@@ -1,7 +1,7 @@
 <template>
   <v-container fluid class="pa-0">
     <v-card elevation="0">
-      <v-card-title primary-title> Datos Principales </v-card-title>
+      <v-card-title primary-title> Datos Principales</v-card-title>
       <v-card-text>
         <v-form class="px-2" ref="form">
           <v-autocomplete
@@ -20,7 +20,7 @@
             outlined
             dense
             class="my-1"
-            :items="$store.state.pricing.listQuoteStatus"
+            :items="estadoCotizacionItems"
             item-text="name"
             item-value="id"
             v-model="$store.state.pricing.datosPrincipales.id_status"
@@ -220,6 +220,25 @@ export default {
   },
   computed: {
     ...mapState(["registroClienteFlag"]),
+    estadoCotizacionItems() {
+      const list = this.$store.state.pricing.listQuoteStatus || [];
+      const idStatus = this.$store.state.pricing.datosPrincipales.id_status;
+      const nameStatus = this.$store.state.pricing.datosPrincipales
+        .nameStatusQuote;
+
+      const exists = list.some((v) => v.id == idStatus);
+      if (exists || !idStatus || !nameStatus) {
+        return list;
+      }
+
+      return [
+        ...list,
+        {
+          id: idStatus,
+          name: nameStatus,
+        },
+      ];
+    },
   },
 
   watch: {

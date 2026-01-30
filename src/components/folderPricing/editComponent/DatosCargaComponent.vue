@@ -126,18 +126,14 @@
                 USAR CALCULADORA
               </v-btn>
             </v-col>
-            <v-col cols="12">
-              <v-simple-table
-                dense
-                class="elevation-1 my-2"
-                v-if="mostrarTableBultos"
-              >
+            <v-col cols="12" v-if="mostrarTableBultos && isAereo()">
+              <v-simple-table dense class="elevation-1 my-2">
                 <thead class="teal lighten-2 white--text">
                   <tr>
                     <th>Cant. Bultos</th>
-                    <th>Peso</th>
-                    <th>Volumen</th>
-                    <th>Peso cargable (kg/m³)</th>
+                    <th>Peso (kg)</th>
+                    <th>Volumen (m³)</th>
+                    <th>Peso cargable (kg)</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -148,7 +144,7 @@
                     <td>{{ $store.state.pricing.datosPrincipales.peso }}</td>
                     <td>{{ $store.state.pricing.datosPrincipales.volumen }}</td>
                     <td>
-                      {{ pesoCargable !== null ? pesoCargable + ' kg/m³' : '' }}
+                      {{ pesoCargable !== null ? pesoCargable + ' kg' : '' }}
                     </td>
                   </tr>
                 </tbody>
@@ -525,6 +521,42 @@ export default {
   },
   methods: {
     ...mapActions(["_getContainers", "getItemsServices", "getMultiplicador"]),
+    cambiarImpuesto() {
+      Swal.fire({
+        allowOutsideClick: false,
+        icon: "question",
+        title: "Calculo de impuestos",
+        text: "El cambio de Primera o Segunda Importación, se verá reflejado en el impuesto. ¿Desea continuar?",
+        confirmButtonText: "Si, cambiar los impuestos",
+        denyButtonText: "Cancelar",
+        showConfirmButton: true,
+        showDenyButton: true,
+        showCancelButton: false,
+      }).then((res) => {
+        if (res.isConfirmed) {
+          if (this.$store.state.pricing.datosPrincipales.id_percepcionaduana) {
+            let porcentaje =
+              this.$store.state.masterusuarios.lstPercepcionAduana.filter(
+                (v) =>
+                  v.id ==
+                  this.$store.state.pricing.datosPrincipales.id_percepcionaduana
+              )[0].codigo01;
+
+            this.$store.state.pricing.listImpuestos.filter(
+              (v) => v.codigo == "09"
+            )[0].codigo01 = porcentaje;
+          } else {
+            this.$store.state.pricing.listImpuestos.filter(
+              (v) => v.codigo == "09"
+            )[0].codigo01 = "10";
+          }
+        }
+        if (res.isDenied) {
+          this.$store.state.pricing.datosPrincipales.id_percepcionaduana =
+            this.id_percepcionaduana;
+        }
+      });
+    },
     añadirCarga() {
       if (this.$refs.frmDatosCarga.validate()) {
         this.$store.state.pricing.datosPrincipales.numerobultos =
@@ -732,11 +764,12 @@ export default {
         volumen: volumen,
       };
     },
-
     borrarFila(i) {
       this.tblMedida.splice(i, 1);
       this.total();
     },
+  },
+  computed: {
     mostrarComboPercepcionAduana() {
       let esPeru = JSON.parse(sessionStorage.getItem("iso_pais")) == 9589;
       return (
@@ -748,52 +781,29 @@ export default {
         )
       );
     },
-    cambiarImpuesto() {
-      Swal.fire({
-        allowOutsideClick: false,
-        icon: "question",
-        title: "Calculo de impuestos",
-        text: "El cambio de Primera o Segunda Importación, se verá reflejado en el impuesto. ¿Desea continuar?",
-        confirmButtonText: "Si, cambiar los impuestos",
-        denyButtonText: "Cancelar",
-        showConfirmButton: true,
-        showDenyButton: true,
-        showCancelButton: false,
-      }).then((res) => {
-        if (res.isConfirmed) {
-          if (this.$store.state.pricing.datosPrincipales.id_percepcionaduana) {
-            let porcentaje =
-              this.$store.state.masterusuarios.lstPercepcionAduana.filter(
-                (v) =>
-                  v.id ==
-                  this.$store.state.pricing.datosPrincipales.id_percepcionaduana
-              )[0].codigo01;
-
-            this.$store.state.pricing.listImpuestos.filter(
-              (v) => v.codigo == "09"
-            )[0].codigo01 = porcentaje;
-          } else {
-            this.$store.state.pricing.listImpuestos.filter(
-              (v) => v.codigo == "09"
-            )[0].codigo01 = "10";
-          }
-        }
-        if (res.isDenied) {
-          this.$store.state.pricing.datosPrincipales.id_percepcionaduana =
-            this.id_percepcionaduana;
-        }
-      });
+    isAereo() {
+      const tipo = this.$store.state.pricing.datosPrincipales.idtipocarga;
+      const id = tipo && typeof tipo === "object" ? tipo.id : tipo;
+      if (!id) return false;
+      const items = this.$store.state.pricing.listShipment || [];
+      const it = items.find((v) => v.id == id);
+      return it && it.code === "Aéreo";
     },
-  },
-  computed: {
     pesoCargable() {
+      // Solo aplica para embarques aéreos
+      if (!this.isAereo()) return null;
+
       const datos = this.$store.state.pricing.datosPrincipales || {};
-      const peso = parseFloat(datos.peso || 0);
-      const volumen = parseFloat(datos.volumen || 0);
-      if (!peso || !volumen) return null;
-      const valor = peso / volumen;
-      if (!isFinite(valor)) return null;
-      return parseFloat(valor.toFixed(2));
+      const pesoReal = parseFloat(datos.peso || 0); // kg
+      const volumen = parseFloat(datos.volumen || 0); // m³
+
+      if (!pesoReal && !volumen) return null;
+
+      const pesoVolumetrico = volumen > 0 ? volumen * 166.66 : 0;
+
+      const chargeable = Math.max(pesoReal || 0, pesoVolumetrico || 0);
+      if (!chargeable || !isFinite(chargeable)) return null;
+      return parseFloat(chargeable.toFixed(2));
     },
   },
 };
