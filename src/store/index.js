@@ -313,18 +313,18 @@ export default new Vuex.Store({
     dataControl_id_orders: "",
 
     master_fecha_eta: new Date(
-      Date.now() - new Date().getTimezoneOffset() * 60000
+      Date.now() - new Date().getTimezoneOffset() * 60000,
     )
       .toISOString()
       .substr(0, 10),
     master_fecha_etd: new Date(
-      Date.now() - new Date().getTimezoneOffset() * 60000
+      Date.now() - new Date().getTimezoneOffset() * 60000,
     )
       .toISOString()
       .substr(0, 10),
 
     master_fecha_disponibilidad: new Date(
-      Date.now() - new Date().getTimezoneOffset() * 60000
+      Date.now() - new Date().getTimezoneOffset() * 60000,
     )
       .toISOString()
       .substr(0, 10),
@@ -459,7 +459,7 @@ export default new Vuex.Store({
     bitacora_comentario_flag: false,
     branchs: null,
     bitacora_fecha: new Date(
-      Date.now() - new Date().getTimezoneOffset() * 60000
+      Date.now() - new Date().getTimezoneOffset() * 60000,
     )
       .toISOString()
       .substr(0, 10),
@@ -571,7 +571,6 @@ export default new Vuex.Store({
       state.itemsDocumentsPais = dataDocumentsPais;
     },
     _setPais(state, dataPais) {
-      
       state.itemsPais = dataPais;
     },
     _setState(state, dataState) {
@@ -1247,7 +1246,7 @@ export default new Vuex.Store({
 
     async _getPortBegin(
       { commit },
-      { id_transport = 0, id = null, search = null }
+      { id_transport = 0, id = null, search = null },
     ) {
       var data = JSON.stringify({
         id_transport: id_transport,
@@ -1275,7 +1274,7 @@ export default new Vuex.Store({
 
     async _getPortEnd(
       { commit },
-      { id_transport = 0, id = null, search = null }
+      { id_transport = 0, id = null, search = null },
     ) {
       var data = JSON.stringify({
         id_transport: id_transport,
@@ -1546,7 +1545,12 @@ export default new Vuex.Store({
     async _getnroHouse({ commit }) {
       var config = {
         method: "post",
-        url: process.env.VUE_APP_URL_MAIN + "getNroHouse",
+        url:
+          process.env.VUE_APP_URL_MAIN +
+          "getNroHouse?" +
+          `id_branch=${
+            JSON.parse(sessionStorage.getItem("dataUser"))[0].id_branch
+          }`,
         headers: {
           "auth-token": sessionStorage.getItem("auth-token"),
           "Content-Type": "application/json",
@@ -1920,7 +1924,7 @@ export default new Vuex.Store({
         .then(function (response) {
           commit(
             "_setItemsBitacora",
-            response.data.estadoflag ? response.data.data : []
+            response.data.estadoflag ? response.data.data : [],
           );
         })
         .catch(function (error) {

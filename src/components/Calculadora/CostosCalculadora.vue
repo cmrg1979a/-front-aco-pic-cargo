@@ -21,6 +21,7 @@
             padding: 0 0 0 10%;
             text-transform: uppercase;
             font-weight: bold;
+            
           "
         >
           Costos:
