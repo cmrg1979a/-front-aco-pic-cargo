@@ -242,12 +242,15 @@ export default {
     };
   },
   async mounted() {
-    this.limpiarData();
+    if (!this.$route.params.id) {
+      this.limpiarData();
+    }
 
     await Promise.all([
       this._getProveedor(),
       this._getProveedorRolShipper(),
       this._getProveedorRolNaviera(),
+      this._getMotonave(),
       this.cargarClientes(),
       this.cargarHousesAsociados(),
     ]);

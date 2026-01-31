@@ -140,6 +140,7 @@
                     <th>Cant. Bultos</th>
                     <th>Peso (kg)</th>
                     <th>Volumen (m³)</th>
+                    <th>Peso volumétrico (kg)</th>
                     <th>Peso cargable (kg)</th>
                   </tr>
                 </thead>
@@ -150,6 +151,9 @@
                     </td>
                     <td>{{ $store.state.pricing.datosPrincipales.peso }}</td>
                     <td>{{ $store.state.pricing.datosPrincipales.volumen }}</td>
+                    <td>
+                      {{ pesoVolumetrico !== null ? pesoVolumetrico + ' kg' : '' }}
+                    </td>
                     <td>
                       {{ pesoCargable !== null ? pesoCargable + ' kg' : '' }}
                     </td>
@@ -907,6 +911,18 @@ export default {
       const items = this.$store.state.pricing.listShipment || [];
       const it = items.find((v) => v.id == id);
       return it && it.code === "Aéreo";
+    },
+    pesoVolumetrico() {
+      // Solo aplica para embarques aéreos
+      if (!this.isAereo) return null;
+
+      const datos = this.$store.state.pricing.datosPrincipales || {};
+      const volumen = parseFloat(datos.volumen || 0); // m³
+      if (!volumen) return null;
+
+      const pv = volumen > 0 ? volumen * 166.66 : 0;
+      if (!pv || !isFinite(pv)) return null;
+      return parseFloat(pv.toFixed(2));
     },
     pesoCargable() {
       // Solo aplica para embarques aéreos

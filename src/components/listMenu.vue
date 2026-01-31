@@ -167,6 +167,12 @@
               </p>
               <p
                 class="my-1 px-5 text-resumen"
+                v-if="isAereoPricing && pesoVolumetrico !== null"
+              >
+                Peso volumétrico: {{ pesoVolumetrico }} kg
+              </p>
+              <p
+                class="my-1 px-5 text-resumen"
                 v-if="
                   $store.state.pricing.datosPrincipales.containers.length > 0
                 "
@@ -317,6 +323,21 @@ export default {
       const chargeable = Math.max(pesoReal || 0, pesoVolumetrico || 0);
       if (!chargeable || !isFinite(chargeable)) return null;
       return parseFloat(chargeable.toFixed(2));
+    },
+    pesoVolumetrico() {
+      const pricing = this.$store.state.pricing;
+      if (!pricing || !pricing.datosPrincipales) return null;
+
+      // Solo aplica para embarques aéreos
+      if (!this.isAereoPricing) return null;
+
+      const datos = pricing.datosPrincipales;
+      const volumen = parseFloat(datos.volumen || 0); // m³
+      if (!volumen) return null;
+
+      const pv = volumen > 0 ? volumen * 166.66 : 0;
+      if (!pv || !isFinite(pv)) return null;
+      return parseFloat(pv.toFixed(2));
     },
   },
   methods: {

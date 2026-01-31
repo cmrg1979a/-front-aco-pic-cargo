@@ -132,6 +132,9 @@
         <v-col cols="12" md="4">
           <v-text-field label="Peso Cargable" suffix="kg" :value="$store.state.houses.house.peso_cargable" readonly></v-text-field>
         </v-col>
+        <v-col cols="12" md="4">
+          <v-text-field label="Peso Volumétrico" suffix="kg" :value="pesoVolumetrico" readonly></v-text-field>
+        </v-col>
       </template>
       <template v-else-if="esFCL">
         <v-col cols="12" md="3">
@@ -259,6 +262,14 @@ export default {
       
       const quote = this.quotesFiltered.find(q => q.id === quoteId);
       return quote ? quote.code : '';
+    },
+    pesoVolumetrico() {
+      if (!this.esAereo) return null;
+      const m3 = parseFloat((this.$store.state.houses.house && this.$store.state.houses.house.volumen) || 0);
+      if (!m3) return null;
+      const pv = m3 > 0 ? m3 * 166.66 : 0;
+      if (!pv || !isFinite(pv)) return null;
+      return parseFloat(pv.toFixed(2));
     },
   },
   async mounted() {
