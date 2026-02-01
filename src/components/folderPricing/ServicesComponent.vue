@@ -131,7 +131,7 @@
       </v-row>
     </v-card-text>
     <v-divider></v-divider>
-    <v-card-actions class="sticky-actions pa-3">
+    <v-card-actions class="sticky-actions pa-3" v-if="mostrarBtn">
       <v-spacer></v-spacer>
       <v-btn color="primary" large @click="continuarLlenadoCostos()">
         <v-icon left>mdi-arrow-right-bold</v-icon>

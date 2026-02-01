@@ -182,9 +182,14 @@ export default {
           "Content-Type": "application/json",
         },
       };
-      let res = await axios(config).then(async function (response) {
-        return response.data.data;
-      });
+      let res = await axios(config)
+        .then(async function (response) {
+          return response.data.data;
+        })
+        .catch((e) => {
+          console.log(e);
+          return false;
+        });
       return res;
     },
     async actualizarMaster({ id = 0, url = "" }) {
@@ -1101,7 +1106,7 @@ export default {
               .id_branch;
             let branchCreacion = [1, 2];
             if (branchCreacion.includes(id_branch)) {
-              let url = await vm.createCarpetaOneDrive({
+             let url = await vm.createCarpetaOneDrive({
                 name: vm.$store.state.master_nro_expediente,
               });
               await vm.actualizarMaster({

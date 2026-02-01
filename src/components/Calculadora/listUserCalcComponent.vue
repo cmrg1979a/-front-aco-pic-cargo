@@ -41,6 +41,14 @@
     <v-card-text>
       <v-divider></v-divider>
       <v-data-table
+        :headers="headers"
+        :items="$store.state.calculadoras.listUser"
+        class="elevation-5"
+        :search="search"
+        item-key="index"
+      >
+        <!-- </v-data-table>
+      <v-data-table
         dense
         :headers="headers"
         :items="$store.state.calculadoras.listUser"
@@ -51,7 +59,7 @@
         :expanded.sync="expanded"
         item-key="index"
         multi-sort
-      >
+      > -->
         <template v-slot:[`item.accion`]="{ item }">
           <v-btn x-small icon color="primary" @click="openCall(item)">
             <v-icon>mdi-phone</v-icon>
@@ -430,7 +438,7 @@
                       ? igv(
                           item,
                           datos.flete[0].detalles_calculos.pais_destino,
-                          datos.totalIGVCostos
+                          datos.totalIGVCostos,
                         )
                       : 0
                   }}
@@ -441,7 +449,7 @@
                       ? igvMasTotal(
                           item,
                           datos.flete[0].detalles_calculos.pais_destino,
-                          datos.totalIGVCostos
+                          datos.totalIGVCostos,
                         )
                       : 0
                   }}
@@ -459,7 +467,7 @@
                           datos.servicioLogisticoTotal[0],
                           datos.totalIGVCostos,
                           datos.flete[0].detalles_calculos.pais_destino,
-                          datos.totalIGVCostos
+                          datos.totalIGVCostos,
                         )
                       : 0
                   }}
@@ -472,7 +480,7 @@
                           datos.totalIGVFleteCostos,
                           datos.flete[0].detalles_calculos.pais_destino,
                           datos.totalIGVCostos,
-                          datos.totalVenta
+                          datos.totalVenta,
                         )
                       : 0
                   }}
@@ -517,7 +525,7 @@
                       ? igv(
                           item,
                           datos.flete[0].detalles_calculos.pais_destino,
-                          datos.totalIGVCostos
+                          datos.totalIGVCostos,
                         )
                       : 0
                   }}
@@ -528,7 +536,7 @@
                     igvMasTotal(
                       item,
                       datos.flete[0].detalles_calculos.pais_destino,
-                      datos.totalIGVCostos
+                      datos.totalIGVCostos,
                     )
                   }}
                 </td>
@@ -543,7 +551,7 @@
                     datos.flete[0]
                       ? totalGeneralCostos(
                           datos.totalIGVCostos,
-                          datos.flete[0].detalles_calculos.pais_destino
+                          datos.flete[0].detalles_calculos.pais_destino,
                         )
                       : 0
                   }}
@@ -554,7 +562,7 @@
                     datos.flete[0]
                       ? totalGeneralCostos(
                           datos.totalIGVFleteCostos,
-                          datos.flete[0].detalles_calculos.pais_destino
+                          datos.flete[0].detalles_calculos.pais_destino,
                         )
                       : 0
                   }}
@@ -674,18 +682,16 @@ export default {
       headers: [
         // { text: "Acciones", value: "accion" },
         // { text: "Fecha Última Actualizacion", value: "usuario_updated" },
-        { text: "Cliente", value: "usuario_nombre" },
-        { text: "Teléfono", value: "usuario_email" },
-        { text: "Correo", value: "usuario_email" },
-        { text: "Origen", value: "usuario_email" },
-        { text: "Destino", value: "usuario_email" },
-        { text: "Peso", value: "usuario_email" },
-        { text: "Volumen", value: "usuario_email" },
-        { text: "Valor Mercancia", value: "usuario_email" },
-        { text: "Tipo Mercancía", value: "usuario_email" },
-        { text: "Departamento", value: "usuario_telefono" },
-        { text: "Distrito", value: "usuario_telefono" },
-        { text: "Acciones", value: "accion" },
+        { text: "Cliente", value: "nombre" },
+        { text: "Tipo", value: "tipo" },
+        { text: "Puerto Origen", value: "port_origen" },
+        { text: "Puerto Destino", value: "port_destino" },
+        { text: "Peso", value: "peso" },
+        { text: "Volumn", value: "volumen" },
+        // { text: "", value: "servicios" },
+        { text: "Valor Mercancía", value: "valormercancia" },
+        { text: "Correo", value: "email" },
+        { text: "Tel.", value: "telefono" },
       ],
       headersCall: [
         { text: "Acciones", value: "action" },
@@ -827,7 +833,7 @@ export default {
             this.$store.state.calculadoras.listUser.filter(
               (v) =>
                 moment(v.usuario_creacion).format("YYYY-MM-DD") == hoy ||
-                moment(v.usuario_updated).format("YYYY-MM-DD") == hoy
+                moment(v.usuario_updated).format("YYYY-MM-DD") == hoy,
             ).length > 0
           ) {
             items.push({
@@ -841,12 +847,12 @@ export default {
         element.new = this.$store.state.calculadoras.listUser.filter(
           (v) =>
             moment(v.usuario_creacion).format("YYYY-MM-DD") == element.day &&
-            v.list_cotizacion.length == 1
+            v.list_cotizacion.length == 1,
         ).length;
         element.recurrente = this.$store.state.calculadoras.listUser.filter(
           (v) =>
             moment(v.usuario_creacion).format("YYYY-MM-DD") == element.day &&
-            v.list_cotizacion.length != 1
+            v.list_cotizacion.length != 1,
         ).length;
       });
       this.itemResumen = items;
@@ -1251,7 +1257,7 @@ export default {
       if (preservicioLogisticoTotal.length > 1) {
         servicioLogisticoTotal = preservicioLogisticoTotal.reduce(function (
           accumulator,
-          current
+          current,
         ) {
           return [+accumulator + +current];
         });
@@ -1444,7 +1450,7 @@ export default {
       totalIGVFleteCostos,
       pais,
       totalIGVCostos,
-      totalVenta
+      totalVenta,
     ) {
       var valor;
       switch (pais) {
@@ -1453,7 +1459,8 @@ export default {
             valor = (
               Number(totalIGVFleteCostos) +
               Number(
-                (servicioLogisticoTotal / 3) * 2 * 0.18 + servicioLogisticoTotal
+                (servicioLogisticoTotal / 3) * 2 * 0.18 +
+                  servicioLogisticoTotal,
               )
             ).toFixed(2);
           } else {

@@ -62,6 +62,7 @@
                   <th>Cant. Bultos</th>
                   <th>Peso (kg)</th>
                   <th>Volumen (m³)</th>
+                  <th>Peso volumétrico (kg)</th>
                   <th>Peso cargable (kg)</th>
                 </tr>
               </thead>
@@ -72,6 +73,9 @@
                   </td>
                   <td>{{ $store.state.aduana.datosPrincipales.peso }}</td>
                   <td>{{ $store.state.aduana.datosPrincipales.volumen }}</td>
+                  <td>
+                    {{ pesoVolumetrico !== null ? pesoVolumetrico + ' kg' : '' }}
+                  </td>
                   <td>
                     {{ pesoCargable !== null ? pesoCargable + ' kg' : '' }}
                   </td>
@@ -320,6 +324,28 @@ export default {
     },
   },
   computed: {
+    pesoVolumetrico() {
+      const datos = this.$store.state.aduana.datosPrincipales || {};
+      const volumen = parseFloat(datos.volumen || 0); // m³
+      if (!volumen) return null;
+
+      // Determinar tipo de embarque para elegir el factor volumétrico
+      let factorVolumetrico = 166.66; // Aéreo
+      try {
+        const idTipo = this.$store.state.aduana.datosPrincipales.idtipocarga;
+        const shipment = this.$store.state.aduana.listShipment.find(
+          (v) => v.id == (idTipo && typeof idTipo === 'object' ? idTipo.id : idTipo)
+        );
+        const code = shipment ? shipment.code : "";
+        if (code === "LCL") {
+          factorVolumetrico = 1000;
+        }
+      } catch (e) {}
+
+      const pv = volumen > 0 ? volumen * factorVolumetrico : 0;
+      if (!pv || !isFinite(pv)) return null;
+      return parseFloat(pv.toFixed(2));
+    },
     pesoCargable() {
       const datos = this.$store.state.aduana.datosPrincipales || {};
       const pesoReal = parseFloat(datos.peso || 0); // kg
