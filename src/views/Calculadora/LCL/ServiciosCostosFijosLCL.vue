@@ -3,7 +3,9 @@
     <v-container fluid>
       <v-tabs centered v-model="tab">
         <v-tab href="#flete">Carga Másiva Flete</v-tab>
+        <v-tab href="#config">Configuracion</v-tab>
         <v-tab href="#fletelst" active>Listado Fletes </v-tab>
+        <v-tab href="#fletegrup" active>Listado Fletes Grupal</v-tab>
         <!-- <v-tab href="#section">Secciones </v-tab> -->
         <v-tab href="#serv">Servicios </v-tab>
         <v-tab href="#cost">Costos Fijos</v-tab>
@@ -13,6 +15,9 @@
       <v-tabs-items v-model="tab">
         <v-tab-item value="fletelst">
           <FleteListComponent type="LCL" :id_modality="id_modality" />
+        </v-tab-item>
+        <v-tab-item value="config">
+          <Configuracion type="LCL" :id_modality="id_modality" />
         </v-tab-item>
         <!-- <v-tab-item value="section">
           <SectionCalculadora type="LCL" :id_modality="id_modality" />
@@ -28,6 +33,9 @@
         </v-tab-item>
         <v-tab-item value="flete">
           <FleteComponent type="LCL" :id_modality="id_modality" />
+        </v-tab-item>
+        <v-tab-item value="fletegrup">
+          <FleteGrupal type="LCL" :id_modality="id_modality" />
         </v-tab-item>
         <v-tab-item value="Transporte">
           <TransporteCalculadora type="LCL" :id_modality="id_modality" />
@@ -54,6 +62,10 @@ export default {
       import("../../../components/Calculadora/ProfitCalculadora.vue"),
     TransporteCalculadora: () =>
       import("../../../components/Calculadora/TransporteCalculadora.vue"),
+    Configuracion: () =>
+      import("../../../components/Calculadora/Configuracion.vue"),
+    FleteGrupal: () =>
+      import("../../../components/Calculadora/FleteGrupal.vue"),
   },
   data() {
     return {
@@ -105,7 +117,7 @@ export default {
   color: #ffffff !important;
 }
 .Inactive {
-  background: #C8E6C9 !important;
+  background: #c8e6c9 !important;
   color: #424242 !important;
 }
 </style>
