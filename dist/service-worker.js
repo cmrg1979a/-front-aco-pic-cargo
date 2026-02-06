@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/precache-manifest.720f16ead74feb573bf07bf300e25de0.js"
+  "/precache-manifest.8f0885d4fda009ecd30b3d67e470d5d7.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "aco_agente_aduana"});
