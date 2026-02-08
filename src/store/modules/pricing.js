@@ -1521,6 +1521,7 @@ const actions = {
       state.datosPrincipales.telefonoproveedor = res.telefonoproveedor;
       state.datosPrincipales.direccionproveedor = res.direccionproveedor;
       state.datosPrincipales.id_status = res.statusquote;
+      state.datosPrincipales.nameStatusQuote = res.namestatusquote;
       state.datosPrincipales.descripcioncarga = res.descripcionmercancia;
       state.datosPrincipales.fecha_inicio = res.fecha_inicio;
       // --------------------------------------------------------------
@@ -1535,7 +1536,7 @@ const actions = {
       state.datosPrincipales.amount = res.monto;
       // --------------------------------------------------------------
       state.opcionCostos = [];
-
+      console.log(res.id_status);
       res.opcioncostos.forEach((element) => {
         state.opcionCostos.push({
           id: element.id,
@@ -6444,18 +6445,17 @@ const actions = {
                 : 0
             );
           }
+          const proveedorEncontrado = modules.state.provedores.find(
+            (v) => v.id == element.id_proveedor
+          );
           dataCostos.push({
-            proveedor: modules.state.provedores.filter(
-              (v) => v.id == element.id_proveedor
-            )[0].namelong,
+            proveedor: proveedorEncontrado ? proveedorEncontrado.namelong : "",
             service: element.nameservice,
             valor: montoDetails,
             orden: orden,
             igv: 0,
             total: montoDetails,
-            id: modules.state.provedores.filter(
-              (v) => v.id == element.id_proveedor
-            )[0].id,
+            id: proveedorEncontrado ? proveedorEncontrado.id : null,
           });
           igvCostos += 0;
           montoCostos += parseFloat(montoDetails);

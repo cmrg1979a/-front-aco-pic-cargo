@@ -1106,28 +1106,25 @@ export default {
               .id_branch;
             let branchCreacion = [1, 2];
             if (branchCreacion.includes(id_branch)) {
-              // let url = await vm.createCarpetaOneDrive({
-              //   name: vm.$store.state.master_nro_expediente,
-              // });
-              // console.log("url2", url);
-              // if (url) {
-              //   await vm.actualizarMaster({
-              //     id: response.data.data[0].insertid,
-              //     url: url,
-              //   });
-              // }
+             let url = await vm.createCarpetaOneDrive({
+                name: vm.$store.state.master_nro_expediente,
+              });
+              await vm.actualizarMaster({
+                id: response.data.data[0].insertid,
+                url: url,
+              });
             }
             // vm._getHouseServices();
             // vm._setMasterHouse(response.data.data[0].insertid);
-            await vm._setHouse(response.data.data[0].id);
+            await vm._setHouse(response.data.data[0].insertid);
 
             vm.$store.state.itemsHouseList = [];
-            vm.$store.state.master_insertId = response.data.data[0].id;
+            vm.$store.state.master_insertId = response.data.data[0].insertid;
 
             vm.$router.push({
               name: "controlMasterEditar",
               params: {
-                id: response.data.data[0].id,
+                id: response.data.data[0].insertid,
               },
             });
             window.location.reload();

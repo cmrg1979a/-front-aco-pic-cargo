@@ -142,7 +142,7 @@
           v-model="$store.state.master_id_operador"
         ></v-autocomplete>
       </v-col>
-      <v-col cols="12" md="6" v-if="isAereo()">
+      <v-col cols="12" md="6" v-if="isAereo() || isFCL() || isLCL()">
         <v-autocomplete
           :items="$store.state.itemsProveedorRolAgente"
           item-text="namelong"
@@ -151,13 +151,22 @@
           v-model="$store.state.master_id_agente"
         ></v-autocomplete>
       </v-col>
-      <v-col cols="12" md="6" v-if="isFCL() || isLCL()">
+      <v-col cols="12" md="6" v-if="isLCL()">
         <v-autocomplete
           :items="$store.state.itemsProveedorRolColoader"
           item-text="namelong"
           item-value="id"
           label="Coloader"
           v-model="$store.state.master_id_coloader"
+        ></v-autocomplete>
+      </v-col>
+      <v-col cols="12" md="6" v-if="isFCL()">
+        <v-autocomplete
+          :items="$store.state.itemsProveedorRolNaviera"
+          item-text="namelong"
+          item-value="id"
+          label="Naviera"
+          v-model="$store.state.master_id_naviera"
         ></v-autocomplete>
       </v-col>
       <!--
@@ -253,6 +262,7 @@ export default {
       "cargarClientes",
       "_getProveedorRolAgente",
       "_getProveedorRolColoader",
+      "_getProveedorRolNaviera",
     ]),
 
     async _activePort(id_transport) {

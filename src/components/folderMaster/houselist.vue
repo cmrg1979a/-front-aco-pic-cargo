@@ -46,6 +46,7 @@
                     <th>Incoterm</th>
                     <th>Peso</th>
                     <th>Volumen</th>
+                    <th v-if="esAereo">Peso volumétrico</th>
                     <th v-if="esAereo">Peso Cargable</th>
                     <th>Acciones</th>
                   </tr>
@@ -62,6 +63,7 @@
                     <td>{{ item.incoterm || item.nameincoterm || item.incoterms || '-' }}</td>
                     <td>{{ item.peso }}</td>
                     <td>{{ item.volumen }}</td>
+                    <td v-if="esAereo">{{ computePesoVolumetrico(item) }}</td>
                     <td v-if="esAereo">{{ computePesoCargable(item) }}</td>
                     <td>
                       <v-icon small color="info" @click.stop="showHouse(item.id)">mdi-open-in-new</v-icon>
@@ -140,6 +142,11 @@ export default {
       } else if (this.$route.name == "controlMasterVer") {
         this.$router.push("/home/folderHouse/control/ver/" + id);
       }
+    },
+    computePesoVolumetrico(item) {
+      const m3 = parseFloat(item.volumen || 0);
+      const pv = m3 > 0 ? m3 * 166.66 : 0;
+      return isNaN(pv) ? 0 : Number(pv.toFixed(2));
     },
     computePesoCargable(item) {
       const kg = parseFloat(item.peso || 0);

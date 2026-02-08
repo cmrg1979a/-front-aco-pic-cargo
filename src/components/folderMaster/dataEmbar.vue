@@ -83,6 +83,14 @@
         </v-col>
         <v-col cols="12" md="4" v-if="isAereo()">
           <v-text-field
+            :value="pesoVolumetrico"
+            label="Peso Volumétrico"
+            suffix="kg"
+            readonly
+          />
+        </v-col>
+        <v-col cols="12" md="4" v-if="isAereo()">
+          <v-text-field
             :value="pesoCargable"
             label="Peso Cargable"
             suffix="kg"
@@ -309,6 +317,13 @@ export default {
       const m3 = parseFloat(this.$store.state.master_volumen || 0);
       const chargeable = Math.max(kg, m3 * 166.66);
       return isNaN(chargeable) ? 0 : parseFloat(chargeable.toFixed(2));
+    },
+    pesoVolumetrico() {
+      if (this.isFCL()) return "";
+      if (!this.isAereo()) return "";
+      const m3 = parseFloat(this.$store.state.master_volumen || 0);
+      const pv = m3 > 0 ? m3 * 166.66 : 0;
+      return isNaN(pv) ? 0 : parseFloat(pv.toFixed(2));
     },
   },
   methods: {

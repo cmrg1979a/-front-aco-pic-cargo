@@ -1471,10 +1471,27 @@ export default {
 
       const gruposMap = new Map();
 
+      const masterHouses =
+        (this.$store.state.controlGastos.listControlGastos[0] &&
+          this.$store.state.controlGastos.listControlGastos[0].master_houses) ||
+        [];
+
       detalle.forEach((item) => {
         const id_house = item.id_house || null;
         const code_house = item.code_house || "";
-        const consigner = item.consigner || "";
+
+        let consigner = item.consigner || "";
+
+        // Si no tenemos consigner en el detalle pero sí tenemos id_house,
+        // intentamos obtenerlo desde master_houses.
+        if (!consigner && id_house !== null && id_house !== undefined) {
+          const house = masterHouses.find(
+            (h) => h.id_house == id_house || h.id == id_house
+          );
+          if (house && house.consigner) {
+            consigner = house.consigner;
+          }
+        }
 
         // clave estable: si hay id_house se usa, si no, combina consigner+code_house
         const key =
@@ -1494,7 +1511,9 @@ export default {
         gruposMap.get(key).items.push(item);
       });
 
-      return Array.from(gruposMap.values());
+      const grupos = Array.from(gruposMap.values());
+      console.log("[egresos] grupos por cliente", grupos);
+      return grupos;
     },
     abrirExpandEgreso(index) {},
     abrirModalCuentaBancaria() {

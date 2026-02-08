@@ -133,14 +133,15 @@
                 USAR CALCULADORA
               </v-btn>
             </v-col>
-            <v-col cols="12">
+            <v-col cols="12" v-if="isAereo">
               <v-simple-table dense class="elevation-1 my-2">
                 <thead class="teal lighten-2 white--text">
                   <tr>
                     <th>Cant. Bultos</th>
-                    <th>Peso</th>
-                    <th>Volumen</th>
-                    <th>Peso cargable (kg/m³)</th>
+                    <th>Peso (kg)</th>
+                    <th>Volumen (m³)</th>
+                    <th>Peso volumétrico (kg)</th>
+                    <th>Peso cargable (kg)</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -151,7 +152,10 @@
                     <td>{{ $store.state.pricing.datosPrincipales.peso }}</td>
                     <td>{{ $store.state.pricing.datosPrincipales.volumen }}</td>
                     <td>
-                      {{ pesoCargable !== null ? pesoCargable + ' kg/m³' : '' }}
+                      {{ pesoVolumetrico !== null ? pesoVolumetrico + ' kg' : '' }}
+                    </td>
+                    <td>
+                      {{ pesoCargable !== null ? pesoCargable + ' kg' : '' }}
                     </td>
                   </tr>
                 </tbody>
@@ -900,14 +904,42 @@ export default {
       }
       return false;
     },
-    pesoCargable() {
+    isAereo() {
+      const tipo = this.$store.state.pricing.datosPrincipales.idtipocarga;
+      const id = tipo && typeof tipo === "object" ? tipo.id : tipo;
+      if (!id) return false;
+      const items = this.$store.state.pricing.listShipment || [];
+      const it = items.find((v) => v.id == id);
+      return it && it.code === "Aéreo";
+    },
+    pesoVolumetrico() {
+      // Solo aplica para embarques aéreos
+      if (!this.isAereo) return null;
+
       const datos = this.$store.state.pricing.datosPrincipales || {};
-      const peso = parseFloat(datos.peso || 0);
-      const volumen = parseFloat(datos.volumen || 0);
-      if (!peso || !volumen) return null;
-      const valor = peso / volumen;
-      if (!isFinite(valor)) return null;
-      return parseFloat(valor.toFixed(2));
+      const volumen = parseFloat(datos.volumen || 0); // m³
+      if (!volumen) return null;
+
+      const pv = volumen > 0 ? volumen * 166.66 : 0;
+      if (!pv || !isFinite(pv)) return null;
+      return parseFloat(pv.toFixed(2));
+    },
+    pesoCargable() {
+      // Solo aplica para embarques aéreos
+      if (!this.isAereo) return null;
+
+      const datos = this.$store.state.pricing.datosPrincipales || {};
+      const pesoReal = parseFloat(datos.peso || 0); // kg
+      const volumen = parseFloat(datos.volumen || 0); // m³
+
+      if (!pesoReal && !volumen) return null;
+
+      // Factor estándar aéreo: volumen (m³) * 166.66 kg/m³
+      const pesoVolumetrico = volumen > 0 ? volumen * 166.66 : 0;
+
+      const chargeable = Math.max(pesoReal || 0, pesoVolumetrico || 0);
+      if (!chargeable || !isFinite(chargeable)) return null;
+      return parseFloat(chargeable.toFixed(2));
     },
   },
 };
