@@ -63,6 +63,7 @@ import configAviso from "./modules/configAviso";
 import branch from "./modules/branch";
 import aduana from "./modules/aduana";
 import proveedor from "./modules/proveedor";
+import configuracion from "./modules/configuracion";
 import Swal from "sweetalert2";
 Vue.use(Vuex);
 Vue.use(VueSweetalert2);
@@ -2957,5 +2958,6 @@ export default new Vuex.Store({
     branch,
     aduana,
     proveedor,
+    configuracion,
   },
 });

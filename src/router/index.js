@@ -42,6 +42,7 @@ import registroPayForCliente from "../views/FolderBanks/registroPagoCliente";
 import verPagosPorCliente from "../views/FolderBanks/verPagosPorCliente";
 import litProgrammedPayment from "../views/programmedPayment/listProgrammedPayment";
 import listFacturacion from "../views/folderBilling/listFacturacionView";
+
 Vue.use(VueRouter);
 
 const routes = [
@@ -755,8 +756,13 @@ const routes = [
       {
         path: "folderConfig/estatus_defecto",
         name: "EstatusDefecto",
+        component: () => import("../views/FolderConfig/EstatusDefecto.vue"),
+      },
+      {
+        path: "configuracion/costos",
+        name: "CostosPricing",
         component: () =>
-          import("../views/FolderConfig/EstatusDefecto.vue"),
+          import("../views/Configuracion/Pricing/CostosPricing.vue"),
       },
     ],
   },
