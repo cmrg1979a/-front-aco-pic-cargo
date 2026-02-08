@@ -163,7 +163,13 @@
                 class="my-1 px-5 text-resumen"
                 v-if="isAereoPricing && pesoCargable !== null"
               >
-                Kilos/Volumen (peso cargable): {{ pesoCargable }} kg/m³
+                Peso cargable: {{ pesoCargable }} kg
+              </p>
+              <p
+                class="my-1 px-5 text-resumen"
+                v-if="isAereoPricing && pesoVolumetrico !== null"
+              >
+                Peso volumétrico: {{ pesoVolumetrico }} kg
               </p>
               <p
                 class="my-1 px-5 text-resumen"
@@ -302,15 +308,36 @@ export default {
       if (!pricing || !pricing.datosPrincipales) return null;
 
       const datos = pricing.datosPrincipales;
-      const peso = parseFloat(datos.peso || 0);
-      const volumen = parseFloat(datos.volumen || 0);
+      const pesoReal = parseFloat(datos.peso || 0); // kg
+      const volumen = parseFloat(datos.volumen || 0); // m³
 
-      if (!this.isAereoPricing || !peso || !volumen) return null;
+      // Solo aplica para embarques aéreos
+      if (!this.isAereoPricing) return null;
 
-      const valor = peso / volumen;
-      if (!isFinite(valor)) return null;
+      // Si no hay datos suficientes, no mostramos nada
+      if (!pesoReal && !volumen) return null;
 
-      return parseFloat(valor.toFixed(2));
+      // Peso volumétrico aéreo estándar: volumen (m³) * 166.66 kg/m³
+      const pesoVolumetrico = volumen > 0 ? volumen * 166.66 : 0;
+
+      const chargeable = Math.max(pesoReal || 0, pesoVolumetrico || 0);
+      if (!chargeable || !isFinite(chargeable)) return null;
+      return parseFloat(chargeable.toFixed(2));
+    },
+    pesoVolumetrico() {
+      const pricing = this.$store.state.pricing;
+      if (!pricing || !pricing.datosPrincipales) return null;
+
+      // Solo aplica para embarques aéreos
+      if (!this.isAereoPricing) return null;
+
+      const datos = pricing.datosPrincipales;
+      const volumen = parseFloat(datos.volumen || 0); // m³
+      if (!volumen) return null;
+
+      const pv = volumen > 0 ? volumen * 166.66 : 0;
+      if (!pv || !isFinite(pv)) return null;
+      return parseFloat(pv.toFixed(2));
     },
   },
   methods: {
@@ -336,12 +363,6 @@ export default {
       return this.router.includes(ruta);
     },
     mostrarVolumen() {
-      let vm = this;
-      let id = vm.$store.state.pricing.datosPrincipales.idtipocarga;
-      let codeTransporte = vm.$store.state.pricing.listShipment.filter((v) => {
-        v.id == id;
-      });
-
       return true;
     },
     getRouteForItem(item) {

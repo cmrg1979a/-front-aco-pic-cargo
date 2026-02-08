@@ -54,15 +54,16 @@
           </v-row>
         </v-form>
 
-        <v-row v-if="!isFCL()">
+        <v-row v-if="isAereo()">
           <v-col cols="12">
             <v-simple-table dense class="elevation-1 my-2">
               <thead class="teal lighten-2 white--text">
                 <tr>
                   <th>Cant. Bultos</th>
-                  <th>Peso</th>
-                  <th>Volumen</th>
-                  <th>Peso cargable (kg/m³)</th>
+                  <th>Peso (kg)</th>
+                  <th>Volumen (m³)</th>
+                  <th>Peso volumétrico (kg)</th>
+                  <th>Peso cargable (kg)</th>
                 </tr>
               </thead>
               <tbody>
@@ -73,7 +74,10 @@
                   <td>{{ $store.state.aduana.datosPrincipales.peso }}</td>
                   <td>{{ $store.state.aduana.datosPrincipales.volumen }}</td>
                   <td>
-                    {{ pesoCargable !== null ? pesoCargable + ' kg/m³' : '' }}
+                    {{ pesoVolumetrico !== null ? pesoVolumetrico + ' kg' : '' }}
+                  </td>
+                  <td>
+                    {{ pesoCargable !== null ? pesoCargable + ' kg' : '' }}
                   </td>
                 </tr>
               </tbody>
@@ -300,6 +304,13 @@ export default {
       let validate = code == "FCL" ? true : false;
       return validate;
     },
+    isAereo() {
+      let id = this.$store.state.aduana.datosPrincipales.idtipocarga;
+      let code = this.$store.state.aduana.listShipment.filter(
+        (v) => v.id == id
+      )[0].code;
+      return code == "Aéreo";
+    },
     mostrarComboPercepcionAduana() {
       let esPeru = JSON.parse(sessionStorage.getItem("iso_pais")) == 9589;
       return (
@@ -313,14 +324,58 @@ export default {
     },
   },
   computed: {
+    pesoVolumetrico() {
+      const datos = this.$store.state.aduana.datosPrincipales || {};
+      const volumen = parseFloat(datos.volumen || 0); // m³
+      if (!volumen) return null;
+
+      // Determinar tipo de embarque para elegir el factor volumétrico
+      let factorVolumetrico = 166.66; // Aéreo
+      try {
+        const idTipo = this.$store.state.aduana.datosPrincipales.idtipocarga;
+        const shipment = this.$store.state.aduana.listShipment.find(
+          (v) => v.id == (idTipo && typeof idTipo === 'object' ? idTipo.id : idTipo)
+        );
+        const code = shipment ? shipment.code : "";
+        if (code === "LCL") {
+          factorVolumetrico = 1000;
+        }
+      } catch (e) {}
+
+      const pv = volumen > 0 ? volumen * factorVolumetrico : 0;
+      if (!pv || !isFinite(pv)) return null;
+      return parseFloat(pv.toFixed(2));
+    },
     pesoCargable() {
       const datos = this.$store.state.aduana.datosPrincipales || {};
-      const peso = parseFloat(datos.peso || 0);
-      const volumen = parseFloat(datos.volumen || 0);
-      if (!peso || !volumen) return null;
-      const valor = peso / volumen;
-      if (!isFinite(valor)) return null;
-      return parseFloat(valor.toFixed(2));
+      const pesoReal = parseFloat(datos.peso || 0); // kg
+      const volumen = parseFloat(datos.volumen || 0); // m³
+
+      // Si no hay datos suficientes, no mostramos nada
+      if (!pesoReal && !volumen) return null;
+
+      // Determinar tipo de embarque para elegir el factor volumétrico
+      let factorVolumetrico = 166.66; // Aéreo (LxAxH cm / 6000)
+      try {
+        const idTipo = this.$store.state.aduana.datosPrincipales.idtipocarga;
+        const shipment = this.$store.state.aduana.listShipment.find(
+          (v) => v.id == idTipo
+        );
+        const code = shipment ? shipment.code : "";
+
+        // Marítimo LCL / Consolidado: divisor 1000 en cm → factor 1000 kg/m³
+        if (code === "LCL") {
+          factorVolumetrico = 1000;
+        }
+      } catch (e) {
+        // si algo falla, usamos el factor por defecto
+      }
+
+      const pesoVolumetrico = volumen > 0 ? volumen * factorVolumetrico : 0;
+
+      const chargeable = Math.max(pesoReal || 0, pesoVolumetrico || 0);
+      if (!chargeable || !isFinite(chargeable)) return null;
+      return parseFloat(chargeable.toFixed(2));
     },
   },
 };
