@@ -140,8 +140,8 @@
                     <th>Cant. Bultos</th>
                     <th>Peso (kg)</th>
                     <th>Volumen (m³)</th>
-                    <th>Peso volumétrico (kg)</th>
-                    <th>Peso cargable (kg)</th>
+                    <th v-if="!ocultarLCL">Peso volumétrico (kg)</th>
+                    <th v-if="!ocultarLCL">Peso cargable (kg)</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -151,11 +151,13 @@
                     </td>
                     <td>{{ $store.state.pricing.datosPrincipales.peso }}</td>
                     <td>{{ $store.state.pricing.datosPrincipales.volumen }}</td>
-                    <td>
-                      {{ pesoVolumetrico !== null ? pesoVolumetrico + ' kg' : '' }}
+                    <td v-if="!ocultarLCL">
+                      {{
+                        pesoVolumetrico !== null ? pesoVolumetrico + " kg" : ""
+                      }}
                     </td>
-                    <td>
-                      {{ pesoCargable !== null ? pesoCargable + ' kg' : '' }}
+                    <td v-if="!ocultarLCL">
+                      {{ pesoCargable !== null ? pesoCargable + " kg" : "" }}
                     </td>
                   </tr>
                 </tbody>
@@ -574,7 +576,7 @@ export default {
             (this.$store.state.pricing.datosPrincipales.idtipocarga.id
               ? this.$store.state.pricing.datosPrincipales.idtipocarga.id
               : this.$store.state.pricing.datosPrincipales.idtipocarga) &&
-          v.code == "FCL"
+          v.code == "FCL",
       );
       if (
         isFCL &&
@@ -606,7 +608,7 @@ export default {
           : this.$store.state.pricing.datosPrincipales.idtipocarga;
 
       let id_transport = this.$store.state.pricing.listShipment.filter(
-        (v) => v.id == idtipocarga
+        (v) => v.id == idtipocarga,
       );
 
       await this.getPortBegin({
@@ -622,7 +624,7 @@ export default {
           ? this.$store.state.pricing.datosPrincipales.idtipocarga.id
           : this.$store.state.pricing.datosPrincipales.idtipocarga;
       let id_transport = this.$store.state.pricing.listShipment.filter(
-        (v) => v.id == idtipocarga
+        (v) => v.id == idtipocarga,
       );
       await this.getPortEnd({
         id_transport: id_transport[0].id_transport,
@@ -647,7 +649,7 @@ export default {
       if (this.$refs.frmContainer.validate()) {
         if (
           this.$store.state.pricing.datosPrincipales.containers.filter(
-            (v) => v.id == this.containers.container.id
+            (v) => v.id == this.containers.container.id,
           ).length == 0
         ) {
           this.$store.state.pricing.datosPrincipales.containers.push({
@@ -721,11 +723,11 @@ export default {
 
         // factores
         let factLongitud = this.unidadesLongitud.filter(
-          (v) => v.value == this.fromMedidas.idLongitud
+          (v) => v.value == this.fromMedidas.idLongitud,
         )[0].factor;
 
         let facPeso = this.unidadesPeso.filter(
-          (v) => v.value == this.fromMedidas.idpeso
+          (v) => v.value == this.fromMedidas.idpeso,
         )[0].factor;
 
         // volumen
@@ -794,7 +796,7 @@ export default {
         this.$store.state.pricing.listModality.some(
           (v) =>
             v.id == this.$store.state.pricing.datosPrincipales.idsentido &&
-            v.code == "I"
+            v.code == "I",
         )
       );
     },
@@ -803,7 +805,7 @@ export default {
       let porcentaje = "10";
       if (this.$store.state.pricing.listImpuestos.length > 0) {
         this.$store.state.pricing.listImpuestos.filter(
-          (v) => v.codigo == "09"
+          (v) => v.codigo == "09",
         )[0].codigo01 = "10";
       }
 
@@ -812,12 +814,12 @@ export default {
           this.$store.state.masterusuarios.lstPercepcionAduana.filter(
             (v) =>
               v.id ==
-              this.$store.state.pricing.datosPrincipales.id_percepcionaduana
+              this.$store.state.pricing.datosPrincipales.id_percepcionaduana,
           )[0].codigo01;
 
         if (this.$store.state.pricing.listImpuestos.length > 0) {
           this.$store.state.pricing.listImpuestos.filter(
-            (v) => v.codigo == "09"
+            (v) => v.codigo == "09",
           )[0].codigo01 = "10";
         }
       }
@@ -857,10 +859,10 @@ export default {
       if (this.$store.state.pricing.datosPrincipales.iddestino) {
         var id_port = this.$store.state.pricing.listPortEnd.filter(
           (v) =>
-            v.id_port == this.$store.state.pricing.datosPrincipales.iddestino
+            v.id_port == this.$store.state.pricing.datosPrincipales.iddestino,
         )[0].id_port;
         puertos = this.$store.state.pricing.listPortBegin.filter(
-          (v) => v.id_port != id_port
+          (v) => v.id_port != id_port,
         );
       } else {
         return this.$store.state.pricing.listPortBegin;
@@ -872,10 +874,10 @@ export default {
       if (!!this.$store.state.pricing.datosPrincipales.idorigen) {
         var id_port = this.$store.state.pricing.listPortBegin.filter(
           (v) =>
-            v.id_port == this.$store.state.pricing.datosPrincipales.idorigen
+            v.id_port == this.$store.state.pricing.datosPrincipales.idorigen,
         )[0].id_port;
         puertos = this.$store.state.pricing.listPortEnd.filter(
-          (v) => v.id_port != id_port
+          (v) => v.id_port != id_port,
         );
       } else {
         puertos = this.$store.state.pricing.listPortEnd;
@@ -899,18 +901,28 @@ export default {
         return this.$store.state.pricing.listShipment.some(
           (v) =>
             v.id == this.$store.state.pricing.datosPrincipales.idtipocarga &&
-            v.code == "FCL"
+            v.code == "FCL",
         );
       }
       return false;
     },
     isAereo() {
+      let inVal = ["Aéreo", "LCL"];
       const tipo = this.$store.state.pricing.datosPrincipales.idtipocarga;
       const id = tipo && typeof tipo === "object" ? tipo.id : tipo;
       if (!id) return false;
       const items = this.$store.state.pricing.listShipment || [];
       const it = items.find((v) => v.id == id);
-      return it && it.code === "Aéreo";
+      return it && inVal.includes(it.code);
+    },
+    ocultarLCL() {
+      let inVal = ["LCL"];
+      const tipo = this.$store.state.pricing.datosPrincipales.idtipocarga;
+      const id = tipo && typeof tipo === "object" ? tipo.id : tipo;
+      if (!id) return false;
+      const items = this.$store.state.pricing.listShipment || [];
+      const it = items.find((v) => v.id == id);
+      return it && inVal.includes(it.code);
     },
     pesoVolumetrico() {
       // Solo aplica para embarques aéreos
