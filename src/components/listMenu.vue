@@ -143,33 +143,42 @@
                 class="my-1 px-5 text-resumen"
                 v-if="$store.state.pricing.datosPrincipales.numerobultos"
               >
-                Nro Bultos :
+                <b>Nro Bultos :</b>
                 {{ $store.state.pricing.datosPrincipales.numerobultos }} uni.
               </p>
               <p
                 class="my-1 px-5 text-resumen"
                 v-if="$store.state.pricing.datosPrincipales.peso"
               >
-                Peso : {{ $store.state.pricing.datosPrincipales.peso }} kg
+                <b>Peso :</b>
+                {{ $store.state.pricing.datosPrincipales.peso }} kg
               </p>
               <p
                 class="my-1 px-5 text-resumen"
                 v-if="$store.state.pricing.datosPrincipales.volumen"
               >
-                Volumen : {{ $store.state.pricing.datosPrincipales.volumen }} m
+                <b>Volumen :</b>
+                {{ $store.state.pricing.datosPrincipales.volumen }} m
                 <sup>3</sup>
               </p>
               <p
                 class="my-1 px-5 text-resumen"
                 v-if="isAereoPricing && pesoCargable !== null"
               >
-                Peso cargable: {{ pesoCargable }} kg
+                <b>Peso cargable: </b> {{ pesoCargable }} kg
               </p>
               <p
                 class="my-1 px-5 text-resumen"
                 v-if="isAereoPricing && pesoVolumetrico !== null"
               >
                 Peso volumétrico: {{ pesoVolumetrico }} kg
+              </p>
+              <p
+                class="my-1 px-5 text-resumen"
+                v-if="$store.state.pricing.datosPrincipales.descripcioncarga"
+              >
+                <b>Desc. Carga :</b>
+                {{ $store.state.pricing.datosPrincipales.descripcioncarga }}
               </p>
               <p
                 class="my-1 px-5 text-resumen"

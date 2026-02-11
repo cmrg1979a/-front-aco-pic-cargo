@@ -81,7 +81,7 @@
         Profit / Ganancia
         {{
           currencyFormat(
-            $store.state.pricing.totalVenta - $store.state.pricing.totalCosto
+            $store.state.pricing.totalVenta - $store.state.pricing.totalCosto,
           )
         }}
       </label>
@@ -103,7 +103,7 @@
         Profit / Ganancia
         {{
           currencyFormat(
-            $store.state.pricing.totalVenta - $store.state.pricing.totalCosto
+            $store.state.pricing.totalVenta - $store.state.pricing.totalCosto,
           )
         }}
       </label>
@@ -125,7 +125,7 @@
         Profit / Ganancia
         {{
           currencyFormat(
-            $store.state.pricing.totalVenta - $store.state.pricing.totalCosto
+            $store.state.pricing.totalVenta - $store.state.pricing.totalCosto,
           )
         }}
       </label>
@@ -142,6 +142,17 @@
       >
         EDITAR
       </v-btn>
+      <v-btn
+        v-if="getNameUrl() == 'verQuote'"
+        class="mx-1"
+        color="light-blue darken-3"
+        dark
+        @click="abrirCorreo()"
+      >
+        <v-icon class="mx-1" dense small>mdi-content-copy</v-icon>
+        ENVIAR MAIL
+      </v-btn>
+
       <v-btn
         v-if="getNameUrl() == 'verQuote'"
         class="mx-1"
@@ -165,7 +176,6 @@
         @click="registrarCliente"
         >Guardar CLIENTE</v-btn
       >
- 
 
       <!--MODULO PROVEEDORES-->
       <v-btn
@@ -180,7 +190,6 @@
         :disabled="$store.state.entities.disabledBtnSave"
         >Guardar Proveedor</v-btn
       >
- 
 
       <label class="monto" v-if="routeAduana.includes(getNameUrl())">
         {{
@@ -190,7 +199,7 @@
               : 0) -
               ($store.state.aduana.totalCosto
                 ? $store.state.aduana.totalCosto
-                : 0)
+                : 0),
           )
         }}
       </label>
@@ -214,6 +223,15 @@
         @click="ira('EditarAduana', $route.params.id)"
       >
         EDITAR
+      </v-btn>
+      <v-spacer v-if="getNameUrl() == 'controlMasterEditar'"></v-spacer>
+      <v-btn
+        color="#009688"
+        dark
+        v-if="getNameUrl() == 'controlMasterEditar'"
+        @click="ira('listMaster', null)"
+      >
+        VOLVER AL LISTADO
       </v-btn>
     </v-app-bar>
 
@@ -285,7 +303,7 @@ export default {
     let urlPricing = ["newQuote", "verQuote", "editQuote"];
     this.socket.emit(
       "join-empresa",
-      JSON.parse(sessionStorage.getItem("dataUser"))[0].id_branch
+      JSON.parse(sessionStorage.getItem("dataUser"))[0].id_branch,
     );
 
     this.socket.on("nueva-operacion", (data) => {
@@ -373,7 +391,7 @@ export default {
       let val = true;
       val = !this.$store.state.pricing.opcionCostos.some(
         (v) =>
-          !v.date_end || !v.tiempo_transito || !this.isDateValid(v.date_end)
+          !v.date_end || !v.tiempo_transito || !this.isDateValid(v.date_end),
       );
 
       // // -----------------------------------------------------
@@ -407,7 +425,7 @@ export default {
       let val = true;
       val = !this.$store.state.aduana.opcionCostos.some(
         (v) =>
-          !v.date_end || !v.tiempo_transito || !this.isDateValid(v.date_end)
+          !v.date_end || !v.tiempo_transito || !this.isDateValid(v.date_end),
       );
 
       // // -----------------------------------------------------
@@ -435,6 +453,29 @@ export default {
         });
         this.$store.state.aduana.tab = 2;
       }
+    },
+    abrirCorreo() {
+      const to = "";
+      const subject = encodeURIComponent(`Cotización Nº `);
+
+      const body = encodeURIComponent(`
+                  Hola ,
+
+                  Te envío la cotización solicitada.
+
+                  Monto:
+                  Fecha:
+
+                  Puedes ver el detalle aquí:
+                  
+
+                  Quedo atento.
+                  Saludos
+    `);
+
+      const mailto = `mailto:${to}?subject=${subject}&body=${body}`;
+
+      window.location.href = mailto;
     },
     copiarCotizacion() {
       Swal.fire({
@@ -516,7 +557,7 @@ export default {
       } else {
         if (
           !this.$store.state.pricing.opcionCostos.some((v) =>
-            this.isDateValid(v.date_end)
+            this.isDateValid(v.date_end),
           )
         ) {
           Swal.fire({
@@ -655,7 +696,7 @@ export default {
             v.codigo == "02" &&
             v.id == this.$store.state.entities.cliente.id_tipotransaccion
           );
-        }
+        },
       );
 
       return val;
@@ -698,7 +739,7 @@ export default {
         if (
           vm.$store.state.entities.cliente.emailaddress &&
           !/^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-            vm.$store.state.entities.cliente.emailaddress
+            vm.$store.state.entities.cliente.emailaddress,
           )
         ) {
           okStep1 = false;
@@ -749,7 +790,7 @@ export default {
           if (
             v.email_soporte &&
             !/^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-              v.email_soporte
+              v.email_soporte,
             )
           ) {
             okStep3_1 = false;
@@ -771,7 +812,7 @@ export default {
           if (
             v.email_soporte &&
             !/^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-              v.email_soporte
+              v.email_soporte,
             )
           ) {
             okStep3_2 = false;
@@ -843,7 +884,7 @@ export default {
             v.codigo == "02" &&
             v.id == this.$store.state.entities.proveedor.id_tipotransaccion
           );
-        }
+        },
       );
 
       return val;
@@ -964,7 +1005,7 @@ export default {
         if (
           vm.$store.state.entities.proveedor.emailaddress &&
           !/^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-            vm.$store.state.entities.proveedor.emailaddress
+            vm.$store.state.entities.proveedor.emailaddress,
           )
         ) {
           okStep1 = false;
@@ -1029,7 +1070,7 @@ export default {
           if (
             v.email_soporte &&
             !/^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-              v.email_soporte
+              v.email_soporte,
             )
           ) {
             okStep3_1 = false;
@@ -1051,7 +1092,7 @@ export default {
           if (
             v.email_soporte &&
             !/^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-              v.email_soporte
+              v.email_soporte,
             )
           ) {
             okStep3_2 = false;
