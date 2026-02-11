@@ -25,13 +25,7 @@
       >
         Guardar
       </v-btn>
-      <v-btn
-        v-else
-        @click="continuar()"
-        color="success"
-        outlined
-        small
-      >
+      <v-btn v-else @click="continuar()" color="success" outlined small>
         Siguiente
       </v-btn>
     </v-card-actions>
@@ -410,11 +404,13 @@ export default {
   },
   async mounted() {
     this.$store.state.spiner = true;
-    await this._getDocumentsPais();
-    await this._getPais();
-    await this._getSex();
-    await this.cargarPosition();
-    await this.CargarBranch();
+    await Promise.all([
+      this._getDocumentsPais(),
+      this._getPais(),
+      this._getSex(),
+      this.cargarPosition(),
+      this.CargarBranch(),
+    ]);
     this.mostrarflag = true;
     this.$store.state.user.model = {
       id: "",
@@ -547,7 +543,7 @@ export default {
       if (this.$refs.frmSucursal.validate()) {
         if (
           this.$store.state.user.sucursales.some(
-            (v) => v.id == this.itemSucursal.id
+            (v) => v.id == this.itemSucursal.id,
           )
         ) {
           this.errSucursal = "La sucursal ya se encuentra asignada.";
@@ -561,7 +557,7 @@ export default {
       if (this.$refs.frmPosicion.validate()) {
         if (
           this.$store.state.user.positions.some(
-            (v) => v.id == this.itemPositon.id
+            (v) => v.id == this.itemPositon.id,
           )
         ) {
           this.errPosition = "La posición ya se encuentra asignada.";

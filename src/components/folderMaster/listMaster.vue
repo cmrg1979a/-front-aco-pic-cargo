@@ -425,6 +425,7 @@ export default {
       headers: [
         { text: "Canal", value: "canal" },
         { text: "Codigo", value: "code_master", align: "start" },
+        { text: "BL Master", value: "nro_mbl", align: "start" },
         { text: "Sentido", value: "namemodality" },
         { text: "Origen", value: "nameportbegin" },
         { text: "Destino", value: "nameportend" },

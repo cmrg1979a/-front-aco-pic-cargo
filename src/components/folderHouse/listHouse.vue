@@ -231,11 +231,14 @@ export default {
     await this.listarHouse(this.$store.state.house_filtro);
     // await this._getHouseListAll();
     this.$store.state.spiner = false;
-    await this.getModulesEntities();
-    await this._getModality();
-    await this._getShipment();
-    await this.cargarClientes();
-    await this._getMasterList();
+    await Promise.all([
+      this._getTotalHouseListAll(),
+      this.getModulesEntities(),
+      this._getModality(),
+      this._getShipment(),
+      this.cargarClientes(),
+      this._getMasterList(),
+    ]);
   },
   computed: {
     ...mapState(["itemsHouseListAll", "totalItemsHouseListAll"]),

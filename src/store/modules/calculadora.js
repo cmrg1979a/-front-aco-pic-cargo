@@ -14,11 +14,13 @@ const state = {
   lstCostos: [],
   lstFlete: [],
   lstProfit: [],
+  lstFleteGrupal: [],
   lstDepartamentos: [],
   lstDistritos: [],
   lstTransporte: [],
   opcionCalculadora: 1,
-  opciones:[]
+  opciones: [],
+  config: [],
 };
 const mutations = {
   setOpcion(state, opcion) {
@@ -27,6 +29,12 @@ const mutations = {
   },
   SET_LST_COSTOS_DEPARTAMENTOS(state, data) {
     state.lstDepartamentos = data;
+  },
+  SET_CONFIGURACION(state, data) {
+    state.config = data;
+  },
+  SET_FLETE_GRUPAL(state, data) {
+    state.lstFleteGrupal = data;
   },
   SET_LST_COSTOS_DISTRITOS(state, data) {
     state.lstDistritos = data;
@@ -77,7 +85,7 @@ const mutations = {
     state.lstCostos = data;
   },
   SET_LST_OPCIONES(state, data) {
-    console.log(data)
+    console.log(data);
     state.opciones = data;
   },
 };
@@ -266,7 +274,7 @@ const actions = {
       link.href = url;
       link.setAttribute(
         "download",
-        `Listado Usuario Calculadora - ${Date.now()}.xlsx`
+        `Listado Usuario Calculadora - ${Date.now()}.xlsx`,
       );
       document.body.appendChild(link);
       link.click();
@@ -772,7 +780,7 @@ const actions = {
   async getOpciones({ commit }) {
     let branch = JSON.parse(sessionStorage.getItem("dataBranch"));
     let id_pais = branch[0].id_pais;
-    
+
     var headers = {
       "auth-token": sessionStorage.getItem("auth-token"),
       "Content-Type": "application/json",
@@ -787,7 +795,7 @@ const actions = {
     let response = await axios(config);
 
     if (response.data.estadoflag) {
-      console.log(response.data)
+      console.log(response.data);
       commit("SET_LST_OPCIONES", response.data.data);
     }
   },
@@ -865,6 +873,140 @@ const actions = {
           dispatch("getTransporte", {});
         }
       });
+    }
+  },
+  async getConfiguración({ commit }, data) {
+    let branch = JSON.parse(sessionStorage.getItem("dataBranch"));
+    // let id_pais = branch[0].id_pais;
+    // data.id_pais = id_pais;
+    let res = [];
+    var headers = {
+      "auth-token": sessionStorage.getItem("auth-token"),
+      "Content-Type": "application/json",
+    };
+
+    var config = {
+      method: "get",
+      url: process.env.VUE_APP_URL_MAIN + "calc/cargar/config",
+      headers: headers,
+      data: data,
+    };
+    let response = await axios(config);
+
+    if (response.data.estadoflag) {
+      let data = response.data.data;
+      data = data.map((v) => {
+        return { ...v, editarflag: false };
+      });
+      commit("SET_CONFIGURACION", data);
+    }
+  },
+  async ActualizarConfig({ dispatch }, data) {
+    let dataUser = JSON.parse(sessionStorage.getItem("dataUser"));
+    data.user = dataUser[0].users;
+    var headers = {
+      "auth-token": sessionStorage.getItem("auth-token"),
+      "Content-Type": "application/json",
+    };
+
+    var config = {
+      method: "put",
+      url: process.env.VUE_APP_URL_MAIN + "calc/config/actualizar",
+      headers: headers,
+      data: data,
+    };
+    let response = await axios(config);
+    if (response.data.estadoflag) {
+      let res = response.data;
+      Swal.fire({
+        icon: "success",
+        title: res.mensaje,
+        allowEnterKey: true,
+        allowOutsideClick: true,
+        allowEscapeKey: true,
+      }).then((res) => {
+        if (res.isConfirmed) {
+          dispatch("getConfiguración");
+        }
+      });
+    }
+  },
+  async getFleteGrupal({ commit }, data) {
+    let branch = JSON.parse(sessionStorage.getItem("dataBranch"));
+    let id_pais = branch[0].id_pais;
+    data.id_pais = id_pais;
+    let res = [];
+    var headers = {
+      "auth-token": sessionStorage.getItem("auth-token"),
+      "Content-Type": "application/json",
+    };
+
+    var config = {
+      method: "get",
+      url: process.env.VUE_APP_URL_MAIN + "calc/flete/grupal",
+      headers: headers,
+      params: data,
+    };
+    let response = await axios(config);
+
+    if (response.data.estadoflag) {
+      commit("SET_FLETE_GRUPAL", response.data.data);
+    }
+  },
+  async setFleteGrupal({ dispatch }, data) {
+    console.log("data", data);
+    let branch = JSON.parse(sessionStorage.getItem("dataBranch"));
+    let id_pais = branch[0].id_pais;
+    data.id_pais = id_pais;
+    var headers = {
+      "auth-token": sessionStorage.getItem("auth-token"),
+      "Content-Type": "application/json",
+    };
+
+    var config = {
+      method: "post",
+      url: process.env.VUE_APP_URL_MAIN + "calc/flete/grupal/guardar",
+      headers: headers,
+      data: data,
+    };
+    let response = await axios(config);
+    if (response.data.estadoflag) {
+      let res = response.data;
+      Swal.fire({
+        icon: "success",
+        title: res.mensaje,
+        allowEnterKey: true,
+        allowOutsideClick: true,
+        allowEscapeKey: true,
+      }).then((res) => {});
+    }
+  },
+  async updateFleteGrupal({ dispatch }, data) {
+    console.log("data", data);
+    let branch = JSON.parse(sessionStorage.getItem("dataBranch"));
+    let id_pais = branch[0].id_pais;
+    data.id_pais = id_pais;
+    var headers = {
+      "auth-token": sessionStorage.getItem("auth-token"),
+      "Content-Type": "application/json",
+    };
+
+    var config = {
+      method: "put",
+      url: process.env.VUE_APP_URL_MAIN + "calc/flete/grupal/actualizar",
+      headers: headers,
+      data: data,
+    };
+    let response = await axios(config);
+    if (response.data.estadoflag) {
+      let res = response.data;
+      Swal.fire({
+        icon: "success",
+        title: res.mensaje,
+        allowEnterKey: true,
+        allowOutsideClick: true,
+        allowEscapeKey: true,
+      }).then((res) => {});
     }
   },
 };

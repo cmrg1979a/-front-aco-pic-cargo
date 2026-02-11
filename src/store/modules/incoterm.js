@@ -39,7 +39,7 @@ const actions = {
         "auth-token": sessionStorage.getItem("auth-token"),
       },
     };
-   await axios(config)
+    await axios(config)
       .then((response) => {
         let data = response.data;
         sessionStorage.setItem("auth-token", data.token);
@@ -79,7 +79,7 @@ const actions = {
       data: data,
     };
 
-   await axios(config)
+    await axios(config)
       .then((response) => {
         let data = response.data;
         sessionStorage.setItem("auth-token", data.token);
@@ -107,7 +107,7 @@ const actions = {
       },
     };
 
-   await axios(config)
+    await axios(config)
       .then((response) => {
         let data = response.data;
         sessionStorage.setItem("auth-token", data.token);
@@ -125,8 +125,6 @@ const actions = {
       });
   },
   async updateIncoterms({ dispatch }, data) {
-   
-
     var config = {
       method: "put",
       url: process.env.VUE_APP_URL_MAIN + "actualizar_incoterms",
@@ -137,7 +135,7 @@ const actions = {
       data: data,
     };
 
-   await axios(config)
+    await axios(config)
       .then((response) => {
         let data = response.data;
         sessionStorage.setItem("auth-token", data.token);
@@ -153,6 +151,33 @@ const actions = {
       })
       .catch((error) => {
         console.log("Error al obtener los datos:", error);
+      });
+  },
+  async CargarIncotermsConfig({ commit }) {
+    let data = {
+      id_branch: JSON.parse(sessionStorage.getItem("dataUser"))[0].id_branch,
+    };
+    var config = {
+      method: "get",
+      url: process.env.VUE_APP_URL_MAIN + `ver_incoterms_config`,
+      headers: {
+        "auth-token": sessionStorage.getItem("auth-token"),
+        "Content-Type": "application/json",
+      },
+      params: data,
+    };
+    await axios(config)
+      .then(function (response) {
+        let data = response.data;
+        sessionStorage.setItem("auth-token", data.token);
+        if (data.estadoflag == true) {
+          commit("SET_LIST_INCOTERMS", data.data);
+        } else {
+          commit("SET_LIST_INCOTERMS", []);
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
       });
   },
 };

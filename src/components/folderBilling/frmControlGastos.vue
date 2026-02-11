@@ -419,60 +419,60 @@ export default {
           totalTotalEgresosOp += parseFloat(element2.total_op);
         });
       });
-      let data = {
-        bultos: master.master_volumen,
-        peso: master.master_peso,
-        puerto_origen: master.master_port_begin,
-        puerto_destino: master.master_port_end,
-        tipo_embarque: master.master_shipment,
-        volumen: master.master_volumen,
-        sentido: master.master_modality,
-        gananciapr: parseFloat(this.ingreso_pr - this.egreso_pr).toFixed(2),
-        gananciaop: parseFloat(this.ingreso_op - this.egreso_op).toFixed(2),
-        exp: this.codigo_master,
-        totalEgreso,
-        totalIgvEgresos,
-        totalTotalEgresos,
-        totalEgresoOp,
-        totalIgvEgresosOp,
-        totalTotalEgresosOp,
-        itemsTotalesProveedores: master.master_egresos.map((element) => {
-          return {
-            nameproveedor: element.nombre_proveedor,
-            restante: parseFloat(element.monto_pagar_op).toFixed(2),
-            total_op: parseFloat(element.total_total_op).toFixed(2),
-            total_p: parseFloat(element.total_total_op).toFixed(2),
-            total_pr: parseFloat(element.total_total_pr).toFixed(2),
-          };
-        }),
+      // let data = {
+      //   bultos: master.master_volumen,
+      //   peso: master.master_peso,
+      //   puerto_origen: master.master_port_begin,
+      //   puerto_destino: master.master_port_end,
+      //   tipo_embarque: master.master_shipment,
+      //   volumen: master.master_volumen,
+      //   sentido: master.master_modality,
+      //   gananciapr: parseFloat(this.ingreso_pr - this.egreso_pr).toFixed(2),
+      //   gananciaop: parseFloat(this.ingreso_op - this.egreso_op).toFixed(2),
+      //   exp: this.codigo_master,
+      //   totalEgreso,
+      //   totalIgvEgresos,
+      //   totalTotalEgresos,
+      //   totalEgresoOp,
+      //   totalIgvEgresosOp,
+      //   totalTotalEgresosOp,
+      //   itemsTotalesProveedores: master.master_egresos.map((element) => {
+      //     return {
+      //       nameproveedor: element.nombre_proveedor,
+      //       restante: parseFloat(element.monto_pagar_op).toFixed(2),
+      //       total_op: parseFloat(element.total_total_op).toFixed(2),
+      //       total_p: parseFloat(element.total_total_op).toFixed(2),
+      //       total_pr: parseFloat(element.total_total_pr).toFixed(2),
+      //     };
+      //   }),
 
-        itemTotalHouse: master.master_houses.map((element) => {
-          return {
-            consigner: element.consigner,
-            code_house: element.code_house,
-            total_igv_op_ingresos: parseFloat(
-              element.total_igv_op_ingresos
-            ).toFixed(2),
-            total_igv_pr_ingresos: parseFloat(
-              element.total_igv_pr_ingresos
-            ).toFixed(2),
-            total_monto_op_ingresos: parseFloat(
-              element.total_monto_op_ingresos
-            ).toFixed(2),
-            total_monto_pr_ingresos: parseFloat(
-              element.total_monto_pr_ingresos
-            ).toFixed(2),
-            total_total_op_ingresos: parseFloat(
-              element.total_total_op_ingresos
-            ).toFixed(2),
-            total_total_pr_ingresos: parseFloat(
-              element.total_total_pr_ingresos
-            ).toFixed(2),
-          };
-        }),
-        itemHouses: master.master_houses,
-        itemEgresos: master.master_egresos,
-      };
+      //   itemTotalHouse: master.master_houses.map((element) => {
+      //     return {
+      //       consigner: element.consigner,
+      //       code_house: element.code_house,
+      //       total_igv_op_ingresos: parseFloat(
+      //         element.total_igv_op_ingresos
+      //       ).toFixed(2),
+      //       total_igv_pr_ingresos: parseFloat(
+      //         element.total_igv_pr_ingresos
+      //       ).toFixed(2),
+      //       total_monto_op_ingresos: parseFloat(
+      //         element.total_monto_op_ingresos
+      //       ).toFixed(2),
+      //       total_monto_pr_ingresos: parseFloat(
+      //         element.total_monto_pr_ingresos
+      //       ).toFixed(2),
+      //       total_total_op_ingresos: parseFloat(
+      //         element.total_total_op_ingresos
+      //       ).toFixed(2),
+      //       total_total_pr_ingresos: parseFloat(
+      //         element.total_total_pr_ingresos
+      //       ).toFixed(2),
+      //     };
+      //   }),
+      //   itemHouses: master.master_houses,
+      //   itemEgresos: master.master_egresos,
+      // };
       var vm = this;
       // vm._calcularTotales();
       vm.$swal({
@@ -487,7 +487,7 @@ export default {
           "auth-token": sessionStorage.getItem("auth-token"),
           "Content-Type": "application/json",
         },
-        data: data,
+        data: this.$route.params,
       };
       await axios(config)
         .then(function (response) {

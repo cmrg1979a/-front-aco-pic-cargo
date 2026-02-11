@@ -68,8 +68,8 @@
                   <th>Cant. Bultos</th>
                   <th>Peso (kg)</th>
                   <th>Volumen (m³)</th>
-                  <th>Peso volumétrico (kg)</th>
-                  <th>Peso cargable (kg)</th>
+                  <th v-if="!ocultarLCL">Peso volumétrico (kg)</th>
+                  <th v-if="!ocultarLCL">Peso cargable (kg)</th>
                 </tr>
               </thead>
               <tbody>
@@ -79,11 +79,13 @@
                   </td>
                   <td>{{ $store.state.pricing.datosPrincipales.peso }}</td>
                   <td>{{ $store.state.pricing.datosPrincipales.volumen }}</td>
-                  <td>
-                    {{ pesoVolumetrico !== null ? pesoVolumetrico + ' kg' : '' }}
+                  <td v-if="!ocultarLCL">
+                    {{
+                      pesoVolumetrico !== null ? pesoVolumetrico + " kg" : ""
+                    }}
                   </td>
-                  <td>
-                    {{ pesoCargable !== null ? pesoCargable + ' kg' : '' }}
+                  <td v-if="!ocultarLCL">
+                    {{ pesoCargable !== null ? pesoCargable + " kg" : "" }}
                   </td>
                 </tr>
               </tbody>
@@ -209,7 +211,7 @@ export default {
       if (this.$refs.frmContainer.validate()) {
         if (
           this.$store.state.pricing.datosPrincipales.containers.filter(
-            (v) => v.id == this.containers.container.id
+            (v) => v.id == this.containers.container.id,
           ).length == 0
         ) {
           this.$store.state.pricing.datosPrincipales.containers.push({
@@ -275,11 +277,11 @@ export default {
       if (this.$store.state.pricing.datosPrincipales.iddestino) {
         var id_port = this.$store.state.pricing.listPortEnd.filter(
           (v) =>
-            v.id_port == this.$store.state.pricing.datosPrincipales.iddestino
+            v.id_port == this.$store.state.pricing.datosPrincipales.iddestino,
         )[0];
 
         puertos = this.$store.state.pricing.listPortBegin.filter(
-          (v) => v.id_port != id_port
+          (v) => v.id_port != id_port,
         );
       } else {
         puertos = this.$store.state.pricing.listPortBegin;
@@ -291,10 +293,10 @@ export default {
       if (this.$store.state.pricing.datosPrincipales.idorigen) {
         var id_port = this.$store.state.pricing.listPortBegin.filter(
           (v) =>
-            v.id_port == this.$store.state.pricing.datosPrincipales.idorigen
+            v.id_port == this.$store.state.pricing.datosPrincipales.idorigen,
         )[0].id_port;
         puertos = this.$store.state.pricing.listPortEnd.filter(
-          (v) => v.id_port != id_port
+          (v) => v.id_port != id_port,
         );
       } else {
         puertos = this.$store.state.pricing.listPortEnd;
@@ -304,19 +306,29 @@ export default {
     isFCL() {
       let id = this.$store.state.pricing.datosPrincipales.idtipocarga;
       let code = this.$store.state.pricing.listShipment.filter(
-        (v) => v.id == id
+        (v) => v.id == id,
       )[0].code;
 
       let validate = code == "FCL" ? true : false;
       return validate;
     },
     isAereo() {
+      let inVal = ["Aéreo", "LCL"];
       const tipo = this.$store.state.pricing.datosPrincipales.idtipocarga;
       const id = tipo && typeof tipo === "object" ? tipo.id : tipo;
       if (!id) return false;
       const items = this.$store.state.pricing.listShipment || [];
       const it = items.find((v) => v.id == id);
-      return it && it.code === "Aéreo";
+      return it && inVal.includes(it.code);
+    },
+    ocultarLCL() {
+      let inVal = ["LCL"];
+      const tipo = this.$store.state.pricing.datosPrincipales.idtipocarga;
+      const id = tipo && typeof tipo === "object" ? tipo.id : tipo;
+      if (!id) return false;
+      const items = this.$store.state.pricing.listShipment || [];
+      const it = items.find((v) => v.id == id);
+      return it && inVal.includes(it.code);
     },
     mostrarComboPercepcionAduana() {
       let esPeru = JSON.parse(sessionStorage.getItem("iso_pais")) == 9589;
@@ -325,7 +337,7 @@ export default {
         this.$store.state.pricing.listModality.some(
           (v) =>
             v.id == this.$store.state.pricing.datosPrincipales.idsentido &&
-            v.code == "I"
+            v.code == "I",
         )
       );
     },
