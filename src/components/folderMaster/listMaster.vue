@@ -244,6 +244,17 @@
               </v-list-item>
 
               <v-list-item
+                v-if="!item.statuslock && item.status == 1"
+                @click="editFechas(item)"
+                link
+              >
+                <v-list-item-icon>
+                  <v-icon>mdi-calendar-edit</v-icon>
+                </v-list-item-icon>
+                <v-list-item-title>Editar Fechas</v-list-item-title>
+              </v-list-item>
+
+              <v-list-item
                 v-if="item.status == 1"
                 @click="viewMaster(item.id)"
                 link
@@ -396,6 +407,36 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="dialogFecha" width="30%">
+      <v-card>
+        <v-card-title primary-title>
+          {{ exp.code_master }} - Editar Fechas
+        </v-card-title>
+        <v-card-text>
+          <v-text-field
+            label="Fecha ETD"
+            v-model="exp.fecha_etd"
+            type="date"
+          ></v-text-field>
+          <v-text-field
+            label="Fecha ETA"
+            v-model="exp.fecha_eta"
+            type="date"
+          ></v-text-field>
+          <v-text-field
+            label="Fecha Disponibilidad"
+            v-model="exp.fecha_disponibilidad"
+            type="date"
+          ></v-text-field>
+        </v-card-text>
+        <v-card-actions class="justify-end">
+          <v-btn small color="success" @click="guardarFechas">Guardar</v-btn>
+          <v-btn small color="error" @click="dialogFecha = false"
+            >Cancelar</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 <script>
@@ -407,6 +448,8 @@ export default {
   name: "listMasterCom",
   data() {
     return {
+      exp: {},
+      dialogFecha: false,
       dialogEscogerCotizacion: false,
       loading: false,
       id_vendedor: JSON.parse(sessionStorage.getItem("dataUser"))
@@ -469,6 +512,47 @@ export default {
       "_getShipment",
       "_getProveedor",
     ]),
+    editFechas(item) {
+      this.exp = { ...item };
+      this.dialogFecha = true;
+    },
+    async guardarFechas() {
+      try {
+        const response = await axios.put(
+          process.env.VUE_APP_URL_MAIN + "updateFechasMaster",
+          {
+            fecha_etd: this.exp.fecha_etd,
+            fecha_eta: this.exp.fecha_eta,
+            id: this.exp.id,
+            fecha_disponibilidad: this.exp.fecha_disponibilidad,
+          },
+          {
+            headers: {
+              "auth-token": sessionStorage.getItem("auth-token"),
+              "Content-Type": "application/json",
+            },
+          },
+        );
+
+        let data = response.data;
+        if (data.estadoflag) {
+          Swal.fire({
+            icon: "success",
+            text: data.mensaje,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            allowEnterKey: false,
+          });
+        }
+
+        // Ahora 'this' funcionará correctamente
+        await this._getMasterList();
+      } catch (error) {
+        console.error("Error al guardar fechas:", error);
+      } finally {
+        this.dialogFecha = false;
+      }
+    },
     abrirModalSeleccionQuote() {
       Swal.fire({
         icon: "question",

@@ -1,36 +1,46 @@
 <template>
-  <div>
+  <v-container fluid>
     <v-stepper v-model="$store.state.entities.stepper" non-linear>
       <v-stepper-header>
-        <v-stepper-step 
-          editable 
-          step="1" 
+        <v-stepper-step
+          editable
+          step="1"
           :rules="[() => $store.state.entities.isStep1Valid]"
-        >Datos del Proveedor</v-stepper-step>
+          >Datos del Proveedor</v-stepper-step
+        >
 
         <v-divider></v-divider>
 
-        <v-stepper-step 
-          editable 
-          step="2" 
+        <v-stepper-step
+          editable
+          step="2"
           :rules="[() => $store.state.entities.isStep2Valid]"
-        >Teléfonos y Contactos</v-stepper-step>
+          >Teléfonos y Contactos</v-stepper-step
+        >
 
         <v-divider></v-divider>
 
-        <v-stepper-step 
-          editable 
-          step="3" 
+        <v-stepper-step
+          editable
+          step="3"
           :rules="[() => $store.state.entities.isStep3Valid]"
-        >Convenios y Tarifas</v-stepper-step>
+          >Convenios y Tarifas</v-stepper-step
+        >
 
         <v-divider></v-divider>
 
-        <v-stepper-step 
-          editable 
-          step="4" 
+        <v-stepper-step
+          editable
+          step="4"
           :rules="[() => $store.state.entities.isStep4Valid]"
-        >Información Bancaria</v-stepper-step>
+          >Información Bancaria</v-stepper-step
+        >
+
+        <v-divider></v-divider>
+        <!-- <v-stepper-step editable step="5">
+          Correo para Pedir Tarifa
+        </v-stepper-step>
+        -->
       </v-stepper-header>
 
       <v-stepper-items>
@@ -53,24 +63,29 @@
         <v-stepper-content step="4">
           <SeccionInformacionBancaria />
         </v-stepper-content>
+        <v-stepper-content step="5">
+          <SeccionEmailTarifa />
+        </v-stepper-content>
       </v-stepper-items>
     </v-stepper>
-  </div>
+  </v-container>
 </template>
 
 <script>
 import { mapActions, mapState } from "vuex";
 import Swal from "sweetalert2";
-import SeccionProveedor from './seccionProveedor.vue';
-import SeccionTelefonos from './seccionTelefonos.vue';
-import SeccionConvenios from './seccionConvenios.vue';
-import SeccionInformacionBancaria from './seccionInformacionBancaria.vue';
+import SeccionProveedor from "./seccionProveedor.vue";
+import SeccionTelefonos from "./seccionTelefonos.vue";
+import SeccionConvenios from "./seccionConvenios.vue";
+import SeccionInformacionBancaria from "./seccionInformacionBancaria.vue";
+import SeccionEmailTarifa from "./SeccionEmailTarifaComponent.vue";
 export default {
   components: {
     SeccionProveedor,
     SeccionTelefonos,
     SeccionConvenios,
-    SeccionInformacionBancaria
+    SeccionInformacionBancaria,
+    SeccionEmailTarifa,
   },
   data() {
     return {
@@ -100,14 +115,17 @@ export default {
       "cargarTipoPersona",
       "_getProveedorRolShipper",
       "_getProveedor",
-      "getVerProveedor"
+      "getVerProveedor",
     ]),
     /* CÓDIGO NUEVO */
     getIDTipoTelefono(criterio = "") {
       var vm = this;
       var id = null;
 
-      const tipoTelefonoData = vm.$store.state.masterusuarios.lstTipoTelefono.find(v => v.descripcion.toUpperCase() == criterio.toUpperCase());
+      const tipoTelefonoData =
+        vm.$store.state.masterusuarios.lstTipoTelefono.find(
+          (v) => v.descripcion.toUpperCase() == criterio.toUpperCase(),
+        );
       if (tipoTelefonoData) {
         id = tipoTelefonoData.id;
       }
@@ -118,7 +136,10 @@ export default {
       var vm = this;
       var id = null;
 
-      const tipoPersonaData = vm.$store.state.masterusuarios.lstTipoPersona.find(v => v.descripcion.toUpperCase() == criterio.toUpperCase());
+      const tipoPersonaData =
+        vm.$store.state.masterusuarios.lstTipoPersona.find(
+          (v) => v.descripcion.toUpperCase() == criterio.toUpperCase(),
+        );
       if (tipoPersonaData) {
         id = tipoPersonaData.id;
       }
@@ -129,7 +150,9 @@ export default {
       var vm = this;
       var id = null;
 
-      const tipoDocumentoData = vm.$store.state.itemsDocumentsPais.find(v => v.name.toUpperCase() == criterio.toUpperCase());
+      const tipoDocumentoData = vm.$store.state.itemsDocumentsPais.find(
+        (v) => v.name.toUpperCase() == criterio.toUpperCase(),
+      );
       if (tipoDocumentoData) {
         id = tipoDocumentoData.id;
       }
@@ -144,19 +167,21 @@ export default {
   async mounted() {
     this.$store.state.spiner = true;
     //this.$refs.formProveedor.reset();
-    await this._getDocumentsPais();
-    await this.cargarMasterDetalleTipoProveedor();
-    await this._getPais();
-    await this.cargarMasterDetalleTipoTransaccion();
-    await this.cargarTipoTelefono();
-    await this._getRole();
-    await this.getCoinsListCargar();
-    await this.getBanksListCargar();
-    await this._getSex();
-    await this.cargarTipoPersona();
-    await this._getProveedorRolShipper();
-    await this.getVerProveedor();
-    await this._getState(this.$store.state.entities.proveedor.id_pais);
+    Promise.all([
+      this._getDocumentsPais(),
+      this.cargarMasterDetalleTipoProveedor(),
+      this._getPais(),
+      this.cargarMasterDetalleTipoTransaccion(),
+      this.cargarTipoTelefono(),
+      this._getRole(),
+      this.getCoinsListCargar(),
+      this.getBanksListCargar(),
+      this._getSex(),
+      this.cargarTipoPersona(),
+      this._getProveedorRolShipper(),
+      this.getVerProveedor(),
+    ]);
+    this._getState(this.$store.state.entities.proveedor.id_pais);
     this.$store.state.spiner = false;
 
     this.$store.state.entities.stepper = 1;
@@ -165,7 +190,7 @@ export default {
     this.$store.state.entities.showBtnSaveFlag = true;
 
     this.$store.state.mainTitle = `MODIFICAR PROVEEDOR: PROV - ${this.$store.state.entities.proveedor.correlativo}`;
-  }
+  },
 };
 </script>
 
@@ -174,7 +199,7 @@ export default {
   padding: 24px;
 }
 
-.row+.row {
+.row + .row {
   margin-top: 0;
 }
 

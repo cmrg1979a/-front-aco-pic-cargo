@@ -143,7 +143,14 @@ export default {
     if (this.$route.name == "controlMaster") {
       this.$store.state.mainTitle = "CONTROL DE EXPEDIENTE MÁSTER";
     } else if (this.$route.name == "controlMasterEditar") {
-      this.$store.state.mainTitle = "CONTROL DE EXPEDIENTE MÁSTER [EDITAR]";
+      console.log('name',this.$route.name);
+      this.$nextTick(() => {
+        setTimeout(() => {
+          this.$store.state.mainTitle =
+            "CONTROL DE EXPEDIENTE MÁSTER [EDITAR] - N° Exp:" +
+            this.$store.state.nro_master;
+        }, 2000);
+      });
     } else if (this.$route.name == "controlMasterVer") {
       this.$store.state.mainTitle = "CONTROL DE EXPEDIENTE MÁSTER [MODO VISTA]";
       this.formControlMasterReadonly = true;
@@ -214,7 +221,7 @@ export default {
       id_containers,
       nrocontainer,
       nroprecinto,
-      quantity
+      quantity,
     ) {
       var vm = this;
       //vm._getnroMaster();
@@ -255,7 +262,7 @@ export default {
       id_containers,
       nrocontainer,
       nroprecinto,
-      quantity
+      quantity,
     ) {
       var vm = this;
       //vm._getnroMaster();
@@ -330,7 +337,7 @@ export default {
           item.id,
           item.nro_container,
           item.nro_precinto,
-          item.cantidad
+          item.cantidad,
         );
       });
 
@@ -1106,7 +1113,7 @@ export default {
               .id_branch;
             let branchCreacion = [1, 2];
             if (branchCreacion.includes(id_branch)) {
-             let url = await vm.createCarpetaOneDrive({
+              let url = await vm.createCarpetaOneDrive({
                 name: vm.$store.state.master_nro_expediente,
               });
               await vm.actualizarMaster({
