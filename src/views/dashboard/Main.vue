@@ -134,11 +134,8 @@
       <v-btn
         color="#009688"
         dark
-        v-if="
-          getNameUrl() == 'verQuote' &&
-          $store.state.pricing.mostrarBtnActualizarFlag
-        "
-        @click="ira('editQuote', $route.params.id)"
+        v-if="getNameUrl() == 'verQuote'"
+        @click="handleEditarQuote()"
       >
         EDITAR
       </v-btn>
@@ -246,6 +243,51 @@
       <!-- <div class="dialogOverlay"></div> -->
       <LoadingComponent />
     </div>
+
+    <!-- Modal de autenticación admin para editar cotizaciones aprobadas -->
+    <v-dialog v-model="dialogAdminAuth" max-width="400" persistent>
+      <v-card>
+        <v-card-title class="headline grey lighten-2">
+          Autenticación Requerida
+        </v-card-title>
+        <v-card-text class="pt-4">
+          <p class="mb-4">Esta cotización está <strong>APROBADA</strong>. Ingrese las credenciales de administrador para continuar.</p>
+          <v-text-field
+            v-model="adminUser"
+            label="Usuario o Email"
+            prepend-icon="mdi-account"
+            outlined
+            dense
+          ></v-text-field>
+          <v-text-field
+            v-model="adminPassword"
+            label="Contraseña"
+            prepend-icon="mdi-lock"
+            :type="showAdminPassword ? 'text' : 'password'"
+            :append-icon="showAdminPassword ? 'mdi-eye' : 'mdi-eye-off'"
+            @click:append="showAdminPassword = !showAdminPassword"
+            outlined
+            dense
+          ></v-text-field>
+          <v-alert v-if="adminAuthError" type="error" dense class="mt-2">
+            {{ adminAuthError }}
+          </v-alert>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="grey" text @click="cerrarDialogAdminAuth()">
+            Cancelar
+          </v-btn>
+          <v-btn
+            color="success"
+            :loading="adminAuthLoading"
+            @click="validarAdminAuth()"
+          >
+            Ingresar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
@@ -256,6 +298,7 @@ import { Store, mapActions } from "vuex";
 import mixins from "@/components/mixins/funciones";
 import Swal from "sweetalert2";
 import moment from "moment";
+import axios from "axios";
 import LoadingComponent from "../../components/comun/loadingComponent.vue";
 import { io } from "socket.io-client";
 export default {
@@ -273,7 +316,13 @@ export default {
     return {
       mostrarBtnMenu: true,
       routePricing: ["newQuote", "verQuote", "editQuote"],
-      routeAduana: ["newCotizacionAduana", "EditarAduana", "VerAduana"],
+      routeAduana: ["newCotizacionAduana", "EditarAduana", "VerAduana"], 
+      dialogAdminAuth: false,
+      adminUser: "",
+      adminPassword: "",
+      showAdminPassword: false,
+      adminAuthLoading: false,
+      adminAuthError: "",
     };
   },
   components: {
@@ -639,6 +688,126 @@ export default {
       setTimeout(() => {
         //window.location.reload();
       }, 100);
+    }, 
+    esUsuarioAdmin() {
+      try {
+        const dataUser = JSON.parse(sessionStorage.getItem("dataUser"));
+        if (dataUser && dataUser[0]) {
+          // Verificar en ambos campos: 'user' y 'usuario'
+          const userEmail = dataUser[0].user || dataUser[0].usuario || "";
+          console.log("Usuario actual en sesión:", userEmail);
+          return userEmail.toLowerCase() === "cmrg1979a@gmail.com";
+        }
+      } catch (e) {
+        console.error("Error al verificar usuario admin:", e);
+      }
+      return false;
+    }, 
+    esCotizacionAprobada() {
+      const pricing = this.$store.state.pricing;
+      
+      // Verificar aprobadoflag (boolean)
+      if (pricing.aprobadoflag === true) {
+        console.log("Cotización aprobada por aprobadoflag=true");
+        return true;
+      }
+      
+       if (pricing.datosPrincipales && pricing.datosPrincipales.nameStatusQuote) {
+        const statusName = pricing.datosPrincipales.nameStatusQuote.toUpperCase().trim();
+        console.log("Status nameStatusQuote:", statusName);
+        if (statusName === "APROBADO" || statusName === "APROBADA") {
+          console.log("Cotización aprobada por nameStatusQuote:", statusName);
+          return true;
+        }
+      }
+      
+       if (pricing.datosPrincipales && pricing.datosPrincipales.id_status) {
+        const statusList = pricing.listQuoteStatus || [];
+        const currentStatus = statusList.find(s => s.id === pricing.datosPrincipales.id_status);
+        console.log("Status por id_status:", currentStatus);
+        if (currentStatus && currentStatus.name) {
+          const statusName = currentStatus.name.toUpperCase().trim();
+          if (statusName === "APROBADO" || statusName === "APROBADA") {
+            console.log("Cotización aprobada por listQuoteStatus:", statusName);
+            return true;
+          }
+        }
+      }
+      
+      console.log("Cotización NO está aprobada");
+      return false;
+    }, 
+    handleEditarQuote() {
+      const aprobada = this.esCotizacionAprobada();
+      const esAdmin = this.esUsuarioAdmin();
+      
+      console.log("handleEditarQuote - aprobada:", aprobada, "esAdmin:", esAdmin);
+       
+      if (!aprobada) {
+        this.ira("editQuote", this.$route.params.id);
+        return;
+      }
+       
+      if (esAdmin) {
+        this.ira("editQuote", this.$route.params.id);
+        return;
+      }
+       
+      this.dialogAdminAuth = true;
+      this.adminUser = "";
+      this.adminPassword = "";
+      this.adminAuthError = "";
+    },
+    cerrarDialogAdminAuth() {
+      this.dialogAdminAuth = false;
+      this.adminUser = "";
+      this.adminPassword = "";
+      this.adminAuthError = "";
+    },
+    async validarAdminAuth() {
+      this.adminAuthError = "";
+      
+      if (!this.adminUser || !this.adminPassword) {
+        this.adminAuthError = "Ingrese usuario y contraseña";
+        return;
+      }
+      
+      this.adminAuthLoading = true;
+      
+      try {
+        const config = {
+          method: "post",
+          url: process.env.VUE_APP_URL_MAIN + "singin",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          data: JSON.stringify({
+            user: this.adminUser,
+            password: this.adminPassword,
+          }),
+        };
+        
+        const response = await axios(config);
+        
+        if (response.data.estadoflag) { 
+          const userEmail = response.data.data[0].user || response.data.data[0].usuario;
+          
+          if (userEmail && userEmail.toLowerCase() === "cmrg1979a@gmail.com") {
+            // Es el admin, permitir edición
+            this.cerrarDialogAdminAuth();
+            this.ira("editQuote", this.$route.params.id);
+          } else {
+            this.adminAuthError = "Solo el usuario administrador puede editar cotizaciones aprobadas";
+          }
+        } else {
+          this.adminAuthError = response.data.mensaje || "Credenciales incorrectas";
+        }
+      } catch (error) {
+        console.error("Error en validación admin:", error);
+        this.adminAuthError = "Error al validar credenciales";
+      } finally {
+        this.adminAuthLoading = false;
+      }
     },
     isDateValid(date) {
       if (!date) {

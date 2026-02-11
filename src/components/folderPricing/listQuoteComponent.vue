@@ -114,23 +114,8 @@
                     x-small
                     v-on="on"
                     v-bind="attrs"
-                    @click="ira('editQuote', item.id)"
-                    v-if="!(item.statusmain == 0 || item.aprobadoflag)"
-                  >
-                    <v-icon color="#FB9514" dense small>mdi-pencil</v-icon>
-                  </v-btn>
-                </template>
-                <span>Editar</span>
-              </v-tooltip>
-              <v-tooltip top>
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    fab
-                    x-small
-                    v-on="on"
-                    v-bind="attrs"
-                    @click="iraAprobado(item.id)"
-                    v-if="item.aprobadoflag"
+                    @click="handleEditar(item)"
+                    v-if="item.statusmain != 0"
                   >
                     <v-icon color="#FB9514" dense small>mdi-pencil</v-icon>
                   </v-btn>
@@ -671,6 +656,38 @@ export default {
         (v) => String(v.id) === String(id)
       );
       return m ? m.name : "";
+    }, 
+    esItemAprobado(item) {
+      // Verificar por aprobadoflag
+      if (item.aprobadoflag === true) return true;
+       
+      const statusName = (item.status || "").toString().toUpperCase().trim();
+      if (statusName === "APROBADO" || statusName === "APROBADA") return true;
+      
+      return false;
+    }, 
+    esUsuarioAdmin() {
+      try {
+        const dataUser = JSON.parse(sessionStorage.getItem("dataUser"));
+        if (dataUser && dataUser[0]) {
+          const userEmail = dataUser[0].user || dataUser[0].usuario || "";
+          return userEmail.toLowerCase() === "cmrg1979a@gmail.com";
+        }
+      } catch (e) {
+        console.error("Error al verificar usuario admin:", e);
+      }
+      return false;
+    }, 
+    handleEditar(item) { 
+      if (this.esItemAprobado(item)) { 
+        if (this.esUsuarioAdmin()) {
+          this.ira("editQuote", item.id);
+        } else { 
+          this.iraAprobado(item.id);
+        }
+      } else { 
+        this.ira("editQuote", item.id);
+      }
     },
     async iraAprobado(id) {
       let val = false;
