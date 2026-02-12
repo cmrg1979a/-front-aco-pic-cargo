@@ -50,6 +50,15 @@
           step="4"
           >Información Bancaria</v-stepper-step
         >
+
+        <v-divider></v-divider>
+        <v-stepper-step
+          :complete="$store.state.entities.stepper > 5"
+          :editable="$store.state.entities.stepper > 5"
+          step="5"
+        >
+          Correo para Pedir Tarifa
+        </v-stepper-step>
       </v-stepper-header>
 
       <v-stepper-items>
@@ -75,6 +84,15 @@
         <v-stepper-content step="4">
           <SeccionInformacionBancaria />
         </v-stepper-content>
+        <!--INFORMACIÓN BANCARIA-->
+        <v-stepper-content step="4">
+          <SeccionInformacionBancaria />
+        </v-stepper-content>
+
+        <!--Sección Tarifas-->
+        <v-stepper-content step="5">
+          <SeccionEmailTarifa :guardarFlag="false"/>
+        </v-stepper-content>
       </v-stepper-items>
     </v-stepper>
   </div>
@@ -88,12 +106,14 @@ import SeccionProveedor from "./seccionProveedor.vue";
 import SeccionTelefonos from "./seccionTelefonos.vue";
 import SeccionConvenios from "./seccionConvenios.vue";
 import SeccionInformacionBancaria from "./seccionInformacionBancaria.vue";
+import SeccionEmailTarifa from "./SeccionEmailTarifaComponent.vue";
 export default {
   components: {
     SeccionProveedor,
     SeccionTelefonos,
     SeccionConvenios,
     SeccionInformacionBancaria,
+    SeccionEmailTarifa,
   },
   props: {
     isPricing: {
@@ -137,7 +157,7 @@ export default {
 
       const tipoTelefonoData =
         vm.$store.state.masterusuarios.lstTipoTelefono.find(
-          (v) => v.descripcion.toUpperCase() == criterio.toUpperCase()
+          (v) => v.descripcion.toUpperCase() == criterio.toUpperCase(),
         );
       if (tipoTelefonoData) {
         id = tipoTelefonoData.id;
@@ -151,7 +171,7 @@ export default {
 
       const tipoPersonaData =
         vm.$store.state.masterusuarios.lstTipoPersona.find(
-          (v) => v.descripcion.toUpperCase() == criterio.toUpperCase()
+          (v) => v.descripcion.toUpperCase() == criterio.toUpperCase(),
         );
       if (tipoPersonaData) {
         id = tipoPersonaData.id;
@@ -164,7 +184,7 @@ export default {
       var id = null;
 
       const tipoDocumentoData = vm.$store.state.itemsDocumentsPais.find(
-        (v) => v.name.toUpperCase() == criterio.toUpperCase()
+        (v) => v.name.toUpperCase() == criterio.toUpperCase(),
       );
       if (tipoDocumentoData) {
         id = tipoDocumentoData.id;
@@ -252,7 +272,7 @@ export default {
   watch: {
     "$store.state.entities.stepper": {
       handler(newStep, oldStep) {
-        if (this.$route.name == "nuevoProveedor" && newStep === 4) {
+        if (this.$route.name == "nuevoProveedor" && newStep === 5) {
           this.$store.state.entities.showBtnSaveFlag = true;
         } else {
           this.$store.state.entities.showBtnSaveFlag = false;

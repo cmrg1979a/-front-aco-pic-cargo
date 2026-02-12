@@ -37,10 +37,9 @@
         >
 
         <v-divider></v-divider>
-        <!-- <v-stepper-step editable step="5">
+        <v-stepper-step editable step="5">
           Correo para Pedir Tarifa
         </v-stepper-step>
-        -->
       </v-stepper-header>
 
       <v-stepper-items>
@@ -80,6 +79,7 @@ import SeccionConvenios from "./seccionConvenios.vue";
 import SeccionInformacionBancaria from "./seccionInformacionBancaria.vue";
 import SeccionEmailTarifa from "./SeccionEmailTarifaComponent.vue";
 export default {
+  
   components: {
     SeccionProveedor,
     SeccionTelefonos,

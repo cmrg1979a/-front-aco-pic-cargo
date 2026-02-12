@@ -146,7 +146,18 @@
         dark
         @click="abrirCorreo()"
       >
-        <v-icon class="mx-1" dense small>mdi-content-copy</v-icon>
+        <v-icon class="mx-1" dense small>mdi-email-fast</v-icon>
+        ENVIAR MAIL
+      </v-btn>
+
+      <v-btn
+        v-if="getNameUrl() == 'editQuote'"
+        class="mx-1"
+        color="light-blue darken-3"
+        dark
+        @click="abrirCorreo()"
+      >
+        <v-icon class="mx-1" dense small>mdi-email-fast</v-icon>
         ENVIAR MAIL
       </v-btn>
 
@@ -269,7 +280,10 @@
           Autenticación Requerida
         </v-card-title>
         <v-card-text class="pt-4">
-          <p class="mb-4">Esta cotización está <strong>APROBADA</strong>. Ingrese las credenciales de administrador para continuar.</p>
+          <p class="mb-4">
+            Esta cotización está <strong>APROBADA</strong>. Ingrese las
+            credenciales de administrador para continuar.
+          </p>
           <v-text-field
             v-model="adminUser"
             label="Usuario o Email"
@@ -306,6 +320,52 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="dialogProveedor" width="35%">
+      <v-card>
+        <v-card-title> Seleccionar proveedor: </v-card-title>
+        <v-card-text>
+          <v-autocomplete
+            multiple
+            :items="this.$store.state.itemsDataRoleList"
+            chips
+            item-value="id"
+            item-text="name"
+            persistent
+            outlined
+            label="Tipo Proveedor"
+            dense
+            v-model="idRole"
+          >
+          </v-autocomplete>
+          <v-simple-table>
+            <thead>
+              <tr>
+                <th></th>
+                <th>Contacto</th>
+                <th>Correo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(dato, index) in lstDatosTarifa" :key="index">
+                <td>
+                  <v-checkbox v-model="dato.selected"></v-checkbox>
+                </td>
+                <td>{{ dato.contacto }}</td>
+                <td>{{ dato.email }}</td>
+              </tr>
+            </tbody>
+          </v-simple-table>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="success" @click="abrirCorreoSend">Enviar Correo</v-btn>
+          <v-btn color="error" @click="dialogProveedor = false">
+            Cancelar</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
@@ -334,13 +394,16 @@ export default {
     return {
       mostrarBtnMenu: true,
       routePricing: ["newQuote", "verQuote", "editQuote"],
-      routeAduana: ["newCotizacionAduana", "EditarAduana", "VerAduana"], 
+      routeAduana: ["newCotizacionAduana", "EditarAduana", "VerAduana"],
       dialogAdminAuth: false,
       adminUser: "",
       adminPassword: "",
       showAdminPassword: false,
       adminAuthLoading: false,
       adminAuthError: "",
+      dialogProveedor: false,
+      idRole: [],
+      lstDatosTarifa: [],
     };
   },
   components: {
@@ -391,6 +454,7 @@ export default {
       "actualizarProveedor",
       "registrarQuote",
       "actualizarQuoteAduana",
+      "_getRole",
     ]),
     async guardarCotizacion() {
       let validacion = this.validarRegistro();
@@ -503,28 +567,41 @@ export default {
         this.$store.state.aduana.tab = 2;
       }
     },
-    abrirCorreo() {
-      const to = "";
-      const subject = encodeURIComponent(`Cotización Nº `);
+    async abrirCorreo() {
+      this.idRole = [];
+      this.dialogProveedor = true;
+      await this._getRole();
+    },
+    abrirCorreoSend() {
+      const selected = this.lstDatosTarifa.filter((v) => v.selected);
+      const to = selected
+        .map((v) => v.email)
+        .filter((e) => e)
+        .join(",");
 
-      const body = encodeURIComponent(`
-                  Hola ,
+      if (!to) return;
 
-                  Te envío la cotización solicitada.
+      // Cambiamos acentos por letras normales
+      const subject = encodeURIComponent(
+        "Cotizacion Nro:" + this.$store.state.pricing.nro_quote,
+      );
 
-                  Monto:
-                  Fecha:
+      const lineasBody = [
+        "Hola,",
+        "",
+        "Te envio la cotizacion solicitada.",
+        "",
+        "Monto: ",
+        "Fecha: ",
+        "",
+        "Puedes ver el detalle aqui:",
+        "",
+        "Quedo atento.",
+        "Saludos",
+      ];
 
-                  Puedes ver el detalle aquí:
-                  
-
-                  Quedo atento.
-                  Saludos
-    `);
-
-      const mailto = `mailto:${to}?subject=${subject}&body=${body}`;
-
-      window.location.href = mailto;
+      const body = encodeURIComponent(lineasBody.join("\r\n"));
+      window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
     },
     copiarCotizacion() {
       Swal.fire({
@@ -729,7 +806,7 @@ export default {
       setTimeout(() => {
         //window.location.reload();
       }, 100);
-    }, 
+    },
     esUsuarioAdmin() {
       try {
         const dataUser = JSON.parse(sessionStorage.getItem("dataUser"));
@@ -743,28 +820,35 @@ export default {
         console.error("Error al verificar usuario admin:", e);
       }
       return false;
-    }, 
+    },
     esCotizacionAprobada() {
       const pricing = this.$store.state.pricing;
-      
+
       // Verificar aprobadoflag (boolean)
       if (pricing.aprobadoflag === true) {
         console.log("Cotización aprobada por aprobadoflag=true");
         return true;
       }
-      
-       if (pricing.datosPrincipales && pricing.datosPrincipales.nameStatusQuote) {
-        const statusName = pricing.datosPrincipales.nameStatusQuote.toUpperCase().trim();
+
+      if (
+        pricing.datosPrincipales &&
+        pricing.datosPrincipales.nameStatusQuote
+      ) {
+        const statusName = pricing.datosPrincipales.nameStatusQuote
+          .toUpperCase()
+          .trim();
         console.log("Status nameStatusQuote:", statusName);
         if (statusName === "APROBADO" || statusName === "APROBADA") {
           console.log("Cotización aprobada por nameStatusQuote:", statusName);
           return true;
         }
       }
-      
-       if (pricing.datosPrincipales && pricing.datosPrincipales.id_status) {
+
+      if (pricing.datosPrincipales && pricing.datosPrincipales.id_status) {
         const statusList = pricing.listQuoteStatus || [];
-        const currentStatus = statusList.find(s => s.id === pricing.datosPrincipales.id_status);
+        const currentStatus = statusList.find(
+          (s) => s.id === pricing.datosPrincipales.id_status,
+        );
         console.log("Status por id_status:", currentStatus);
         if (currentStatus && currentStatus.name) {
           const statusName = currentStatus.name.toUpperCase().trim();
@@ -774,26 +858,31 @@ export default {
           }
         }
       }
-      
+
       console.log("Cotización NO está aprobada");
       return false;
-    }, 
+    },
     handleEditarQuote() {
       const aprobada = this.esCotizacionAprobada();
       const esAdmin = this.esUsuarioAdmin();
-      
-      console.log("handleEditarQuote - aprobada:", aprobada, "esAdmin:", esAdmin);
-       
+
+      console.log(
+        "handleEditarQuote - aprobada:",
+        aprobada,
+        "esAdmin:",
+        esAdmin,
+      );
+
       if (!aprobada) {
         this.ira("editQuote", this.$route.params.id);
         return;
       }
-       
+
       if (esAdmin) {
         this.ira("editQuote", this.$route.params.id);
         return;
       }
-       
+
       this.dialogAdminAuth = true;
       this.adminUser = "";
       this.adminPassword = "";
@@ -807,14 +896,14 @@ export default {
     },
     async validarAdminAuth() {
       this.adminAuthError = "";
-      
+
       if (!this.adminUser || !this.adminPassword) {
         this.adminAuthError = "Ingrese usuario y contraseña";
         return;
       }
-      
+
       this.adminAuthLoading = true;
-      
+
       try {
         const config = {
           method: "post",
@@ -827,21 +916,24 @@ export default {
             password: this.adminPassword,
           }),
         };
-        
+
         const response = await axios(config);
-        
-        if (response.data.estadoflag) { 
-          const userEmail = response.data.data[0].user || response.data.data[0].usuario;
-          
+
+        if (response.data.estadoflag) {
+          const userEmail =
+            response.data.data[0].user || response.data.data[0].usuario;
+
           if (userEmail && userEmail.toLowerCase() === "cmrg1979a@gmail.com") {
             // Es el admin, permitir edición
             this.cerrarDialogAdminAuth();
             this.ira("editQuote", this.$route.params.id);
           } else {
-            this.adminAuthError = "Solo el usuario administrador puede editar cotizaciones aprobadas";
+            this.adminAuthError =
+              "Solo el usuario administrador puede editar cotizaciones aprobadas";
           }
         } else {
-          this.adminAuthError = response.data.mensaje || "Credenciales incorrectas";
+          this.adminAuthError =
+            response.data.mensaje || "Credenciales incorrectas";
         }
       } catch (error) {
         console.error("Error en validación admin:", error);
@@ -1325,6 +1417,46 @@ export default {
         await vm.actualizarProveedor();
         vm.$store.state.spiner = false;
       }
+    },
+  },
+  watch: {
+    async idRole() {
+      let id_proveedores = [];
+      let lstDatosTarifa = [];
+      if (this.idRole.length == 0) {
+        return;
+      }
+      let opcionCostos = [...this.$store.state.pricing.opcionCostos];
+      opcionCostos.forEach((opcion) => {
+        let listCostos = opcion.listCostos;
+        listCostos.forEach((costo) => {
+          if (
+            this.idRole.includes(costo.id_role) &&
+            !id_proveedores.includes(costo.id_proveedor)
+          ) {
+            id_proveedores.push(costo.id_proveedor);
+          }
+        });
+      });
+      const config = {
+        method: "get",
+        url: process.env.VUE_APP_URL_MAIN + "entities/obtener_datos_tarifa",
+        headers: {
+          "auth-token": sessionStorage.getItem("auth-token"),
+          "Content-Type": "application/json",
+        },
+        params: {
+          id_modality: this.$store.state.pricing.datosPrincipales.idsentido,
+          id_proveedores: id_proveedores,
+        },
+      };
+
+      await axios(config).then((res) => {
+        let data = res.data;
+        this.lstDatosTarifa = data.data.datos.map((v) => {
+          return { ...v, selected: true };
+        });
+      });
     },
   },
 };

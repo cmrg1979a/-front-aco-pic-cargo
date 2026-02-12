@@ -212,6 +212,9 @@
           {{ obtenerAgente(item) }}
         </template> -->
         <template v-slot:[`item.actions`]="{ item }">
+          <v-btn small icon class="mx-1" @click="editFechas(item)">
+            <v-icon>mdi-calendar-edit</v-icon> 
+          </v-btn>
           <label
             v-if="item.status == 0"
             style="color: red; font-weight: 700 !important"
@@ -243,16 +246,10 @@
                 <v-list-item-title>Editar</v-list-item-title>
               </v-list-item>
 
-              <v-list-item
-                v-if="!item.statuslock && item.status == 1"
-                @click="editFechas(item)"
-                link
-              >
-                <v-list-item-icon>
-                  <v-icon>mdi-calendar-edit</v-icon>
-                </v-list-item-icon>
+              <!-- <v-list-item v-if="!item.statuslock && item.status == 1" link>
+                <v-list-item-icon> </v-list-item-icon>
                 <v-list-item-title>Editar Fechas</v-list-item-title>
-              </v-list-item>
+              </v-list-item> -->
 
               <v-list-item
                 v-if="item.status == 1"

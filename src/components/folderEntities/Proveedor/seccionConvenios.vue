@@ -11,7 +11,7 @@
         @click="modificarProveedor"
       >
         <v-icon left small>mdi-account-edit</v-icon>
-        {{ isFormReadonly ? 'EDITAR PROVEEDOR' : 'GUARDAR CAMBIOS' }}
+        {{ isFormReadonly ? "EDITAR PROVEEDOR" : "GUARDAR CAMBIOS" }}
       </v-btn>
     </v-card-title>
     <v-card-text class="px-2">
@@ -21,36 +21,50 @@
           <b>Convenios</b>
 
           <template v-if="showFormActions">
-            <v-btn color="primary" rounded small class="ml-auto" @click="agregarConvenio()">AGREGAR CONVENIO</v-btn>
+            <v-btn
+              color="primary"
+              rounded
+              small
+              class="ml-auto"
+              @click="agregarConvenio()"
+              >AGREGAR CONVENIO</v-btn
+            >
           </template>
         </v-subheader>
         <v-row>
           <v-col cols="12">
             <v-form ref="formProv_convenios" :readonly="isFormReadonly">
-              <v-data-table :headers="headersConvenios" :items="$store.state.entities.lstConvenios" class="elevation-5"
-                item-key="index">
-
+              <v-data-table
+                :headers="headersConvenios"
+                :items="$store.state.entities.lstConvenios"
+                class="elevation-5"
+                item-key="index"
+              >
                 <template v-slot:[`item.fecha`]="{ item }">
-                  <v-text-field 
-                    type="date" 
-                    v-model="item.fecha" 
+                  <v-text-field
+                    type="date"
+                    v-model="item.fecha"
                     :rules="[(v) => !!v || 'Dato Requerido']"
                   ></v-text-field>
                 </template>
 
                 <template v-slot:[`item.dias_credito`]="{ item }">
-                  <v-text-field 
-                    type="number" 
-                    suffix="días" 
+                  <v-text-field
+                    type="number"
+                    suffix="días"
                     v-model="item.dias_credito"
-                    :rules="[(v) => v >= 0 || 'Es necesario que ponga un número entero positivo']"
+                    :rules="[
+                      (v) =>
+                        v >= 0 ||
+                        'Es necesario que ponga un número entero positivo',
+                    ]"
                   ></v-text-field>
                 </template>
 
                 <template v-slot:[`item.email_soporte`]="{ item }">
                   <div class="d-flex">
-                    <v-text-field 
-                      v-model="item.email_soporte" 
+                    <v-text-field
+                      v-model="item.email_soporte"
                       :rules="[(v) => validarCorreoElectronico(v)]"
                     ></v-text-field>
                     <v-file-input
@@ -58,19 +72,21 @@
                       accept=".xlsx,.xls,.doc,.docx,.ppt,.pptx,.txt,.pdf,.gif,.jpg,.jpeg,.png"
                       label="Adjuntar Archivo"
                       hide-input
-                      class="customFile" 
+                      class="customFile"
                       v-model="fileinput"
                       @change="subirArchivoConvenio(item)"
                     ></v-file-input>
                   </div>
                 </template>
 
-                <template v-slot:[`item.action`]="{ item, index }" v-if="showFormActions">
+                <template
+                  v-slot:[`item.action`]="{ item, index }"
+                  v-if="showFormActions"
+                >
                   <v-btn icon color="red" @click="eliminarConvenio(index)">
                     <v-icon>mdi-delete</v-icon>
                   </v-btn>
                 </template>
-
               </v-data-table>
             </v-form>
           </v-col>
@@ -83,34 +99,44 @@
           <b>Tarifas</b>
 
           <template v-if="showFormActions">
-            <v-btn color="primary" rounded small class="ml-auto" @click="agregarTarifa()">AGREGAR TARIFA</v-btn>
+            <v-btn
+              color="primary"
+              rounded
+              small
+              class="ml-auto"
+              @click="agregarTarifa()"
+              >AGREGAR TARIFA</v-btn
+            >
           </template>
         </v-subheader>
         <v-row>
           <v-col cols="12">
             <v-form ref="formProv_tarifas" :readonly="isFormReadonly">
-              <v-data-table :headers="headersTarifas" :items="$store.state.entities.lstTarifas" class="elevation-5"
-                item-key="index">
-
+              <v-data-table
+                :headers="headersTarifas"
+                :items="$store.state.entities.lstTarifas"
+                class="elevation-5"
+                item-key="index"
+              >
                 <template v-slot:[`item.fecha`]="{ item }">
-                  <v-text-field 
-                    type="date" 
-                    v-model="item.fecha" 
+                  <v-text-field
+                    type="date"
+                    v-model="item.fecha"
                     :rules="[(v) => !!v || 'Dato Requerido']"
                   ></v-text-field>
                 </template>
 
                 <template v-slot:[`item.codigo`]="{ item }">
-                  <v-text-field 
-                    v-model="item.codigo" 
+                  <v-text-field
+                    v-model="item.codigo"
                     :rules="[(v) => !!v || 'Dato Requerido']"
                   ></v-text-field>
                 </template>
 
                 <template v-slot:[`item.email_soporte`]="{ item }">
                   <div class="d-flex">
-                    <v-text-field 
-                      v-model="item.email_soporte" 
+                    <v-text-field
+                      v-model="item.email_soporte"
                       :rules="[(v) => validarCorreoElectronico(v)]"
                     ></v-text-field>
                     <v-file-input
@@ -118,7 +144,7 @@
                       accept=".xlsx,.xls,.doc,.docx,.ppt,.pptx,.txt,.pdf,.gif,.jpg,.jpeg,.png"
                       label="Adjuntar Archivo"
                       hide-input
-                      class="customFile" 
+                      class="customFile"
                       v-model="fileinput"
                       @change="subirArchivoTarifa(item)"
                     ></v-file-input>
@@ -126,17 +152,17 @@
                 </template>
 
                 <template v-slot:[`item.tarifa`]="{ item }">
-                  <v-text-field 
-                    v-model="item.tarifa"
-                  ></v-text-field>
+                  <v-text-field v-model="item.tarifa"></v-text-field>
                 </template>
 
-                <template v-slot:[`item.action`]="{ item, index }" v-if="showFormActions">
+                <template
+                  v-slot:[`item.action`]="{ item, index }"
+                  v-if="showFormActions"
+                >
                   <v-btn icon color="red" @click="eliminarTarifa(index)">
                     <v-icon>mdi-delete</v-icon>
                   </v-btn>
                 </template>
-
               </v-data-table>
             </v-form>
           </v-col>
@@ -144,8 +170,12 @@
       </div>
     </v-card-text>
     <v-card-actions v-if="showNavigationButtons">
-      <v-btn color="primary" @click="$store.state.entities.stepper--">Regresar</v-btn>
-      <v-btn color="primary" class="ml-auto" @click="validarFormulario">Continuar</v-btn>
+      <v-btn color="primary" @click="$store.state.entities.stepper--"
+        >Regresar</v-btn
+      >
+      <v-btn color="primary" class="ml-auto" @click="validarFormulario"
+        >Continuar</v-btn
+      >
     </v-card-actions>
   </v-card>
 </template>
@@ -172,7 +202,7 @@ export default {
       ],
       fileinput: null,
       isFileLoading: false,
-    }
+    };
   },
   computed: {
     isFormReadonly() {
@@ -182,16 +212,22 @@ export default {
       return !this.$store.state.entities.isReadonly;
     },
     showNavigationButtons() {
-      return !(this.$store.state.entities.isEdit || this.$store.state.entities.isReadonly);
-    }
+      return !(
+        this.$store.state.entities.isEdit ||
+        this.$store.state.entities.isReadonly
+      );
+    },
   },
   methods: {
-    ...mapActions([
-      "_uploadFile",
-      "actualizarProveedor"
-    ]),
+    ...mapActions(["_uploadFile", "actualizarProveedor"]),
+   
     validarCorreoElectronico(v) {
-      if (v && !/^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(v)) {
+      if (
+        v &&
+        !/^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+          v,
+        )
+      ) {
         return "Debe ingresar un correo electrónico válido";
       }
 
@@ -209,20 +245,19 @@ export default {
     },
     generarCodigoTarifa() {
       var vm = this;
-      
+
       let codigoMaximo = 0;
       vm.$store.state.entities.lstTarifas.filter((v) => {
-        let codigoParseado
-          = v.codigo.includes("T")
-            ? parseInt(v.codigo.slice(1))
-            : parseInt(v.codigo);
+        let codigoParseado = v.codigo.includes("T")
+          ? parseInt(v.codigo.slice(1))
+          : parseInt(v.codigo);
 
         if (codigoMaximo < codigoParseado) {
           codigoMaximo = codigoParseado;
         }
       });
 
-      let codigo = (parseInt(codigoMaximo) + 1).toString().padStart(5, '0');
+      let codigo = (parseInt(codigoMaximo) + 1).toString().padStart(5, "0");
 
       return "T".concat(codigo);
     },
@@ -387,9 +422,9 @@ export default {
         }
       },
       deep: true,
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style>
@@ -398,7 +433,7 @@ export default {
   flex-direction: row-reverse !important;
 }
 .customFile .v-input__prepend-outer {
-	margin-right: 0;
+  margin-right: 0;
 }
 .container-narrow {
   max-width: 1100px;

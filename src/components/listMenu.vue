@@ -77,6 +77,17 @@
     </v-treeview>
 
     <v-divider></v-divider>
+    <div class="">
+      <v-btn
+        color="blue-grey"
+        class="mt-2 white--text"
+        block
+        @click="dialogTutorial = true"
+      >
+        VER TUTORIAL <v-icon color="#000" class="mx-5">mdi-video</v-icon>
+      </v-btn>
+    </div>
+    <v-divider></v-divider>
 
     <div v-if="mostrarResumenPricing() && mostrarFlag == true" class="mt-5">
       <v-row class="datosPricing">
@@ -227,16 +238,7 @@
         Continuar Configuración
       </v-btn>
     </div>
-    <div class="">
-      <v-btn
-        color="blue-grey"
-        class="mt-2 white--text"
-        block
-        @click="dialogTutorial = true"
-      >
-        VER TUTORIAL <v-icon color="#000" class="mx-5">mdi-video</v-icon>
-      </v-btn>
-    </div>
+
     <v-dialog
       v-model="dialogTutorial"
       persistent

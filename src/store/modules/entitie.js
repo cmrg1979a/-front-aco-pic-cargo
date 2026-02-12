@@ -13,6 +13,8 @@ const state = {
   lstPersona: [],
   lstEmails: [],
   lstDatosTarifas: [],
+  itemsImportacion: [],
+  itemsExportacion: [],
   titleVal: "",
   filtro: {
     correlativo: "",
@@ -482,6 +484,10 @@ const actions = {
     state.proveedor.lstTarifas = state.lstTarifas;
     state.proveedor.lstInformacionBancaria = state.lstInformacionBancaria;
     state.proveedor.lstEmails = state.lstEmails;
+    state.proveedor.datosTarifa = [
+      ...state.itemsImportacion,
+      ...state.itemsExportacion,
+    ];
 
     var config = {
       method: "post",
