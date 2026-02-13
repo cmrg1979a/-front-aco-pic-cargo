@@ -383,10 +383,25 @@ export default {
     async _setHouse(id_master = "") {
       var vm = this;
 
-      let i = vm.$store.state.itemsHouseList.length + 1;
+      var finalIdMaster = id_master || vm.$store.state.master_insertId;
+
+      // Validar que exista un id_master antes de llamar al endpoint
+      if (!finalIdMaster) {
+        console.error("_setHouse: id_master no proporcionado. id_master:", id_master, "master_insertId:", vm.$store.state.master_insertId);
+        vm.$swal({
+          icon: "error",
+          title: "Error",
+          text: "No se puede crear el House porque no existe un Master asociado. Guarde el Master primero.",
+        });
+        return;
+      }
+
+      console.log("_setHouse: Creando House con id_master:", finalIdMaster);
+
+      var i = vm.$store.state.itemsHouseList.length + 1;
 
       var data = JSON.stringify({
-        id_master: id_master || vm.$store.state.master_insertId,
+        id_master: finalIdMaster,
         nro_house: vm.$store.state.house_nro_expediente,
         code_house: vm.$store.state.house_expediente + "-" + i,
         id_cot: vm.$store.state.master_cotizanion,
@@ -430,17 +445,18 @@ export default {
         .then(function (response) {
           sessionStorage.setItem("auth-token", response.data.token);
 
-          if (response.data.status == "401") {
+          // Solo redirigir a login cuando es 401 o sesión expirada
+          if (response.data.status == "401" || response.data.mensaje === "Sesión Expirada") {
             Swal.fire({
               icon: "error",
               text: response.data.mensaje,
               allowOutsideClick: false,
               allowEscapeKey: false,
               allowEnterKey: false,
-            }).then((resSwal) => {
-              if (resSwal.isConfirmed && response.data.status == "401") {
+            }).then(function (resSwal) {
+              if (resSwal.isConfirmed) {
                 router.push({ name: "Login" });
-                setTimeout(() => {
+                setTimeout(function () {
                   window.location.reload();
                 }, 10);
               }
@@ -448,30 +464,18 @@ export default {
             return;
           }
 
+          console.log("_setHouse: Respuesta exitosa", response.data);
           vm.$swal({
             icon: "success",
             title: response.data.data.rows[0].mensaje,
           });
-          // if (response.data.status == 200)
-          // {
-          /*vm._setMasterServices(vm.$store.state.master_insertId, response.data.data.insertid, i);*/
-          // vm._getHouseList();
-
-          /*vm.$swal({
-              icon: "success",
-              title: "Excelente",
-              text: "House registrado exitosamente",
-            });*/
-          // }
-
-          // vm.cleanData();
         })
         .catch(function (error) {
-          console.log(error);
+          console.error("_setHouse: Error al crear House:", error);
           vm.$swal({
             icon: "error",
             title: "Lo sentimos",
-            text: error,
+            text: "Error al crear el House: " + (error.message || error),
           });
         });
     },
@@ -1079,21 +1083,43 @@ export default {
           .then(async function (response) {
             sessionStorage.setItem("auth-token", response.data.token);
 
-            if (response.data.status == "401") {
+            // Solo redirigir a login cuando es 401 o sesión expirada
+            if (response.data.status == "401" || response.data.mensaje === "Sesión Expirada") {
               Swal.fire({
                 icon: "error",
                 text: response.data.mensaje,
                 allowOutsideClick: false,
                 allowEscapeKey: false,
                 allowEnterKey: false,
-              }).then((resSwal) => {
-                if (resSwal.isConfirmed && response.data.status == "401") {
+              }).then(function (resSwal) {
+                if (resSwal.isConfirmed) {
                   router.push({ name: "Login" });
-                  setTimeout(() => {
+                  setTimeout(function () {
                     window.location.reload();
                   }, 10);
                 }
               });
+              vm.$store.state.spiner = false;
+              return;
+            }
+
+            console.log("_setMaster: Respuesta completa:", response.data);
+
+            var masterRow = response.data.data && response.data.data[0] ? response.data.data[0] : null;
+            console.log("_setMaster: masterRow:", masterRow);
+
+            var id_master = masterRow ? (masterRow.id || masterRow.insertid) : null;
+            console.log("_setMaster: id_master obtenido:", id_master);
+
+            if (!id_master) {
+              console.error("_setMaster: No se pudo obtener el ID del Master.", response.data);
+              vm.$swal({
+                icon: "error",
+                title: "Error",
+                text: "No se pudo obtener el ID del expediente creado. Revise la consola para más detalles.",
+              });
+              vm.$store.state.spiner = false;
+              return;
             }
 
             vm.$swal({
@@ -1102,39 +1128,40 @@ export default {
               timerProgressBar: true,
               text: "Generando expediente...",
             });
-            let id_branch = JSON.parse(sessionStorage.getItem("dataUser"))[0]
+
+            var id_branch = JSON.parse(sessionStorage.getItem("dataUser"))[0]
               .id_branch;
-            let branchCreacion = [1, 2];
+            var branchCreacion = [1, 2];
             if (branchCreacion.includes(id_branch)) {
-             let url = await vm.createCarpetaOneDrive({
+              var url = await vm.createCarpetaOneDrive({
                 name: vm.$store.state.master_nro_expediente,
               });
               await vm.actualizarMaster({
-                id: response.data.data[0].insertid,
+                id: id_master,
                 url: url,
               });
             }
-            // vm._getHouseServices();
-            // vm._setMasterHouse(response.data.data[0].insertid);
-            await vm._setHouse(response.data.data[0].insertid);
+
+            console.log("_setMaster: Llamando _setHouse con id_master:", id_master);
+            await vm._setHouse(id_master);
 
             vm.$store.state.itemsHouseList = [];
-            vm.$store.state.master_insertId = response.data.data[0].insertid;
+            vm.$store.state.master_insertId = id_master;
 
             vm.$router.push({
               name: "controlMasterEditar",
               params: {
-                id: response.data.data[0].insertid,
+                id: id_master,
               },
             });
             window.location.reload();
           })
           .catch(function (error) {
-            console.log(error);
+            console.error("_setMaster: Error al crear expediente:", error);
             vm.$swal({
               icon: "error",
               title: "Lo sentimos",
-              text: error,
+              text: "Error al crear el expediente: " + (error.message || error),
             });
           });
         vm.$store.state.spiner = false;
