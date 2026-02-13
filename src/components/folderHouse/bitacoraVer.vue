@@ -5,7 +5,7 @@
     <v-container style="padding: 0">
       <v-row>
         <v-col cols="12">
-          <v-simple-table dense fixed-header height="400px">
+          <v-simple-table dense fixed-header>
             <template v-slot:default>
               <thead>
                 <tr>
@@ -17,7 +17,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="item in $store.state.itemsBitacora" :key="item.id">
+                <tr v-for="item in bitacoraLimitada" :key="item.id">
                   <td>{{ item.namemodule }}</td>
                   <td>{{ item.namebitacora }}</td>
                   <td>{{ item.comentario }}</td>
@@ -37,8 +37,61 @@
             </template>
           </v-simple-table>
         </v-col>
+        <v-col cols="12" class="text-center" v-if="mostrarBotonVerMas">
+          <v-btn small color="primary" outlined @click="dialogVerTodos = true">
+            Ver más ({{ totalRegistros }} registros)
+          </v-btn>
+        </v-col>
       </v-row>
 
+      <!-- Modal para ver todos los registros -->
+      <v-dialog v-model="dialogVerTodos" max-width="900px" scrollable>
+        <v-card>
+          <v-card-title>
+            Todos los registros de bitácora
+            <v-spacer></v-spacer>
+            <v-btn icon @click="dialogVerTodos = false">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+          </v-card-title>
+          <v-card-text style="max-height: 500px;">
+            <v-simple-table dense fixed-header>
+              <template v-slot:default>
+                <thead>
+                  <tr>
+                    <th class="text-left">Grupo</th>
+                    <th class="text-left">Nombre</th>
+                    <th class="text-left">Comentario</th>
+                    <th class="text-left">Fecha</th>
+                    <th class="text-left">Visible/No Visible</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="item in bitacoraOrdenada" :key="item.id">
+                    <td>{{ item.namemodule }}</td>
+                    <td>{{ item.namebitacora }}</td>
+                    <td>{{ item.comentario }}</td>
+                    <td>{{ item.date }}</td>
+                    <td>
+                      <v-switch
+                        dense
+                        readonly
+                        color="primary"
+                        v-model="item.visible_cliente"
+                        :disabled="isFormActionsDisabled"
+                      ></v-switch>
+                    </td>
+                  </tr>
+                </tbody>
+              </template>
+            </v-simple-table>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="primary" text @click="dialogVerTodos = false">Cerrar</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
   
     </v-container>
   </div>
@@ -63,6 +116,7 @@ export default {
     loadingBotonBitacora: false,
     loadingBotonTracking: false,
     disabledBotonBitacora: false,
+    dialogVerTodos: false,
   }),
   computed: {
     isBotonTrackingDisabled: function () {
@@ -73,6 +127,23 @@ export default {
     },
     isBotonBitacoraDisabled: function () {
       return this.isFormActionsDisabled || this.disabledBotonBitacora;
+    },
+    bitacoraOrdenada: function () {
+      var items = this.$store.state.itemsBitacora || [];
+      return items.slice().sort(function (a, b) {
+        var dateA = new Date(a.date);
+        var dateB = new Date(b.date);
+        return dateB - dateA;
+      });
+    },
+    bitacoraLimitada: function () {
+      return this.bitacoraOrdenada.slice(0, 3);
+    },
+    totalRegistros: function () {
+      return (this.$store.state.itemsBitacora || []).length;
+    },
+    mostrarBotonVerMas: function () {
+      return this.totalRegistros > 3;
     },
   },
   async mounted() {

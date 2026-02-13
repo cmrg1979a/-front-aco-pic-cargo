@@ -1,29 +1,36 @@
 <template>
   <div>
-    <v-card max-width="450" class="mx-auto">
-      <v-list three-line>
-        <template>
-          <v-subheader>LISTA DE HOUSE</v-subheader>
-
-          <v-list-item
-            v-for="(item, index) in $store.state.itemsHouseList"
-            :key="index"
-          >
-            <v-list-item-avatar>
-              <v-avatar color="teal" size="32">
-                <span class="white--text text-h6">{{ index }}</span>
-              </v-avatar>
-            </v-list-item-avatar>
-            <v-list-item-content>
-              <v-list-item-title v-html="item.code_house"></v-list-item-title>
-              <v-list-item-subtitle>
-                Bultos: {{ item.bultos }} | Peso: {{ item.peso }} Kg | Volumen:
-                {{ item.volumen }} m3
-              </v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>
-        </template>
-      </v-list>
+    <v-card class="mx-auto">
+      <v-card-title>LISTA DE HOUSE</v-card-title>
+      <v-card-text>
+        <v-simple-table dense>
+          <template v-slot:default>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Código</th>
+                <th>Cliente</th>
+                <th>Incoterm</th>
+                <th>Peso</th>
+                <th>Volumen</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="(item, index) in $store.state.itemsHouseList"
+                :key="index"
+              >
+                <td>{{ index + 1 }}</td>
+                <td>{{ item.nro_hbl || item.code_house || '-' }}</td>
+                <td>{{ item.nameconsigner || item.cliente_nombre || item.cliente || '-' }}</td>
+                <td>{{ getIncotermName(item) }}</td>
+                <td>{{ item.peso || 0 }} Kg</td>
+                <td>{{ item.volumen || 0 }} m3</td>
+              </tr>
+            </tbody>
+          </template>
+        </v-simple-table>
+      </v-card-text>
     </v-card>
   </div>
 </template>
@@ -31,6 +38,20 @@
 <script>
 export default {
   name: "houselist",
+  methods: {
+    getIncotermName(item) {
+      if (item.incoterm) return item.incoterm;
+      if (item.nameincoterm) return item.nameincoterm;
+      if (item.incoterms) return item.incoterms;
+      if (item.name_incoterm) return item.name_incoterm;
+      if (item.id_incoterms) {
+        var incoterms = this.$store.state.itemsIncoterms || [];
+        var found = incoterms.find(function(inc) { return inc.id == item.id_incoterms; });
+        if (found) return found.name;
+      }
+      return '-';
+    },
+  },
   data: () => ({
     items: [
       { header: "LISTA DE HOUSE" },

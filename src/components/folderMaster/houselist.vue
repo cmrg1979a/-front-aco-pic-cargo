@@ -42,6 +42,7 @@
                 <thead>
                   <tr>
                     <th>Listado</th>
+                    <th>Código</th>
                     <th>Cliente</th>
                     <th>Incoterm</th>
                     <th>Peso</th>
@@ -59,10 +60,11 @@
                     style="cursor: pointer;"
                   >
                     <td>{{ index + 1 }}</td>
-                    <td>{{ item.nro_hbl ? item.nro_hbl : item.code_house }}</td>
-                    <td>{{ item.incoterm || item.nameincoterm || item.incoterms || '-' }}</td>
-                    <td>{{ item.peso }}</td>
-                    <td>{{ item.volumen }}</td>
+                    <td>{{ item.nro_hbl || item.code_house || '-' }}</td>
+                    <td>{{ item.cliente_nombre || item.nameconsigner || item.cliente || item.consigner || '-' }}</td>
+                    <td>{{ getIncotermName(item) }}</td>
+                    <td>{{ item.peso || 0 }}</td>
+                    <td>{{ item.volumen || 0 }}</td>
                     <td v-if="esAereo">{{ computePesoVolumetrico(item) }}</td>
                     <td v-if="esAereo">{{ computePesoCargable(item) }}</td>
                     <td>
@@ -72,28 +74,6 @@
                 </tbody>
               </template>
             </v-simple-table>
-            <v-list-item
-              link
-              v-for="(item, index) in $store.state.itemsHouseList"
-              :key="index"
-              @click.native="showHouse(item.id)"
-            >
-              <v-list-item-avatar>
-                <v-avatar color="teal" size="32">
-                  <span class="white--text text-h6">{{ index + 1 }}</span>
-                </v-avatar>
-              </v-list-item-avatar>
-              <v-list-item-content>
-                <v-list-item-title
-                  v-html="item.nro_hbl ? item.nro_hbl : item.code_house"
-                ></v-list-item-title>
-                <v-list-item-subtitle>
-                  <!-- Bultos: {{ item.bultos }} | Peso: {{ item.peso }} Kg | Volumen: {{ item.volumen }} m3 -->
-                  Cliente:
-                  {{ item.cliente_nombre || item.nameconsigner || item.cliente || '-' }}
-                </v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
           </v-expansion-panel-content>
         </v-expansion-panel>
       </v-expansion-panels>
@@ -153,6 +133,18 @@ export default {
       const m3 = parseFloat(item.volumen || 0);
       const charge = Math.max(kg, m3 * 166.66);
       return isNaN(charge) ? 0 : Number(charge.toFixed(2));
+    },
+    getIncotermName(item) {
+      if (item.incoterm) return item.incoterm;
+      if (item.nameincoterm) return item.nameincoterm;
+      if (item.incoterms) return item.incoterms;
+      if (item.name_incoterm) return item.name_incoterm;
+      if (item.id_incoterms) {
+        var incoterms = this.$store.state.itemsIncoterms || [];
+        var found = incoterms.find(function(inc) { return inc.id == item.id_incoterms; });
+        if (found) return found.name;
+      }
+      return '-';
     },
   },
   mounted() {
