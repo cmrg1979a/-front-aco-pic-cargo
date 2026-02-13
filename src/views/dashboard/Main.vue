@@ -328,7 +328,7 @@
           <v-autocomplete
             multiple
             :items="this.$store.state.itemsDataRoleList"
-            chips
+            small-chips
             item-value="id"
             item-text="name"
             persistent
@@ -572,36 +572,92 @@ export default {
       this.dialogProveedor = true;
       await this._getRole();
     },
-    abrirCorreoSend() {
+    // abrirCorreoSend() {
+    //   const selected = this.lstDatosTarifa.filter((v) => v.selected);
+    //   const to = selected
+    //     .map((v) => v.email)
+    //     .filter((e) => e)
+    //     .join(",");
+    //   let id_incoterms = this.$store.state.pricing.datosPrincipales.idincoterms
+    //     ? this.$store.state.pricing.datosPrincipales.idincoterms
+    //     : "";
+    //   let incoterms = this.$store.state.pricing.listIncoterms.find(
+    //     (v) => v.id == id_incoterms,
+    //   );
+    //   // Cambiamos acentos por letras normales
+    //   const subject = encodeURIComponent(
+    //     "Cotizacion Nro:" + this.$store.state.pricing.nro_quote,
+    //   );
+
+    //   const lineasBody = [
+    //     "Hola colega,",
+    //     "Me ayudas cotizando este embarque:",
+    //     "",
+
+    //     ` INCOTERMS:  ${incoterms.name}          `,
+    //     ` DIRECCION PROVEEDOR:  `,
+    //     ` PESO:  ${this.$store.state.pricing.datosPrincipales.peso || ""} `,
+    //     ` M3:  ${this.$store.state.pricing.datosPrincipales.volumen || ""} `,
+    //     ` COMMODITY:  `,
+    //     "-------------------------------------------",
+    //     "",
+    //     "Saludos cordiales.",
+    //   ];
+
+    //   const body = encodeURIComponent(lineasBody.join("\r\n"));
+    //   window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+    // },
+    async abrirCorreoSend() {
       const selected = this.lstDatosTarifa.filter((v) => v.selected);
       const to = selected
         .map((v) => v.email)
         .filter((e) => e)
         .join(",");
 
-      if (!to) return;
+      const subject = "Cotizacion Nro: " + this.$store.state.pricing.nro_quote;
 
-      // Cambiamos acentos por letras normales
-      const subject = encodeURIComponent(
-        "Cotizacion Nro:" + this.$store.state.pricing.nro_quote,
-      );
+      // 1. Preparamos el HTML de la tabla
+      const tablaHtml = `
+    <div style="font-family: Arial, sans-serif;">
+      <p>Hola colega, me ayudas cotizando este embarque:</p>
+      <table border="1" style="border-collapse: collapse; width: 100%; max-width: 500px;">
+        <tr style="background-color: #eeeeee;">
+          <th style="padding: 8px; border: 1px solid #333;">CONCEPTO</th>
+          <th style="padding: 8px; border: 1px solid #333;">DETALLE</th>
+        </tr>
+        <tr><td style="padding: 8px; border: 1px solid #333;">INCOTERMS</td><td style="padding: 8px; border: 1px solid #333;">EXWORKS</td></tr>
+        <tr><td style="padding: 8px; border: 1px solid #333;">PESO</td><td style="padding: 8px; border: 1px solid #333;">${
+          this.$store.state.pricing.datosPrincipales.peso || ""
+        }</td></tr>
+        <tr><td style="padding: 8px; border: 1px solid #333;">M3</td><td style="padding: 8px; border: 1px solid #333;">${
+          this.$store.state.pricing.datosPrincipales.volumen || ""
+        }</td></tr>
+      </table>
+      <p>Saludos.</p>
+    </div>
+  `;
 
-      const lineasBody = [
-        "Hola,",
-        "",
-        "Te envio la cotizacion solicitada.",
-        "",
-        "Monto: ",
-        "Fecha: ",
-        "",
-        "Puedes ver el detalle aqui:",
-        "",
-        "Quedo atento.",
-        "Saludos",
-      ];
+      try {
+        // 2. Ejecutamos la copia al portapapeles primero
+        const blob = new Blob([tablaHtml], { type: "text/html" });
+        const data = [new ClipboardItem({ ["text/html"]: blob })];
+        await navigator.clipboard.write(data);
 
-      const body = encodeURIComponent(lineasBody.join("\r\n"));
-      window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+        // 3. EL ALERT: Detiene la ejecución hasta que el usuario dé clic
+        // Esto asegura que el usuario sepa que ya se copió
+        alert(
+          "Información de cotización copiada. Al aceptar, se abrirá Outlook. (Luego presiona Ctrl+V)",
+        );
+
+        // 4. ABRIR EL MAIL: Solo ocurre DESPUÉS de cerrar el alert
+        const body = encodeURIComponent("Hola colega, (PEGA LA TABLA AQUÍ)");
+        window.location.href = `mailto:${to}?subject=${encodeURIComponent(
+          subject,
+        )}&body=${body}`;
+      } catch (err) {
+        console.error("Error al copiar:", err);
+        alert("Hubo un problema al copiar los datos automáticamente.");
+      }
     },
     copiarCotizacion() {
       Swal.fire({

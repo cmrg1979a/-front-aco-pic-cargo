@@ -1543,7 +1543,6 @@ const actions = {
       state.datosPrincipales.amount = res.monto;
       // --------------------------------------------------------------
       state.opcionCostos = [];
-      console.log(res.id_status);
       res.opcioncostos.forEach((element) => {
         state.opcionCostos.push({
           id: element.id,
