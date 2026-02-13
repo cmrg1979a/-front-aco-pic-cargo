@@ -62,7 +62,7 @@
                   <v-icon small left>mdi-link-variant</v-icon>
                   Tracking
                 </v-btn>
- 
+
                 <!-- IMPRIMIR -->
                 <v-btn small color="primary" @click="abrirModalFormato()">
                   <v-icon small left>mdi-printer</v-icon>
@@ -78,7 +78,9 @@
                   :loading="loadingBotonNotificaciones"
                   @click="openNotificaciones"
                 >
-                  <v-icon small left style="transform: rotate(-45deg)">mdi-send</v-icon>
+                  <v-icon small left style="transform: rotate(-45deg)"
+                    >mdi-send</v-icon
+                  >
                   Notificaciones
                 </v-btn>
 
@@ -94,12 +96,7 @@
                   <v-icon small left>mdi-content-save</v-icon>
                   Guardar
                 </v-btn>
-                <v-btn
-                  v-else
-                  small
-                  color="info"
-                  @click="irAVerMaster()"
-                >
+                <v-btn v-else small color="info" @click="irAVerMaster()">
                   <v-icon small left>mdi-pencil</v-icon>
                   Editar
                 </v-btn>
@@ -121,14 +118,21 @@
                   icon
                   small
                   color="primary"
-                  @click="_copyEnlaceTracking($store.state.house_enlace_tracking)"
+                  @click="
+                    _copyEnlaceTracking($store.state.house_enlace_tracking)
+                  "
                 >
                   <v-icon small>mdi-content-copy</v-icon>
                 </v-btn>
               </template>
             </v-text-field>
 
-            <v-menu v-model="openMenuNotificaciones" top offset-y content-class="elevation-0">
+            <v-menu
+              v-model="openMenuNotificaciones"
+              top
+              offset-y
+              content-class="elevation-0"
+            >
               <template v-slot:activator="{ on, attrs }">
                 <span v-bind="attrs" v-on="on"></span>
               </template>
@@ -163,7 +167,7 @@
           </v-card>
         </v-col>
       </v-row>
-       <div style="position: fixed; bottom: 16px; right: 16px; z-index: 3000">
+      <div style="position: fixed; bottom: 16px; right: 16px; z-index: 3000">
         <v-fab-transition v-if="formControlHouseReadonly">
           <v-btn
             fab
@@ -217,20 +221,11 @@
             Imprimir
           </v-btn>
 
-
-          <v-btn
-            color="deep-purple"
-            dark
-            @click="openNotificaciones"
-          >
+          <v-btn color="deep-purple" dark @click="openNotificaciones">
             <v-icon left style="transform: rotate(-45deg)">mdi-send</v-icon>
             Notificaciones
           </v-btn>
-          <v-btn
-            color="light-green lighten-1"
-            dark
-            @click="_setHouseEdit()"
-          >
+          <v-btn color="light-green lighten-1" dark @click="_setHouseEdit()">
             <v-icon left>mdi-content-save</v-icon>
             Guardar
           </v-btn>
@@ -238,7 +233,14 @@
       </div>
       <div
         v-if="$store.state.house_enlace_tracking"
-        style="position: fixed; right: 88px; bottom: 16px; z-index: 3500; max-width: 420px; width: calc(100vw - 120px);"
+        style="
+          position: fixed;
+          right: 88px;
+          bottom: 16px;
+          z-index: 3500;
+          max-width: 420px;
+          width: calc(100vw - 120px);
+        "
       >
         <v-text-field
           v-model="$store.state.house_enlace_tracking"
@@ -261,7 +263,12 @@
         </v-text-field>
       </div>
       <!-- Menú de notificaciones reubicado fuera de la tarjeta oculta -->
-      <v-menu v-model="openMenuNotificaciones" top offset-y content-class="elevation-0">
+      <v-menu
+        v-model="openMenuNotificaciones"
+        top
+        offset-y
+        content-class="elevation-0"
+      >
         <template v-slot:activator="{ on, attrs }">
           <span v-bind="attrs" v-on="on"></span>
         </template>
@@ -288,7 +295,7 @@
     </v-container>
 
     <!-- Botones flotantes removidos - ahora en sección de Acciones -->
-    
+
     <!-- Modal para seleccionar formato de impresión -->
     <v-dialog v-model="dialogFormato" max-width="400px">
       <v-card>
@@ -304,11 +311,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn
-            color="success"
-            v-if="isAereo()"
-            @click="exportarFormatoAWB()"
-          >
+          <v-btn color="success" v-if="isAereo()" @click="exportarFormatoAWB()">
             <v-icon left>mdi-printer</v-icon>
             Imprimir Guía Aérea
           </v-btn>
@@ -362,7 +365,11 @@
     <v-dialog v-model="loadingBotonGuardarHouse" persistent max-width="320">
       <v-card class="pa-6 d-flex align-center justify-center" elevation="2">
         <div class="text-center">
-          <v-progress-circular color="primary" indeterminate size="48"></v-progress-circular>
+          <v-progress-circular
+            color="primary"
+            indeterminate
+            size="48"
+          ></v-progress-circular>
           <div class="subtitle-1 mt-4">Guardando cambios...</div>
         </div>
       </v-card>
@@ -390,19 +397,32 @@ export default {
     services,
   },
   watch: {
-    '$store.state.houses.house': function (val) {
+    "$store.state.houses.house": function (val) {
       if (val && (val.nro_hbl || val.consigner)) {
-        const actionLabel = this.$route.name == "controlHouseVer" ? "VER" : "EDITAR";
+        const actionLabel =
+          this.$route.name == "controlHouseVer" ? "VER" : "EDITAR";
         this.$store.state.mainTitle = `N° BL House ${val.nro_hbl || ""} - ${
           val.consigner || ""
         } [${actionLabel}]`;
       }
     },
-    '$store.state.copy_house': function (val) {
-      if (val && (val.nro_hbl || val.consigner || val.consigner_name || val.namelong || val.cliente)) {
-        const actionLabel = this.$route.name == "controlHouseVer" ? "VER" : "EDITAR";
+    "$store.state.copy_house": function (val) {
+      if (
+        val &&
+        (val.nro_hbl ||
+          val.consigner ||
+          val.consigner_name ||
+          val.namelong ||
+          val.cliente)
+      ) {
+        const actionLabel =
+          this.$route.name == "controlHouseVer" ? "VER" : "EDITAR";
         this.$store.state.mainTitle = `N° BL House ${val.nro_hbl || ""} - ${
-          val.consigner || val.consigner_name || val.namelong || val.cliente || ""
+          val.consigner ||
+          val.consigner_name ||
+          val.namelong ||
+          val.cliente ||
+          ""
         } [${actionLabel}]`;
       }
     },
@@ -468,25 +488,26 @@ export default {
       const houseView =
         (this.$store.state.houses && this.$store.state.houses.house) || null;
       if (houseView && (houseView.nro_hbl || houseView.consigner)) {
-        const actionLabel = this.$route.name == "controlHouseVer" ? "VER" : "EDITAR";
+        const actionLabel =
+          this.$route.name == "controlHouseVer" ? "VER" : "EDITAR";
         this.$store.state.mainTitle = `N° BL House ${
           (houseView && houseView.nro_hbl) || ""
-        } - ${
-          (houseView && houseView.consigner) || ""
-        } [${actionLabel}]`;
+        } - ${(houseView && houseView.consigner) || ""} [${actionLabel}]`;
       } else {
         await this._getHouseById();
-        const actionLabel = this.$route.name == "controlHouseVer" ? "VER" : "EDITAR";
+        const actionLabel =
+          this.$route.name == "controlHouseVer" ? "VER" : "EDITAR";
         this.$store.state.mainTitle = `N° BL House ${
           (this.$store.state.copy_house &&
-            this.$store.state.copy_house.nro_hbl) || ""
+            this.$store.state.copy_house.nro_hbl) ||
+          ""
         } - ${
-          (this.$store.state.copy_house &&
-            (this.$store.state.copy_house.consigner ||
-              this.$store.state.copy_house.consigner_name ||
-              this.$store.state.copy_house.namelong ||
-              this.$store.state.copy_house.cliente ||
-              ""))
+          this.$store.state.copy_house &&
+          (this.$store.state.copy_house.consigner ||
+            this.$store.state.copy_house.consigner_name ||
+            this.$store.state.copy_house.namelong ||
+            this.$store.state.copy_house.cliente ||
+            "")
         } [${actionLabel}]`;
       }
 
@@ -514,25 +535,26 @@ export default {
       const houseView =
         (this.$store.state.houses && this.$store.state.houses.house) || null;
       if (houseView && (houseView.nro_hbl || houseView.consigner)) {
-        const actionLabel = this.$route.name == "controlHouseVer" ? "VER" : "EDITAR";
+        const actionLabel =
+          this.$route.name == "controlHouseVer" ? "VER" : "EDITAR";
         this.$store.state.mainTitle = `N° BL House ${
           (houseView && houseView.nro_hbl) || ""
-        } - ${
-          (houseView && houseView.consigner) || ""
-        } [${actionLabel}]`;
+        } - ${(houseView && houseView.consigner) || ""} [${actionLabel}]`;
       } else {
         await this._getHouseById();
-        const actionLabel = this.$route.name == "controlHouseVer" ? "VER" : "EDITAR";
+        const actionLabel =
+          this.$route.name == "controlHouseVer" ? "VER" : "EDITAR";
         this.$store.state.mainTitle = `N° BL House ${
           (this.$store.state.copy_house &&
-            this.$store.state.copy_house.nro_hbl) || ""
+            this.$store.state.copy_house.nro_hbl) ||
+          ""
         } - ${
-          (this.$store.state.copy_house &&
-            (this.$store.state.copy_house.consigner ||
-              this.$store.state.copy_house.consigner_name ||
-              this.$store.state.copy_house.namelong ||
-              this.$store.state.copy_house.cliente ||
-              ""))
+          this.$store.state.copy_house &&
+          (this.$store.state.copy_house.consigner ||
+            this.$store.state.copy_house.consigner_name ||
+            this.$store.state.copy_house.namelong ||
+            this.$store.state.copy_house.cliente ||
+            "")
         } [${actionLabel}]`;
       }
 
@@ -606,7 +628,10 @@ export default {
 
         const link = document.createElement("a");
         link.href = window.URL.createObjectURL(blob);
-        const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, -5);
+        const timestamp = new Date()
+          .toISOString()
+          .replace(/[:.]/g, "-")
+          .slice(0, -5);
         const filename = `formato_awb_${timestamp}.xlsx`;
         link.download = filename;
         link.click();
@@ -643,7 +668,10 @@ export default {
 
         const link = document.createElement("a");
         link.href = window.URL.createObjectURL(blob);
-        const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, -5);
+        const timestamp = new Date()
+          .toISOString()
+          .replace(/[:.]/g, "-")
+          .slice(0, -5);
         const filename = `formato_bl_${timestamp}.xlsx`;
         link.download = filename;
         link.click();
@@ -696,7 +724,7 @@ export default {
             vm.$store.state.house_enlace_tracking =
               "https://aco.agentedecargaonline.com/tracking/" +
               response.data.data[0].token;
-            
+
             vm.$swal({
               icon: "success",
               title: "Éxito",
@@ -1151,7 +1179,7 @@ export default {
       if (
         !vm.itemsShipment.filter(
           (v) =>
-            v.id == vm.$store.state.copy_house.id_shipment && v.code == "FCL"
+            v.id == vm.$store.state.copy_house.id_shipment && v.code == "FCL",
         ).length
       ) {
         if (!vm.$store.state.copy_house.bultos) {
@@ -1299,12 +1327,13 @@ export default {
         },
         data: data,
       };
-
+      let html = "";
       await axios(config)
         .then(function (response) {
           // console.log(response)
           sessionStorage.setItem("auth-token", response.data.token);
-
+          html = response.data.data[0].html;
+          console.log(html);
           if (response.data.status == "401") {
             Swal.fire({
               icon: "error",
@@ -1322,11 +1351,11 @@ export default {
             });
           } else {
             vm.abrirModalCuentasNotificacion = false;
-            vm.$swal({
-              icon: "success",
-              title: "Excelente",
-              text: "Notificación enviada éxitosamente",
-            });
+            // vm.$swal({
+            //   icon: "success",
+            //   title: "Excelente",
+            //   text: "Notificación enviada éxitosamente",
+            // });
           }
         })
         .catch(function (error) {
@@ -1337,7 +1366,23 @@ export default {
             text: error,
           });
         })
-        .finally(function () {
+        .finally(async function () {
+          const blob = new Blob([html], { type: "text/html" });
+          const data = [new ClipboardItem({ ["text/html"]: blob })];
+          await navigator.clipboard.write(data);
+          alert(
+            "Información de copiada. Al aceptar, se abrirá Proveedor de Corre. (Luego presiona Ctrl+V)",
+          );
+          let subject = `Notificación: ${notificacion.title} - House BL: ${
+            vm.$store.state.copy_house.nro_hbl
+              ? vm.$store.state.copy_house.nro_hbl
+              : ""
+          }`;
+          // 4. ABRIR EL MAIL: Solo ocurre DESPUÉS de cerrar el alert
+          const body = encodeURIComponent("CONTROL + V (PEGA LA TABLA AQUÍ)");
+          window.location.href = `mailto:${
+            vm.$store.state.copy_house.emailaddress_clientefinal
+          }?subject=${encodeURIComponent(subject)}&body=${body}`;
           vm.loadingBotonNotificaciones = !vm.loadingBotonNotificaciones;
         });
     },
