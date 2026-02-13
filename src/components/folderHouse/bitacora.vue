@@ -115,11 +115,10 @@
 
       <v-row>
         <v-col cols="12">
-          <v-simple-table dense fixed-header height="400px">
+          <v-simple-table dense fixed-header>
             <template v-slot:default>
               <thead>
                 <tr>
-                  <!-- <th class="text-left">Grupo</th> -->
                   <th class="text-left">Nombre</th>
                   <th class="text-left">Comentario</th>
                   <th class="text-left">Fecha</th>
@@ -128,8 +127,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="item in $store.state.itemsBitacora" :key="item.id">
-                  <!-- <td>{{ item.namemodule }}</td> -->
+                <tr v-for="item in bitacoraLimitada" :key="item.id">
                   <td>{{ item.namebitacora }}</td>
                   <td>{{ item.comentario }}</td>
                   <td>{{ item.date }}</td>
@@ -157,7 +155,70 @@
             </template>
           </v-simple-table>
         </v-col>
+        <v-col cols="12" class="text-center" v-if="mostrarBotonVerMas">
+          <v-btn small color="primary" outlined @click="dialogVerTodos = true">
+            Ver más ({{ totalRegistros }} registros)
+          </v-btn>
+        </v-col>
       </v-row>
+
+      <!-- Modal para ver todos los registros -->
+      <v-dialog v-model="dialogVerTodos" max-width="900px" scrollable>
+        <v-card>
+          <v-card-title>
+            Todos los registros de bitácora
+            <v-spacer></v-spacer>
+            <v-btn icon @click="dialogVerTodos = false">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+          </v-card-title>
+          <v-card-text style="max-height: 500px;">
+            <v-simple-table dense fixed-header>
+              <template v-slot:default>
+                <thead>
+                  <tr>
+                    <th class="text-left">Nombre</th>
+                    <th class="text-left">Comentario</th>
+                    <th class="text-left">Fecha</th>
+                    <th class="text-left">Visible/No Visible</th>
+                    <th class="text-left">Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="item in bitacoraOrdenada" :key="item.id">
+                    <td>{{ item.namebitacora }}</td>
+                    <td>{{ item.comentario }}</td>
+                    <td>{{ item.date }}</td>
+                    <td>
+                      <v-switch
+                        dense
+                        color="primary"
+                        v-model="item.visible_cliente"
+                        @click="_changeStatusVisibleBitacora(item)"
+                        :disabled="isFormActionsDisabled"
+                      ></v-switch>
+                    </td>
+                    <td class="text-center">
+                      <v-icon
+                        class="btn_add"
+                        dense
+                        color="red"
+                        @click.native="_deleteBitacora(item.id)"
+                        :disabled="isFormActionsDisabled"
+                        >mdi-delete</v-icon
+                      >
+                    </td>
+                  </tr>
+                </tbody>
+              </template>
+            </v-simple-table>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="primary" text @click="dialogVerTodos = false">Cerrar</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
       <!-- Botones de Tracking movidos a sección de Acciones en controlHouse.vue -->
     </v-container>
 
@@ -479,6 +540,7 @@ export default {
     id_modality: "",
     id_shipment: "",
     dialog: false,
+    dialogVerTodos: false,
     errorInconterms: "",
     name: "",
   }),
@@ -486,6 +548,23 @@ export default {
     ...mapState("statushouse", ["listStatusHouse", "orden"]),
     isBotonBitacoraDisabled: function () {
       return this.isFormActionsDisabled || this.disabledBotonBitacora;
+    },
+    bitacoraOrdenada: function () {
+      var items = this.$store.state.itemsBitacora || [];
+      return items.slice().sort(function (a, b) {
+        var dateA = new Date(a.date);
+        var dateB = new Date(b.date);
+        return dateB - dateA;
+      });
+    },
+    bitacoraLimitada: function () {
+      return this.bitacoraOrdenada.slice(0, 3);
+    },
+    totalRegistros: function () {
+      return (this.$store.state.itemsBitacora || []).length;
+    },
+    mostrarBotonVerMas: function () {
+      return this.totalRegistros > 3;
     },
     iraComentarioManual() {
       this.$store.state.bitacora_comentario_flag = true;

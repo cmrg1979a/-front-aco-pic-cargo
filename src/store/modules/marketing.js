@@ -15,7 +15,14 @@ const mutations = {
     state.loading = data;
   },
   SET_LIST_MARKETING(state, data) {
-    state.list = data;
+    var sorted = (data || []).slice().sort(function(a, b) {
+      var nameA = (a.name || '').toLowerCase();
+      var nameB = (b.name || '').toLowerCase();
+      if (nameA < nameB) return -1;
+      if (nameA > nameB) return 1;
+      return 0;
+    });
+    state.list = sorted;
   },
   SET_MARKETING(state, data) {
     state.record = data;

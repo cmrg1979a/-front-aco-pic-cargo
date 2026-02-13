@@ -427,7 +427,14 @@ const mutations = {
     state.listCall = data;
   },
   SET_LIST_MARKETING(state, data) {
-    state.listMarketing = data;
+    var sorted = (data || []).slice().sort(function(a, b) {
+      var nameA = (a.name || '').toLowerCase();
+      var nameB = (b.name || '').toLowerCase();
+      if (nameA < nameB) return -1;
+      if (nameA > nameB) return 1;
+      return 0;
+    });
+    state.listMarketing = sorted;
   },
   SET_LIST_QUOTE_STATUS(state, data) {
     state.listQuoteStatus = data;
