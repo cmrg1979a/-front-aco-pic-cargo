@@ -230,8 +230,17 @@
         "
         @click="ira('EditarAduana', $route.params.id)"
       >
-        EDITAR
+        <v-icon>mdi-account-tie-hat</v-icon> EDITAR
       </v-btn>
+
+      <!-- <v-btn
+        color="#009688"
+        dark
+        @click="abrirModalPilotoAutomatico()"
+        v-if="getNameUrl() == 'editQuote' && $store.state.pricing.step == 2"
+      >
+        COTIZAR PILOTO AUTOMATICO
+      </v-btn> -->
       <v-spacer v-if="getNameUrl() == 'controlMasterEditar'"></v-spacer>
       <v-btn
         color="#009688"
@@ -366,12 +375,33 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog
+      v-model="dialogPilotoAutomatico"
+      scrollable
+      persistent
+      max-width="75%"
+    >
+      <v-card v-if="dialogPilotoAutomatico">
+        <v-card-title primary-title>
+          COTIZACIÓN PILOTO AUTOMÁTICO
+          <v-spacer></v-spacer>
+          <v-btn color="info" icon @click="dialogPilotoAutomatico = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+        <v-card-text>
+          <CotizacionPilotoAutomatico />
+        </v-card-text>
+        <!-- <v-card-actions> </v-card-actions> -->
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
 <script>
 import leftMenu from "@/components/leftMenu";
 import listMenu from "@/components/listMenu";
+import CotizacionPilotoAutomatico from "@/components/folderPricing/CotizacionPilotoAutomatico.vue";
 import { Store, mapActions } from "vuex";
 import mixins from "@/components/mixins/funciones";
 import Swal from "sweetalert2";
@@ -402,6 +432,7 @@ export default {
       adminAuthLoading: false,
       adminAuthError: "",
       dialogProveedor: false,
+      dialogPilotoAutomatico: false,
       idRole: [],
       lstDatosTarifa: [],
     };
@@ -410,6 +441,7 @@ export default {
     leftMenu,
     listMenu,
     LoadingComponent,
+    CotizacionPilotoAutomatico,
   },
   async mounted() {
     let urlPricing = ["newQuote", "verQuote", "editQuote"];
@@ -1474,26 +1506,19 @@ export default {
         vm.$store.state.spiner = false;
       }
     },
+    abrirModalPilotoAutomatico() {
+      this.dialogPilotoAutomatico = true;
+    },
   },
   watch: {
     async idRole() {
+      console.log("ssss");
       let id_proveedores = [];
       let lstDatosTarifa = [];
       if (this.idRole.length == 0) {
         return;
       }
-      let opcionCostos = [...this.$store.state.pricing.opcionCostos];
-      opcionCostos.forEach((opcion) => {
-        let listCostos = opcion.listCostos;
-        listCostos.forEach((costo) => {
-          if (
-            this.idRole.includes(costo.id_role) &&
-            !id_proveedores.includes(costo.id_proveedor)
-          ) {
-            id_proveedores.push(costo.id_proveedor);
-          }
-        });
-      });
+      console.log("idRole", this.idRole);
       const config = {
         method: "get",
         url: process.env.VUE_APP_URL_MAIN + "entities/obtener_datos_tarifa",
@@ -1503,7 +1528,7 @@ export default {
         },
         params: {
           id_modality: this.$store.state.pricing.datosPrincipales.idsentido,
-          id_proveedores: id_proveedores,
+          id_roles: this.idRole.join(","),
         },
       };
 
