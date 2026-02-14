@@ -7,6 +7,7 @@ import masterusuario from "./masterusuario";
 import enterprise from "./enterprise";
 import modules from "./../index";
 const state = {
+  step: 1,
   preServices: [],
   preCostos: [],
   itemsDataRoleList: [],

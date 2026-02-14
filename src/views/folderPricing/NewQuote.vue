@@ -29,6 +29,7 @@
                   <DatosPrincipales
                     @recargarServiciosCostos="recargar"
                     @activarDatosCarga="activarDatosCarga"
+                    :recargarFlag="DatosCargaComponentFlag"
                   />
                 </v-col>
               </v-row>
@@ -48,7 +49,6 @@
               />
             </v-col>
           </v-row>
-        
 
           <!-- <v-btn color="primary" @click="step = 2"> Continue </v-btn>
 
@@ -107,6 +107,7 @@ export default {
     };
   },
   async mounted() {
+    this.$store.state.pricing.step = 1;
     this.$store.commit("SET_RESET");
     this.$store.state.mainTitle = "Nueva Cotización";
     Promise.all([
@@ -182,6 +183,7 @@ export default {
     },
     continuarComparativa() {
       this.step = 3;
+      this.$store.state.pricing.step = 3;
     },
     async activarDatosCarga() {
       this.$store.state.spiner = true;
@@ -218,7 +220,7 @@ export default {
           v.id_modality ==
             this.$store.state.pricing.datosPrincipales.idsentido &&
           v.id_shipment ==
-            this.$store.state.pricing.datosPrincipales.idtipocarga.id
+            this.$store.state.pricing.datosPrincipales.idtipocarga.id,
       );
       this.getTipoCostos();
       this.$store.state.pricing.listServices = serv;
@@ -244,7 +246,7 @@ export default {
           v.id_modality ==
             this.$store.state.pricing.datosPrincipales.idsentido &&
           v.id_shipment ==
-            this.$store.state.pricing.datosPrincipales.idtipocarga.id
+            this.$store.state.pricing.datosPrincipales.idtipocarga.id,
       );
       // eliminando los servicios que ya no van
       let IdServices = serv.map((v) => v.id);
@@ -253,14 +255,14 @@ export default {
         .forEach((servicios) => {
           if (!IdServices.includes(servicios.id)) {
             let index = this.$store.state.pricing.listServices.findIndex(
-              (v) => v.code_service == servicios.code_service
+              (v) => v.code_service == servicios.code_service,
             );
             this.$store.state.pricing.listServices.splice(index, 1);
           }
         });
       // agregando los servicios que faltan
       IdServices = this.$store.state.pricing.listServices.map(
-        (v) => v.code_service
+        (v) => v.code_service,
       );
 
       serv.forEach((servicios) => {
@@ -277,7 +279,7 @@ export default {
       let codeServicesActivos = new Set(
         this.$store.state.pricing.listServices
           .filter((v) => v.status === true || v.status === 1)
-          .map((v) => v.code_service)
+          .map((v) => v.code_service),
       );
 
       let costos = [...this.$store.state.pricing.preCostos];
@@ -290,13 +292,13 @@ export default {
             this.$store.state.pricing.datosPrincipales.idsentido &&
           v.id_shipment ==
             this.$store.state.pricing.datosPrincipales.idtipocarga.id &&
-          codeServicesActivos.has(v.code_service)
+          codeServicesActivos.has(v.code_service),
       );
 
       let idContainer = [];
       if (this.$store.state.pricing.datosPrincipales.containers.length > 0) {
         idContainer = this.$store.state.pricing.datosPrincipales.containers.map(
-          (v) => v.id
+          (v) => v.id,
         );
         console.log("ID de Containers:", idContainer);
       }
@@ -369,6 +371,7 @@ export default {
       }).then(async (result) => {
         if (result.isConfirmed) {
           this.step = 2;
+          this.$store.state.pricing.step = 2;
           this.editableStep2 = true;
         }
         if (result.isDenied) {
@@ -429,7 +432,7 @@ export default {
       let codeServicesActivos = new Set(
         this.$store.state.pricing.listServices
           .filter((v) => v.status === true || v.status === 1)
-          .map((v) => v.code_service)
+          .map((v) => v.code_service),
       );
       let costos = [...this.$store.state.pricing.preCostos];
       let c = costos.filter(
@@ -440,12 +443,12 @@ export default {
             this.$store.state.pricing.datosPrincipales.idsentido &&
           v.id_shipment ==
             this.$store.state.pricing.datosPrincipales.idtipocarga.id &&
-          codeServicesActivos.has(v.code_service)
+          codeServicesActivos.has(v.code_service),
       );
       let idContainer = [];
       if (this.$store.state.pricing.datosPrincipales.containers.length > 0) {
         idContainer = this.$store.state.pricing.datosPrincipales.containers.map(
-          (v) => v.id
+          (v) => v.id,
         );
         console.log("ID de Containers:", idContainer);
       }
@@ -512,7 +515,7 @@ export default {
       let codeServicesActivos = new Set(
         this.$store.state.pricing.listServices
           .filter((v) => v.status === true || v.status === 1)
-          .map((v) => v.code_service)
+          .map((v) => v.code_service),
       );
 
       let c = this.$store.state.pricing.preCostos.filter(
@@ -523,12 +526,12 @@ export default {
             this.$store.state.pricing.datosPrincipales.idsentido &&
           v.id_shipment ===
             this.$store.state.pricing.datosPrincipales.idtipocarga.id &&
-          codeServicesActivos.has(v.code_service)
+          codeServicesActivos.has(v.code_service),
       );
       let idContainer = [];
       if (this.$store.state.pricing.datosPrincipales.containers.length > 0) {
         idContainer = this.$store.state.pricing.datosPrincipales.containers.map(
-          (v) => v.id
+          (v) => v.id,
         );
       }
 
@@ -592,9 +595,11 @@ export default {
     },
     irVentaCliente() {
       this.step = 2;
+      this.$store.state.pricing.step = 2;
     },
     irANotas() {
       this.step = 4;
+      this.$store.state.pricing.step = 4;
       this.editableStep4 = true;
       this.$store.state.pricing.btnRegistrar = true;
     },
@@ -640,83 +645,157 @@ export default {
         }
         return -1;
       };
-      const row = rows.slice(1).find((r) => (r || []).some((v) => norm(v) !== "")) || rows[1];
+      const row =
+        rows.slice(1).find((r) => (r || []).some((v) => norm(v) !== "")) ||
+        rows[1];
       let cambios = 0;
       const sp = this.$store.state.pricing;
 
       const idxMarketing = findIdx("marketing", "tipo de marketing");
-      const idxStatus = findIdx("status", "estado", "estado de la cotizacion", "estado de la cotización");
+      const idxStatus = findIdx(
+        "status",
+        "estado",
+        "estado de la cotizacion",
+        "estado de la cotización",
+      );
       const idxEjecutivo = findIdx("ejecutivo", "vendedor");
       const idxPricing = findIdx("pricing", "analista pricing");
-      const idxCliente = findIdx("cliente", "nombre cliente", "razon social", "razón social");
+      const idxCliente = findIdx(
+        "cliente",
+        "nombre cliente",
+        "razon social",
+        "razón social",
+      );
       const idxTelefono = findIdx("telefono", "teléfono");
       const idxSentido = findIdx("sentido", "modality", "modalidad");
       const idxShipment = findIdx("tipo de embarque", "embarque", "shipment");
       const idxIncoterms = findIdx("incoterms", "incoterm");
       const idxProveedor = findIdx("proveedor", "nombre proveedor");
-      const idxTelProveedor = findIdx("telefono proveedor", "teléfono proveedor");
-      const idxDirProveedor = findIdx("direccion proveedor", "dirección proveedor");
+      const idxTelProveedor = findIdx(
+        "telefono proveedor",
+        "teléfono proveedor",
+      );
+      const idxDirProveedor = findIdx(
+        "direccion proveedor",
+        "dirección proveedor",
+      );
 
       if (idxMarketing > -1) {
         const val = norm(row[idxMarketing]);
         const it = (sp.listMarketing || []).find((x) => norm(x.name) === val);
-        if (it) { sp.datosPrincipales.id_marketing = it.id; cambios++; }
+        if (it) {
+          sp.datosPrincipales.id_marketing = it.id;
+          cambios++;
+        }
       }
       if (idxStatus > -1) {
         const val = norm(row[idxStatus]);
         const it = (sp.listQuoteStatus || []).find((x) => norm(x.name) === val);
-        if (it) { sp.datosPrincipales.id_status = it.id; cambios++; }
+        if (it) {
+          sp.datosPrincipales.id_status = it.id;
+          cambios++;
+        }
       }
       if (idxEjecutivo > -1) {
         const val = norm(row[idxEjecutivo]);
-        const it = (sp.listEjecutivo || []).find((x) => norm(x.nombrecompleto) === val);
-        if (it) { sp.datosPrincipales.id_vendedor = it.id; cambios++; }
+        const it = (sp.listEjecutivo || []).find(
+          (x) => norm(x.nombrecompleto) === val,
+        );
+        if (it) {
+          sp.datosPrincipales.id_vendedor = it.id;
+          cambios++;
+        }
       }
       if (idxPricing > -1) {
         const val = norm(row[idxPricing]);
-        const it = (sp.listEjecutivo || []).find((x) => norm(x.nombrecompleto) === val);
-        if (it) { sp.datosPrincipales.id_pricing = it.id; cambios++; }
+        const it = (sp.listEjecutivo || []).find(
+          (x) => norm(x.nombrecompleto) === val,
+        );
+        if (it) {
+          sp.datosPrincipales.id_pricing = it.id;
+          cambios++;
+        }
       }
       if (idxCliente > -1) {
         const val = row[idxCliente];
-        if (norm(val) !== "") { sp.datosPrincipales.nombre = String(val); cambios++; }
+        if (norm(val) !== "") {
+          sp.datosPrincipales.nombre = String(val);
+          cambios++;
+        }
       }
       if (idxTelefono > -1) {
         const val = row[idxTelefono];
-        if (norm(val) !== "") { sp.datosPrincipales.telefono = String(val); cambios++; }
+        if (norm(val) !== "") {
+          sp.datosPrincipales.telefono = String(val);
+          cambios++;
+        }
       }
       if (idxSentido > -1) {
         const val = norm(row[idxSentido]);
-        const it = (sp.listModality || []).find((x) => norm(x.name) === val || norm(x.name).includes(val) || val.includes(norm(x.name)));
-        if (it) { sp.datosPrincipales.idsentido = it.id; cambios++; }
+        const it = (sp.listModality || []).find(
+          (x) =>
+            norm(x.name) === val ||
+            norm(x.name).includes(val) ||
+            val.includes(norm(x.name)),
+        );
+        if (it) {
+          sp.datosPrincipales.idsentido = it.id;
+          cambios++;
+        }
       }
       if (idxShipment > -1) {
         const val = norm(row[idxShipment]);
-        const it = (sp.listShipment || []).find((x) => norm(x.embarque) === val || norm(x.embarque).includes(val) || val.includes(norm(x.embarque)));
-        if (it) { sp.datosPrincipales.idtipocarga = it; cambios++; }
+        const it = (sp.listShipment || []).find(
+          (x) =>
+            norm(x.embarque) === val ||
+            norm(x.embarque).includes(val) ||
+            val.includes(norm(x.embarque)),
+        );
+        if (it) {
+          sp.datosPrincipales.idtipocarga = it;
+          cambios++;
+        }
       }
       if (idxIncoterms > -1) {
         const val = norm(row[idxIncoterms]);
-        const it = (sp.listIncoterms || []).find((x) => norm(x.name) === val || norm(x.text || "") === val);
-        if (it) { sp.datosPrincipales.idincoterms = it.id; cambios++; }
+        const it = (sp.listIncoterms || []).find(
+          (x) => norm(x.name) === val || norm(x.text || "") === val,
+        );
+        if (it) {
+          sp.datosPrincipales.idincoterms = it.id;
+          cambios++;
+        }
       }
       if (idxProveedor > -1) {
         const val = row[idxProveedor];
-        if (norm(val) !== "") { sp.datosPrincipales.proveedor = String(val); cambios++; }
+        if (norm(val) !== "") {
+          sp.datosPrincipales.proveedor = String(val);
+          cambios++;
+        }
       }
       if (idxTelProveedor > -1) {
         const val = row[idxTelProveedor];
-        if (norm(val) !== "") { sp.datosPrincipales.telefonoproveedor = String(val); cambios++; }
+        if (norm(val) !== "") {
+          sp.datosPrincipales.telefonoproveedor = String(val);
+          cambios++;
+        }
       }
       if (idxDirProveedor > -1) {
         const val = row[idxDirProveedor];
-        if (norm(val) !== "") { sp.datosPrincipales.direccionproveedor = String(val); cambios++; }
+        if (norm(val) !== "") {
+          sp.datosPrincipales.direccionproveedor = String(val);
+          cambios++;
+        }
       }
       return { actualizados: cambios };
     },
     async ensurePreliminarStatus() {
       const estados = this.$store.state.pricing.listQuoteStatus || [];
-      const existe = estados.some((e) => typeof e.name === "string" && e.name.toLowerCase().includes("preliminar"));
+      const existe = estados.some(
+        (e) =>
+          typeof e.name === "string" &&
+          e.name.toLowerCase().includes("preliminar"),
+      );
       if (existe) return;
       await this.createPreliminarStatus();
     },
@@ -724,7 +803,8 @@ export default {
       try {
         await this.$store.dispatch("MaxPositionQuoteStatus");
         const max = this.$store.state.QuoteStatus;
-        const id_branch = JSON.parse(sessionStorage.getItem("dataUser"))[0].id_branch;
+        const id_branch = JSON.parse(sessionStorage.getItem("dataUser"))[0]
+          .id_branch;
         this.$store.state.QuoteStatus.StatusModel = {
           id: "",
           name: "PRELIMINAR",
@@ -745,10 +825,20 @@ export default {
     setDefaultStatusPreliminar() {
       const estados = this.$store.state.pricing.listQuoteStatus || [];
       if (!Array.isArray(estados) || estados.length === 0) return;
-      const prelim = estados.find((e) => typeof e.name === "string" && e.name.toLowerCase().includes("preliminar") && e.status == 1);
-      if (prelim) { this.$store.state.pricing.datosPrincipales.id_status = prelim.id; return; }
+      const prelim = estados.find(
+        (e) =>
+          typeof e.name === "string" &&
+          e.name.toLowerCase().includes("preliminar") &&
+          e.status == 1,
+      );
+      if (prelim) {
+        this.$store.state.pricing.datosPrincipales.id_status = prelim.id;
+        return;
+      }
       const activo = estados.find((e) => e.status == 1) || estados[0];
-      if (activo) { this.$store.state.pricing.datosPrincipales.id_status = activo.id; }
+      if (activo) {
+        this.$store.state.pricing.datosPrincipales.id_status = activo.id;
+      }
     },
     async emitirPreliminarAuto() {
       this.$store.state.pricing.opcionCostos[0].selected = true;
