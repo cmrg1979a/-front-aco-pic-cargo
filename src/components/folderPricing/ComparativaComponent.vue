@@ -846,7 +846,7 @@ export default {
   },
   watch: {
     async actualizarComparativa() {
-      console.log("comparativa");
+      
 
       setTimeout(async () => {
         await this.calcularTotalesOpciones();

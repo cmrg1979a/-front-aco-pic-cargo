@@ -140,7 +140,7 @@ export default {
     this.$store.state.mainTitle = `EDITAR  COTIZACIÓN - ${this.$store.state.pricing.nro_quote}`;
 
     let idTipoCarga = this.$store.state.pricing.listShipment.filter(
-      (v) => v.id == this.$store.state.pricing.datosPrincipales.idtipocarga
+      (v) => v.id == this.$store.state.pricing.datosPrincipales.idtipocarga,
     )[0].id_transport;
     //
     let opciones = [...this.$store.state.pricing.opcionCostos];
@@ -172,7 +172,7 @@ export default {
     ]);
     let TimeFin = Date.now();
     let time = TimeFin - TimeInicio;
-    console.log(time / 1000);
+
     this.mostrarStepS = true;
     this.$store.state.pricing.llenadoCostos = false;
     await Promise.all([
@@ -247,7 +247,7 @@ export default {
           v.id_modality ==
             this.$store.state.pricing.datosPrincipales.idsentido &&
           v.id_shipment ==
-            this.$store.state.pricing.datosPrincipales.idtipocarga.id
+            this.$store.state.pricing.datosPrincipales.idtipocarga.id,
       );
       this.$store.state.pricing.listServices = serv;
       await this.getTipoCostos();
@@ -268,7 +268,7 @@ export default {
             (typeof this.$store.state.pricing.datosPrincipales.idtipocarga ===
             "object"
               ? this.$store.state.pricing.datosPrincipales.idtipocarga.id
-              : this.$store.state.pricing.datosPrincipales.idtipocarga)
+              : this.$store.state.pricing.datosPrincipales.idtipocarga),
       );
 
       let IdServices = serv.map((v) => v.id);
@@ -277,14 +277,14 @@ export default {
         .forEach((servicios) => {
           if (!IdServices.includes(servicios.id)) {
             let index = this.$store.state.pricing.listServices.findIndex(
-              (v) => v.code_service == servicios.code_service
+              (v) => v.code_service == servicios.code_service,
             );
             this.$store.state.pricing.listServices.splice(index, 1);
           }
         });
 
       IdServices = this.$store.state.pricing.listServices.map(
-        (v) => v.code_service
+        (v) => v.code_service,
       );
 
       serv.forEach((servicios) => {
@@ -301,7 +301,7 @@ export default {
       let codeServicesActivos = new Set(
         this.$store.state.pricing.listServices
           .filter((v) => v.status === true || v.status === 1)
-          .map((v) => v.code_service)
+          .map((v) => v.code_service),
       );
 
       let costos = [...this.$store.state.pricing.preCostos];
@@ -314,13 +314,13 @@ export default {
             this.$store.state.pricing.datosPrincipales.idsentido &&
           v.id_shipment ==
             this.$store.state.pricing.datosPrincipales.idtipocarga.id &&
-          codeServicesActivos.has(Number(v.code_service))
+          codeServicesActivos.has(Number(v.code_service)),
       );
 
       let idContainer = [];
       if (this.$store.state.pricing.datosPrincipales.containers.length > 0) {
         idContainer = this.$store.state.pricing.datosPrincipales.containers.map(
-          (v) => v.id
+          (v) => v.id,
         );
       }
 
@@ -382,7 +382,7 @@ export default {
       let codeServicesActivos = new Set(
         this.$store.state.pricing.listServices
           .filter((v) => v.status === true || v.status === 1)
-          .map((v) => v.code_service)
+          .map((v) => v.code_service),
       );
       let costos = [...this.$store.state.pricing.preCostos];
       let c = costos.filter(
@@ -393,12 +393,12 @@ export default {
             this.$store.state.pricing.datosPrincipales.idsentido &&
           v.id_shipment ==
             this.$store.state.pricing.datosPrincipales.idtipocarga.id &&
-          codeServicesActivos.has(Number(v.code_service))
+          codeServicesActivos.has(Number(v.code_service)),
       );
       let idContainer = [];
       if (this.$store.state.pricing.datosPrincipales.containers.length > 0) {
         idContainer = this.$store.state.pricing.datosPrincipales.containers.map(
-          (v) => v.id
+          (v) => v.id,
         );
       }
       let cFiltrado = c.filter((v) => {
@@ -462,7 +462,7 @@ export default {
       let codeServicesActivos = new Set(
         this.$store.state.pricing.listServices
           .filter((v) => v.status === true || v.status === 1)
-          .map((v) => v.code_service)
+          .map((v) => v.code_service),
       );
 
       let id_shipment = this.$store.state.pricing.datosPrincipales.idtipocarga;
@@ -477,13 +477,13 @@ export default {
           v.id_modality ===
             this.$store.state.pricing.datosPrincipales.idsentido &&
           v.id_shipment === id_shipment &&
-          codeServicesActivos.has(Number(v.code_service))
+          codeServicesActivos.has(Number(v.code_service)),
       );
 
       let idContainer = [];
       if (this.$store.state.pricing.datosPrincipales.containers.length > 0) {
         idContainer = this.$store.state.pricing.datosPrincipales.containers.map(
-          (v) => v.id_containers
+          (v) => v.id_containers,
         );
       }
 
@@ -537,7 +537,7 @@ export default {
         let costosValidos = listCostosActual.filter(
           (costo) =>
             !costo.code_cost ||
-            cDuplicado.some((nuevo) => nuevo.code_cost === costo.code_cost)
+            cDuplicado.some((nuevo) => nuevo.code_cost === costo.code_cost),
         );
 
         let nuevosCostos = cDuplicado
@@ -546,8 +546,8 @@ export default {
               !costosValidos.some(
                 (costo) =>
                   costo.code_cost === nuevo.code_cost &&
-                  costo.id_multiplicador === nuevo.id_multiplicador
-              )
+                  costo.id_multiplicador === nuevo.id_multiplicador,
+              ),
           )
           .map((nuevo) => ({
             ...nuevo,
@@ -577,7 +577,7 @@ export default {
             (this.$store.state.pricing.datosPrincipales.idtipocarga.id
               ? this.$store.state.pricing.datosPrincipales.idtipocarga.id
               : this.$store.state.pricing.datosPrincipales.idtipocarga) &&
-          v.code == "FCL"
+          v.code == "FCL",
       );
       Swal.fire({
         icon: "success",
