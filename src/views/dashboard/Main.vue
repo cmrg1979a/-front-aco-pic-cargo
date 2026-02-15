@@ -233,14 +233,14 @@
         <v-icon>mdi-account-tie-hat</v-icon> EDITAR
       </v-btn>
 
-      <!-- <v-btn
+      <v-btn
         color="#009688"
         dark
         @click="abrirModalPilotoAutomatico()"
         v-if="getNameUrl() == 'editQuote' && $store.state.pricing.step == 2"
       >
         COTIZAR PILOTO AUTOMATICO
-      </v-btn> -->
+      </v-btn>
       <v-spacer v-if="getNameUrl() == 'controlMasterEditar'"></v-spacer>
       <v-btn
         color="#009688"
@@ -343,8 +343,8 @@
             persistent
             outlined
             label="Tipo Proveedor"
-            dense
             v-model="idRole"
+            :loading="this.$store.state.itemsDataRoleList.length == 0"
           >
           </v-autocomplete>
           <v-simple-table>
@@ -600,9 +600,32 @@ export default {
       }
     },
     async abrirCorreo() {
+      let codeLCL = [9017];
+      let codeFCL = [9017, 9001, 9002];
+      let codeAereo = [9017, 9024];
       this.idRole = [];
       this.dialogProveedor = true;
       await this._getRole();
+      let code = this.$store.state.pricing.listShipment.find(
+        (v) => v.id == this.$store.state.pricing.datosPrincipales.idtipocarga,
+      ).code;
+      switch (code) {
+        case "LCL":
+          this.idRole = this.$store.state.itemsDataRoleList
+            .filter((v) => codeLCL.includes(v.code))
+            .map((v) => v.id);
+          break;
+        case "FCL":
+          this.idRole = this.$store.state.itemsDataRoleList
+            .filter((v) => codeFCL.includes(v.code))
+            .map((v) => v.id);
+          break;
+        case "Aéreo":
+          this.idRole = this.$store.state.itemsDataRoleList
+            .filter((v) => codeAereo.includes(v.code))
+            .map((v) => v.id);
+          break;
+      }
     },
     // abrirCorreoSend() {
     //   const selected = this.lstDatosTarifa.filter((v) => v.selected);
@@ -1512,13 +1535,10 @@ export default {
   },
   watch: {
     async idRole() {
-      console.log("ssss");
-      let id_proveedores = [];
-      let lstDatosTarifa = [];
+      this.lstDatosTarifa = [];
       if (this.idRole.length == 0) {
         return;
       }
-      console.log("idRole", this.idRole);
       const config = {
         method: "get",
         url: process.env.VUE_APP_URL_MAIN + "entities/obtener_datos_tarifa",
