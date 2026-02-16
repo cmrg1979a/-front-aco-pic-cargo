@@ -23,8 +23,9 @@
           <v-simple-table dense>
             <thead>
               <tr>
-                <th width="12%">House</th>
-                <th width="24%">Consignatario</th>
+                <th width="10%">House</th>
+                <th width="10%">Cotización</th>
+                <th width="22%">Consignatario</th>
                 <th width="12%" style="background: #d6f4ff">Total Pricing</th>
                 <th width="12%" style="background: #ffd6d6">
                   Total Operaciones
@@ -40,6 +41,7 @@
             <tbody>
               <tr>
                 <td>{{ house.code_house }}</td>
+                <td>{{ getQuoteNumber(house) }}</td>
                 <td>{{ house.consigner }}</td>
                 <td>{{ house.total_total_pr_ingresos }}</td>
                 <td>{{ house.total_total_op_ingresos }}</td>
@@ -1339,6 +1341,9 @@ export default {
     },
     formatUsd(val) {
       return `${parseFloat(val).toFixed(2)} USD`;
+    },
+    getQuoteNumber(house) {
+      return house.id_cot || "-";
     },
     openDoc(path) {
       window.open(path, "_blank");

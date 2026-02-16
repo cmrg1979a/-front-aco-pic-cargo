@@ -120,7 +120,7 @@
 
       <v-data-table
         :headers="headers"
-        :items="itemsMasterList"
+        :items="mastersConHouse"
         :search="search"
         :item-class="itemRowBackground"
         :single-expand="singleExpand"
@@ -494,6 +494,11 @@ export default {
   },
   computed: {
     ...mapState(["itemsMasterList", "itemsModality", "totalItemsMasterList"]),
+    mastersConHouse() {
+      return (this.itemsMasterList || []).filter(function (v) {
+        return parseInt(v.cantidad_houses) > 0 || (v.list_houses && v.list_houses.length > 0);
+      });
+    },
   },
   methods: {
     ...mapActions([
