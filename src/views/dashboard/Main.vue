@@ -81,7 +81,7 @@
         Profit / Ganancia
         {{
           currencyFormat(
-            $store.state.pricing.totalVenta - $store.state.pricing.totalCosto
+            $store.state.pricing.totalVenta - $store.state.pricing.totalCosto,
           )
         }}
       </label>
@@ -103,7 +103,7 @@
         Profit / Ganancia
         {{
           currencyFormat(
-            $store.state.pricing.totalVenta - $store.state.pricing.totalCosto
+            $store.state.pricing.totalVenta - $store.state.pricing.totalCosto,
           )
         }}
       </label>
@@ -125,7 +125,7 @@
         Profit / Ganancia
         {{
           currencyFormat(
-            $store.state.pricing.totalVenta - $store.state.pricing.totalCosto
+            $store.state.pricing.totalVenta - $store.state.pricing.totalCosto,
           )
         }}
       </label>
@@ -139,6 +139,28 @@
       >
         EDITAR
       </v-btn>
+      <v-btn
+        v-if="getNameUrl() == 'verQuote'"
+        class="mx-1"
+        color="light-blue darken-3"
+        dark
+        @click="abrirCorreo()"
+      >
+        <v-icon class="mx-1" dense small>mdi-email-fast</v-icon>
+        ENVIAR MAIL
+      </v-btn>
+
+      <v-btn
+        v-if="getNameUrl() == 'editQuote'"
+        class="mx-1"
+        color="light-blue darken-3"
+        dark
+        @click="abrirCorreo()"
+      >
+        <v-icon class="mx-1" dense small>mdi-email-fast</v-icon>
+        ENVIAR MAIL
+      </v-btn>
+
       <v-btn
         v-if="getNameUrl() == 'verQuote'"
         class="mx-1"
@@ -162,7 +184,6 @@
         @click="registrarCliente"
         >Guardar CLIENTE</v-btn
       >
- 
 
       <!--MODULO PROVEEDORES-->
       <v-btn
@@ -177,7 +198,6 @@
         :disabled="$store.state.entities.disabledBtnSave"
         >Guardar Proveedor</v-btn
       >
- 
 
       <label class="monto" v-if="routeAduana.includes(getNameUrl())">
         {{
@@ -187,7 +207,7 @@
               : 0) -
               ($store.state.aduana.totalCosto
                 ? $store.state.aduana.totalCosto
-                : 0)
+                : 0),
           )
         }}
       </label>
@@ -210,7 +230,25 @@
         "
         @click="ira('EditarAduana', $route.params.id)"
       >
-        EDITAR
+        <v-icon>mdi-account-tie-hat</v-icon> EDITAR
+      </v-btn>
+
+      <v-btn
+        color="#009688"
+        dark
+        @click="abrirModalPilotoAutomatico()"
+        v-if="getNameUrl() == 'editQuote' && $store.state.pricing.step == 2"
+      >
+        COTIZAR PILOTO AUTOMATICO
+      </v-btn>
+      <v-spacer v-if="getNameUrl() == 'controlMasterEditar'"></v-spacer>
+      <v-btn
+        color="#009688"
+        dark
+        v-if="getNameUrl() == 'controlMasterEditar'"
+        @click="ira('listMaster', null)"
+      >
+        VOLVER AL LISTADO
       </v-btn>
     </v-app-bar>
 
@@ -251,7 +289,10 @@
           Autenticación Requerida
         </v-card-title>
         <v-card-text class="pt-4">
-          <p class="mb-4">Esta cotización está <strong>APROBADA</strong>. Ingrese las credenciales de administrador para continuar.</p>
+          <p class="mb-4">
+            Esta cotización está <strong>APROBADA</strong>. Ingrese las
+            credenciales de administrador para continuar.
+          </p>
           <v-text-field
             v-model="adminUser"
             label="Usuario o Email"
@@ -288,12 +329,79 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="dialogProveedor" width="35%">
+      <v-card>
+        <v-card-title> Seleccionar proveedor: </v-card-title>
+        <v-card-text>
+          <v-autocomplete
+            multiple
+            :items="this.$store.state.itemsDataRoleList"
+            small-chips
+            item-value="id"
+            item-text="name"
+            persistent
+            outlined
+            label="Tipo Proveedor"
+            v-model="idRole"
+            :loading="this.$store.state.itemsDataRoleList.length == 0"
+          >
+          </v-autocomplete>
+          <v-simple-table>
+            <thead>
+              <tr>
+                <th></th>
+                <th>Contacto</th>
+                <th>Correo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(dato, index) in lstDatosTarifa" :key="index">
+                <td>
+                  <v-checkbox v-model="dato.selected"></v-checkbox>
+                </td>
+                <td>{{ dato.contacto }}</td>
+                <td>{{ dato.email }}</td>
+              </tr>
+            </tbody>
+          </v-simple-table>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="success" @click="abrirCorreoSend">Enviar Correo</v-btn>
+          <v-btn color="error" @click="dialogProveedor = false">
+            Cancelar</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog
+      v-model="dialogPilotoAutomatico"
+      scrollable
+      persistent
+      max-width="75%"
+    >
+      <v-card v-if="dialogPilotoAutomatico">
+        <v-card-title primary-title>
+          COTIZACIÓN PILOTO AUTOMÁTICO
+          <v-spacer></v-spacer>
+          <v-btn color="info" icon @click="dialogPilotoAutomatico = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+        <v-card-text>
+          <CotizacionPilotoAutomatico />
+        </v-card-text>
+        <!-- <v-card-actions> </v-card-actions> -->
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
 <script>
 import leftMenu from "@/components/leftMenu";
 import listMenu from "@/components/listMenu";
+import CotizacionPilotoAutomatico from "@/components/folderPricing/CotizacionPilotoAutomatico.vue";
 import { Store, mapActions } from "vuex";
 import mixins from "@/components/mixins/funciones";
 import Swal from "sweetalert2";
@@ -316,25 +424,30 @@ export default {
     return {
       mostrarBtnMenu: true,
       routePricing: ["newQuote", "verQuote", "editQuote"],
-      routeAduana: ["newCotizacionAduana", "EditarAduana", "VerAduana"], 
+      routeAduana: ["newCotizacionAduana", "EditarAduana", "VerAduana"],
       dialogAdminAuth: false,
       adminUser: "",
       adminPassword: "",
       showAdminPassword: false,
       adminAuthLoading: false,
       adminAuthError: "",
+      dialogProveedor: false,
+      dialogPilotoAutomatico: false,
+      idRole: [],
+      lstDatosTarifa: [],
     };
   },
   components: {
     leftMenu,
     listMenu,
     LoadingComponent,
+    CotizacionPilotoAutomatico,
   },
   async mounted() {
     let urlPricing = ["newQuote", "verQuote", "editQuote"];
     this.socket.emit(
       "join-empresa",
-      JSON.parse(sessionStorage.getItem("dataUser"))[0].id_branch
+      JSON.parse(sessionStorage.getItem("dataUser"))[0].id_branch,
     );
 
     this.socket.on("nueva-operacion", (data) => {
@@ -373,6 +486,7 @@ export default {
       "actualizarProveedor",
       "registrarQuote",
       "actualizarQuoteAduana",
+      "_getRole",
     ]),
     async guardarCotizacion() {
       let validacion = this.validarRegistro();
@@ -422,7 +536,7 @@ export default {
       let val = true;
       val = !this.$store.state.pricing.opcionCostos.some(
         (v) =>
-          !v.date_end || !v.tiempo_transito || !this.isDateValid(v.date_end)
+          !v.date_end || !v.tiempo_transito || !this.isDateValid(v.date_end),
       );
 
       // // -----------------------------------------------------
@@ -456,7 +570,7 @@ export default {
       let val = true;
       val = !this.$store.state.aduana.opcionCostos.some(
         (v) =>
-          !v.date_end || !v.tiempo_transito || !this.isDateValid(v.date_end)
+          !v.date_end || !v.tiempo_transito || !this.isDateValid(v.date_end),
       );
 
       // // -----------------------------------------------------
@@ -483,6 +597,121 @@ export default {
           text: "Existe una o más Fechas de validez y/o tiempos en tránsito, INCOMPLETOS. Verifique.",
         });
         this.$store.state.aduana.tab = 2;
+      }
+    },
+    async abrirCorreo() {
+      let codeLCL = [9017];
+      let codeFCL = [9017, 9001, 9002];
+      let codeAereo = [9017, 9024];
+      this.idRole = [];
+      this.dialogProveedor = true;
+      await this._getRole();
+      let code = this.$store.state.pricing.listShipment.find(
+        (v) => v.id == this.$store.state.pricing.datosPrincipales.idtipocarga,
+      ).code;
+      switch (code) {
+        case "LCL":
+          this.idRole = this.$store.state.itemsDataRoleList
+            .filter((v) => codeLCL.includes(v.code))
+            .map((v) => v.id);
+          break;
+        case "FCL":
+          this.idRole = this.$store.state.itemsDataRoleList
+            .filter((v) => codeFCL.includes(v.code))
+            .map((v) => v.id);
+          break;
+        case "Aéreo":
+          this.idRole = this.$store.state.itemsDataRoleList
+            .filter((v) => codeAereo.includes(v.code))
+            .map((v) => v.id);
+          break;
+      }
+    },
+    // abrirCorreoSend() {
+    //   const selected = this.lstDatosTarifa.filter((v) => v.selected);
+    //   const to = selected
+    //     .map((v) => v.email)
+    //     .filter((e) => e)
+    //     .join(",");
+    //   let id_incoterms = this.$store.state.pricing.datosPrincipales.idincoterms
+    //     ? this.$store.state.pricing.datosPrincipales.idincoterms
+    //     : "";
+    //   let incoterms = this.$store.state.pricing.listIncoterms.find(
+    //     (v) => v.id == id_incoterms,
+    //   );
+    //   // Cambiamos acentos por letras normales
+    //   const subject = encodeURIComponent(
+    //     "Cotizacion Nro:" + this.$store.state.pricing.nro_quote,
+    //   );
+
+    //   const lineasBody = [
+    //     "Hola colega,",
+    //     "Me ayudas cotizando este embarque:",
+    //     "",
+
+    //     ` INCOTERMS:  ${incoterms.name}          `,
+    //     ` DIRECCION PROVEEDOR:  `,
+    //     ` PESO:  ${this.$store.state.pricing.datosPrincipales.peso || ""} `,
+    //     ` M3:  ${this.$store.state.pricing.datosPrincipales.volumen || ""} `,
+    //     ` COMMODITY:  `,
+    //     "-------------------------------------------",
+    //     "",
+    //     "Saludos cordiales.",
+    //   ];
+
+    //   const body = encodeURIComponent(lineasBody.join("\r\n"));
+    //   window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+    // },
+    async abrirCorreoSend() {
+      const selected = this.lstDatosTarifa.filter((v) => v.selected);
+      const to = selected
+        .map((v) => v.email)
+        .filter((e) => e)
+        .join(",");
+
+      const subject = "Cotizacion Nro: " + this.$store.state.pricing.nro_quote;
+
+      // 1. Preparamos el HTML de la tabla
+      const tablaHtml = `
+    <div style="font-family: Arial, sans-serif;">
+      <p>Hola colega, me ayudas cotizando este embarque:</p>
+      <table border="1" style="border-collapse: collapse; width: 100%; max-width: 500px;">
+        <tr style="background-color: #eeeeee;">
+          <th style="padding: 8px; border: 1px solid #333;">CONCEPTO</th>
+          <th style="padding: 8px; border: 1px solid #333;">DETALLE</th>
+        </tr>
+        <tr><td style="padding: 8px; border: 1px solid #333;">INCOTERMS</td><td style="padding: 8px; border: 1px solid #333;">EXWORKS</td></tr>
+        <tr><td style="padding: 8px; border: 1px solid #333;">PESO</td><td style="padding: 8px; border: 1px solid #333;">${
+          this.$store.state.pricing.datosPrincipales.peso || ""
+        }</td></tr>
+        <tr><td style="padding: 8px; border: 1px solid #333;">M3</td><td style="padding: 8px; border: 1px solid #333;">${
+          this.$store.state.pricing.datosPrincipales.volumen || ""
+        }</td></tr>
+      </table>
+      <p>Saludos.</p>
+    </div>
+  `;
+
+      try {
+        // 2. Ejecutamos la copia al portapapeles primero
+        const blob = new Blob([tablaHtml], { type: "text/html" });
+        const data = [new ClipboardItem({ ["text/html"]: blob })];
+        await navigator.clipboard.write(data);
+
+        // 3. EL ALERT: Detiene la ejecución hasta que el usuario dé clic
+        // Esto asegura que el usuario sepa que ya se copió
+        alert(
+          "Información de cotización copiada. Al aceptar, se abrirá Outlook. (Luego presiona Ctrl+V)",
+        );
+
+        // 4. ABRIR EL MAIL: Solo ocurre DESPUÉS de cerrar el alert
+        const body = encodeURIComponent("Hola colega, (PEGA LA TABLA AQUÍ)");
+        window.location.href = `mailto:${to}?subject=${encodeURIComponent(
+          subject,
+        )}&body=${body}`;
+      } catch (err) {
+        console.error("Error al copiar:", err);
+        alert("Hubo un problema al copiar los datos automáticamente.");
       }
     },
     copiarCotizacion() {
@@ -565,7 +794,7 @@ export default {
       } else {
         if (
           !this.$store.state.pricing.opcionCostos.some((v) =>
-            this.isDateValid(v.date_end)
+            this.isDateValid(v.date_end),
           )
         ) {
           Swal.fire({
@@ -688,7 +917,7 @@ export default {
       setTimeout(() => {
         //window.location.reload();
       }, 100);
-    }, 
+    },
     esUsuarioAdmin() {
       try {
         const dataUser = JSON.parse(sessionStorage.getItem("dataUser"));
@@ -702,28 +931,35 @@ export default {
         console.error("Error al verificar usuario admin:", e);
       }
       return false;
-    }, 
+    },
     esCotizacionAprobada() {
       const pricing = this.$store.state.pricing;
-      
+
       // Verificar aprobadoflag (boolean)
       if (pricing.aprobadoflag === true) {
         console.log("Cotización aprobada por aprobadoflag=true");
         return true;
       }
-      
-       if (pricing.datosPrincipales && pricing.datosPrincipales.nameStatusQuote) {
-        const statusName = pricing.datosPrincipales.nameStatusQuote.toUpperCase().trim();
+
+      if (
+        pricing.datosPrincipales &&
+        pricing.datosPrincipales.nameStatusQuote
+      ) {
+        const statusName = pricing.datosPrincipales.nameStatusQuote
+          .toUpperCase()
+          .trim();
         console.log("Status nameStatusQuote:", statusName);
         if (statusName === "APROBADO" || statusName === "APROBADA") {
           console.log("Cotización aprobada por nameStatusQuote:", statusName);
           return true;
         }
       }
-      
-       if (pricing.datosPrincipales && pricing.datosPrincipales.id_status) {
+
+      if (pricing.datosPrincipales && pricing.datosPrincipales.id_status) {
         const statusList = pricing.listQuoteStatus || [];
-        const currentStatus = statusList.find(s => s.id === pricing.datosPrincipales.id_status);
+        const currentStatus = statusList.find(
+          (s) => s.id === pricing.datosPrincipales.id_status,
+        );
         console.log("Status por id_status:", currentStatus);
         if (currentStatus && currentStatus.name) {
           const statusName = currentStatus.name.toUpperCase().trim();
@@ -733,26 +969,31 @@ export default {
           }
         }
       }
-      
+
       console.log("Cotización NO está aprobada");
       return false;
-    }, 
+    },
     handleEditarQuote() {
       const aprobada = this.esCotizacionAprobada();
       const esAdmin = this.esUsuarioAdmin();
-      
-      console.log("handleEditarQuote - aprobada:", aprobada, "esAdmin:", esAdmin);
-       
+
+      console.log(
+        "handleEditarQuote - aprobada:",
+        aprobada,
+        "esAdmin:",
+        esAdmin,
+      );
+
       if (!aprobada) {
         this.ira("editQuote", this.$route.params.id);
         return;
       }
-       
+
       if (esAdmin) {
         this.ira("editQuote", this.$route.params.id);
         return;
       }
-       
+
       this.dialogAdminAuth = true;
       this.adminUser = "";
       this.adminPassword = "";
@@ -766,14 +1007,14 @@ export default {
     },
     async validarAdminAuth() {
       this.adminAuthError = "";
-      
+
       if (!this.adminUser || !this.adminPassword) {
         this.adminAuthError = "Ingrese usuario y contraseña";
         return;
       }
-      
+
       this.adminAuthLoading = true;
-      
+
       try {
         const config = {
           method: "post",
@@ -786,21 +1027,24 @@ export default {
             password: this.adminPassword,
           }),
         };
-        
+
         const response = await axios(config);
-        
-        if (response.data.estadoflag) { 
-          const userEmail = response.data.data[0].user || response.data.data[0].usuario;
-          
+
+        if (response.data.estadoflag) {
+          const userEmail =
+            response.data.data[0].user || response.data.data[0].usuario;
+
           if (userEmail && userEmail.toLowerCase() === "cmrg1979a@gmail.com") {
             // Es el admin, permitir edición
             this.cerrarDialogAdminAuth();
             this.ira("editQuote", this.$route.params.id);
           } else {
-            this.adminAuthError = "Solo el usuario administrador puede editar cotizaciones aprobadas";
+            this.adminAuthError =
+              "Solo el usuario administrador puede editar cotizaciones aprobadas";
           }
         } else {
-          this.adminAuthError = response.data.mensaje || "Credenciales incorrectas";
+          this.adminAuthError =
+            response.data.mensaje || "Credenciales incorrectas";
         }
       } catch (error) {
         console.error("Error en validación admin:", error);
@@ -824,7 +1068,7 @@ export default {
             v.codigo == "02" &&
             v.id == this.$store.state.entities.cliente.id_tipotransaccion
           );
-        }
+        },
       );
 
       return val;
@@ -867,7 +1111,7 @@ export default {
         if (
           vm.$store.state.entities.cliente.emailaddress &&
           !/^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-            vm.$store.state.entities.cliente.emailaddress
+            vm.$store.state.entities.cliente.emailaddress,
           )
         ) {
           okStep1 = false;
@@ -918,7 +1162,7 @@ export default {
           if (
             v.email_soporte &&
             !/^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-              v.email_soporte
+              v.email_soporte,
             )
           ) {
             okStep3_1 = false;
@@ -940,7 +1184,7 @@ export default {
           if (
             v.email_soporte &&
             !/^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-              v.email_soporte
+              v.email_soporte,
             )
           ) {
             okStep3_2 = false;
@@ -1012,7 +1256,7 @@ export default {
             v.codigo == "02" &&
             v.id == this.$store.state.entities.proveedor.id_tipotransaccion
           );
-        }
+        },
       );
 
       return val;
@@ -1133,7 +1377,7 @@ export default {
         if (
           vm.$store.state.entities.proveedor.emailaddress &&
           !/^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-            vm.$store.state.entities.proveedor.emailaddress
+            vm.$store.state.entities.proveedor.emailaddress,
           )
         ) {
           okStep1 = false;
@@ -1198,7 +1442,7 @@ export default {
           if (
             v.email_soporte &&
             !/^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-              v.email_soporte
+              v.email_soporte,
             )
           ) {
             okStep3_1 = false;
@@ -1220,7 +1464,7 @@ export default {
           if (
             v.email_soporte &&
             !/^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-              v.email_soporte
+              v.email_soporte,
             )
           ) {
             okStep3_2 = false;
@@ -1284,6 +1528,36 @@ export default {
         await vm.actualizarProveedor();
         vm.$store.state.spiner = false;
       }
+    },
+    abrirModalPilotoAutomatico() {
+      this.dialogPilotoAutomatico = true;
+    },
+  },
+  watch: {
+    async idRole() {
+      this.lstDatosTarifa = [];
+      if (this.idRole.length == 0) {
+        return;
+      }
+      const config = {
+        method: "get",
+        url: process.env.VUE_APP_URL_MAIN + "entities/obtener_datos_tarifa",
+        headers: {
+          "auth-token": sessionStorage.getItem("auth-token"),
+          "Content-Type": "application/json",
+        },
+        params: {
+          id_modality: this.$store.state.pricing.datosPrincipales.idsentido,
+          id_roles: this.idRole.join(","),
+        },
+      };
+
+      await axios(config).then((res) => {
+        let data = res.data;
+        this.lstDatosTarifa = data.data.datos.map((v) => {
+          return { ...v, selected: true };
+        });
+      });
     },
   },
 };

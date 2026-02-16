@@ -148,7 +148,7 @@ export default {
       if (this.opcionesSeleccionadas.some((v) => parseFloat(v.flete) > 0)) {
         this.headers.push({
           text: this.$store.state.pricing.listTipoCostos.filter(
-            (v) => v.codigo == "FL"
+            (v) => v.codigo == "FL",
           )[0].name,
           value: "flete",
         });
@@ -156,12 +156,12 @@ export default {
 
       if (
         this.opcionesSeleccionadas.some(
-          (v) => v.flete != this.currencyFormat(0)
+          (v) => v.flete != this.currencyFormat(0),
         )
       ) {
         this.headers.push({
           text: this.$store.state.pricing.listTipoCostos.filter(
-            (v) => v.codigo == "FL"
+            (v) => v.codigo == "FL",
           )[0].name,
           value: "flete",
           cellClass: "centrado",
@@ -171,12 +171,12 @@ export default {
 
       if (
         this.opcionesSeleccionadas.some(
-          (v) => v.origen != this.currencyFormat(0)
+          (v) => v.origen != this.currencyFormat(0),
         )
       ) {
         this.headers.push({
           text: this.$store.state.pricing.listTipoCostos.filter(
-            (v) => v.codigo == "OR"
+            (v) => v.codigo == "OR",
           )[0].name,
           value: "origen",
         });
@@ -184,12 +184,12 @@ export default {
       }
       if (
         this.opcionesSeleccionadas.some(
-          (v) => v.local != this.currencyFormat(0)
+          (v) => v.local != this.currencyFormat(0),
         )
       ) {
         this.headers.push({
           text: this.$store.state.pricing.listTipoCostos.filter(
-            (v) => v.codigo == "LO"
+            (v) => v.codigo == "LO",
           )[0].name,
           value: "local",
         });
@@ -197,12 +197,12 @@ export default {
       }
       if (
         this.opcionesSeleccionadas.some(
-          (v) => v.aduana != this.currencyFormat(0)
+          (v) => v.aduana != this.currencyFormat(0),
         )
       ) {
         this.headers.push({
           text: this.$store.state.pricing.listTipoCostos.filter(
-            (v) => v.codigo == "AD"
+            (v) => v.codigo == "AD",
           )[0].name,
           value: "aduana",
         });
@@ -210,12 +210,12 @@ export default {
       }
       if (
         this.opcionesSeleccionadas.some(
-          (v) => v.almacen != this.currencyFormat(0)
+          (v) => v.almacen != this.currencyFormat(0),
         )
       ) {
         this.headers.push({
           text: this.$store.state.pricing.listTipoCostos.filter(
-            (v) => v.codigo == "AL"
+            (v) => v.codigo == "AL",
           )[0].name,
           value: "almacen",
         });
@@ -224,12 +224,12 @@ export default {
 
       if (
         this.opcionesSeleccionadas.some(
-          (v) => v.gastostercero != this.currencyFormat(0)
+          (v) => v.gastostercero != this.currencyFormat(0),
         )
       ) {
         this.headers.push({
           text: this.$store.state.pricing.listTipoCostos.filter(
-            (v) => v.codigo == "GT"
+            (v) => v.codigo == "GT",
           )[0].name,
           value: "gastostercero",
         });
@@ -279,10 +279,10 @@ export default {
       this.loadingTable = true;
       this.$store.state.pricing.opcionCostos.forEach((element) => {
         let id_proveedor = element.listCostos.some(
-          (v) => v.esopcionflag == 1 && v.code_cost == 4
+          (v) => v.esopcionflag == 1 && v.code_cost == 4,
         )
           ? element.listCostos.filter(
-              (v) => v.esopcionflag == 1 && v.code_cost == 4
+              (v) => v.esopcionflag == 1 && v.code_cost == 4,
             )[0].id_proveedor
           : "";
         let nameProveedor = id_proveedor
@@ -315,25 +315,25 @@ export default {
             : this.currencyFormat(0);
           element.total = this.currencyFormat(
             parseFloat(
-              this.resumenOpcion.flete ? this.resumenOpcion.flete : 0
+              this.resumenOpcion.flete ? this.resumenOpcion.flete : 0,
             ) +
               parseFloat(
-                this.resumenOpcion.origen ? this.resumenOpcion.origen : 0
+                this.resumenOpcion.origen ? this.resumenOpcion.origen : 0,
               ) +
               parseFloat(
-                this.resumenOpcion.gasto ? this.resumenOpcion.gasto : 0
+                this.resumenOpcion.gasto ? this.resumenOpcion.gasto : 0,
               ) +
               parseFloat(
-                this.resumenOpcion.aduana ? this.resumenOpcion.aduana : 0
+                this.resumenOpcion.aduana ? this.resumenOpcion.aduana : 0,
               ) +
               parseFloat(
-                this.resumenOpcion.almacen ? this.resumenOpcion.almacen : 0
+                this.resumenOpcion.almacen ? this.resumenOpcion.almacen : 0,
               ) +
               parseFloat(
                 this.resumenOpcion.gastostercero
                   ? this.resumenOpcion.gastostercero
-                  : 0
-              )
+                  : 0,
+              ),
           );
           this.opcionesSeleccionadas.push(element);
         }, 100);
@@ -351,31 +351,31 @@ export default {
       if (this.isFlete(data)) {
         data
           .filter(
-            (v) => v.esfleteflag == 1 && v.status == 1 && v.esventaflag == 1
+            (v) => v.esfleteflag == 1 && v.status == 1 && v.esventaflag == 1,
           )
           .forEach((element) => {
             if (this.isNotPorcentaje(element, element.id_multiplicador)) {
               this.totalFleteVentas +=
                 (this.$store.state.pricing.listMultiplicador.filter(
-                  (v) => v.id == element.id_multiplicador
+                  (v) => v.id == element.id_multiplicador,
                 ).length > 0
                   ? this.$store.state.pricing.listMultiplicador.filter(
-                      (v) => v.id == element.id_multiplicador
+                      (v) => v.id == element.id_multiplicador,
                     )[0].valor
                   : 0) *
                 element.costounitario *
                 this.calcularFac(
                   this.$store.state.pricing.listMultiplicador.filter(
-                    (v) => v.id == element.id_multiplicador
+                    (v) => v.id == element.id_multiplicador,
                   ).length > 0
                     ? this.$store.state.pricing.listMultiplicador.filter(
-                        (v) => v.id == element.id_multiplicador
+                        (v) => v.id == element.id_multiplicador,
                       )[0].code
                     : "N",
                   this.$store.state.pricing.datosPrincipales.volumen,
                   this.$store.state.pricing.datosPrincipales.peso,
                   this.$store.state.pricing.datosPrincipales.containers,
-                  this.$store.state.pricing.datosPrincipales.amount
+                  this.$store.state.pricing.datosPrincipales.amount,
                 );
             }
           });
@@ -395,56 +395,56 @@ export default {
       if (this.isFlete(data)) {
         data
           .filter(
-            (v) => v.esfleteflag == 1 && v.status == 1 && v.esopcionflag == 1
+            (v) => v.esfleteflag == 1 && v.status == 1 && v.esopcionflag == 1,
           )
           .forEach((element) => {
             if (this.isNotPorcentaje(element, element.id_multiplicador)) {
               this.resumenOpcion.flete +=
                 (this.$store.state.pricing.listMultiplicador.filter(
-                  (v) => v.id == element.id_multiplicador
+                  (v) => v.id == element.id_multiplicador,
                 ).length > 0
                   ? this.$store.state.pricing.listMultiplicador.filter(
-                      (v) => v.id == element.id_multiplicador
+                      (v) => v.id == element.id_multiplicador,
                     )[0].valor
                   : 0) *
                 element.costounitario *
                 this.calcularFac(
                   this.$store.state.pricing.listMultiplicador.filter(
-                    (v) => v.id == element.id_multiplicador
+                    (v) => v.id == element.id_multiplicador,
                   ).length > 0
                     ? this.$store.state.pricing.listMultiplicador.filter(
-                        (v) => v.id == element.id_multiplicador
+                        (v) => v.id == element.id_multiplicador,
                       )[0].code
                     : "N",
                   this.$store.state.pricing.datosPrincipales.volumen,
                   this.$store.state.pricing.datosPrincipales.peso,
                   this.$store.state.pricing.datosPrincipales.containers,
-                  this.$store.state.pricing.datosPrincipales.amount
+                  this.$store.state.pricing.datosPrincipales.amount,
                 );
             } else {
               this.resumenOpcion.flete += this.calcularValor(
                 this.$store.state.pricing.datosPrincipales.amount,
                 this.totalFleteVentas,
                 this.$store.state.pricing.listMultiplicador.filter(
-                  (v) => v.id == element.id_multiplicador
+                  (v) => v.id == element.id_multiplicador,
                 ).length > 0
                   ? this.$store.state.pricing.listMultiplicador.filter(
-                      (v) => v.id == element.id_multiplicador
+                      (v) => v.id == element.id_multiplicador,
                     )[0].code
                   : "",
                 this.$store.state.pricing.listMultiplicador.some(
                   (v) =>
                     v.id == element.id_multiplicador &&
-                    (v.code == 14 || v.code == 13 || v.code == 5)
+                    (v.code == 14 || v.code == 13 || v.code == 5),
                 )
                   ? this.$store.state.pricing.listMultiplicador.some(
                       (v) =>
                         v.id == element.id_multiplicador &&
-                        (v.code == 14 || v.code == 13)
+                        (v.code == 14 || v.code == 13),
                     )
                     ? element.cif
                     : element.seguro
-                  : 0
+                  : 0,
               );
             }
           });
@@ -468,50 +468,50 @@ export default {
               if (this.isNotPorcentaje(element, element.id_multiplicador)) {
                 this.resumenOpcion.origen +=
                   (this.$store.state.pricing.listMultiplicador.filter(
-                    (v) => v.id == element.id_multiplicador
+                    (v) => v.id == element.id_multiplicador,
                   ).length > 0
                     ? this.$store.state.pricing.listMultiplicador.filter(
-                        (v) => v.id == element.id_multiplicador
+                        (v) => v.id == element.id_multiplicador,
                       )[0].valor
                     : 0) *
                   element.costounitario *
                   this.calcularFac(
                     this.$store.state.pricing.listMultiplicador.filter(
-                      (v) => v.id == element.id_multiplicador
+                      (v) => v.id == element.id_multiplicador,
                     ).length > 0
                       ? this.$store.state.pricing.listMultiplicador.filter(
-                          (v) => v.id == element.id_multiplicador
+                          (v) => v.id == element.id_multiplicador,
                         )[0].code
                       : "N",
                     this.$store.state.pricing.datosPrincipales.volumen,
                     this.$store.state.pricing.datosPrincipales.peso,
                     this.$store.state.pricing.datosPrincipales.containers,
-                    this.$store.state.pricing.datosPrincipales.amount
+                    this.$store.state.pricing.datosPrincipales.amount,
                   );
               } else {
                 this.resumenOpcion.origen += this.calcularValor(
                   this.$store.state.pricing.datosPrincipales.amount,
                   this.totalFleteVentas,
                   this.$store.state.pricing.listMultiplicador.filter(
-                    (v) => v.id == element.id_multiplicador
+                    (v) => v.id == element.id_multiplicador,
                   ).length > 0
                     ? this.$store.state.pricing.listMultiplicador.filter(
-                        (v) => v.id == element.id_multiplicador
+                        (v) => v.id == element.id_multiplicador,
                       )[0].code
                     : "",
                   this.$store.state.pricing.listMultiplicador.some(
                     (v) =>
                       v.id == element.id_multiplicador &&
-                      (v.code == 14 || v.code == 13 || v.code == 5)
+                      (v.code == 14 || v.code == 13 || v.code == 5),
                   )
                     ? this.$store.state.pricing.listMultiplicador.some(
                         (v) =>
                           v.id == element.id_multiplicador &&
-                          (v.code == 14 || v.code == 13)
+                          (v.code == 14 || v.code == 13),
                       )
                       ? element.cif
                       : element.seguro
-                    : 0
+                    : 0,
                 );
               }
             }
@@ -521,50 +521,50 @@ export default {
               if (this.isNotPorcentaje(element, element.id_multiplicador)) {
                 this.resumenOpcion.gasto +=
                   (this.$store.state.pricing.listMultiplicador.filter(
-                    (v) => v.id == element.id_multiplicador
+                    (v) => v.id == element.id_multiplicador,
                   ).length > 0
                     ? this.$store.state.pricing.listMultiplicador.filter(
-                        (v) => v.id == element.id_multiplicador
+                        (v) => v.id == element.id_multiplicador,
                       )[0].valor
                     : 0) *
                   element.costounitario *
                   this.calcularFac(
                     this.$store.state.pricing.listMultiplicador.filter(
-                      (v) => v.id == element.id_multiplicador
+                      (v) => v.id == element.id_multiplicador,
                     ).length > 0
                       ? this.$store.state.pricing.listMultiplicador.filter(
-                          (v) => v.id == element.id_multiplicador
+                          (v) => v.id == element.id_multiplicador,
                         )[0].code
                       : "N",
                     this.$store.state.pricing.datosPrincipales.volumen,
                     this.$store.state.pricing.datosPrincipales.peso,
                     this.$store.state.pricing.datosPrincipales.containers,
-                    this.$store.state.pricing.datosPrincipales.amount
+                    this.$store.state.pricing.datosPrincipales.amount,
                   );
               } else {
                 this.resumenOpcion.gasto += this.calcularValor(
                   this.$store.state.pricing.datosPrincipales.amount,
                   this.totalFleteVentas,
                   this.$store.state.pricing.listMultiplicador.filter(
-                    (v) => v.id == element.id_multiplicador
+                    (v) => v.id == element.id_multiplicador,
                   ).length > 0
                     ? this.$store.state.pricing.listMultiplicador.filter(
-                        (v) => v.id == element.id_multiplicador
+                        (v) => v.id == element.id_multiplicador,
                       )[0].code
                     : "",
                   this.$store.state.pricing.listMultiplicador.some(
                     (v) =>
                       v.id == element.id_multiplicador &&
-                      (v.code == 14 || v.code == 13 || v.code == 5)
+                      (v.code == 14 || v.code == 13 || v.code == 5),
                   )
                     ? this.$store.state.pricing.listMultiplicador.some(
                         (v) =>
                           v.id == element.id_multiplicador &&
-                          (v.code == 14 || v.code == 13)
+                          (v.code == 14 || v.code == 13),
                       )
                       ? element.cif
                       : element.seguro
-                    : 0
+                    : 0,
                 );
               }
             }
@@ -575,50 +575,50 @@ export default {
               if (this.isNotPorcentaje(element, element.id_multiplicador)) {
                 this.resumenOpcion.aduana +=
                   (this.$store.state.pricing.listMultiplicador.filter(
-                    (v) => v.id == element.id_multiplicador
+                    (v) => v.id == element.id_multiplicador,
                   ).length > 0
                     ? this.$store.state.pricing.listMultiplicador.filter(
-                        (v) => v.id == element.id_multiplicador
+                        (v) => v.id == element.id_multiplicador,
                       )[0].valor
                     : 0) *
                   element.costounitario *
                   this.calcularFac(
                     this.$store.state.pricing.listMultiplicador.filter(
-                      (v) => v.id == element.id_multiplicador
+                      (v) => v.id == element.id_multiplicador,
                     ).length > 0
                       ? this.$store.state.pricing.listMultiplicador.filter(
-                          (v) => v.id == element.id_multiplicador
+                          (v) => v.id == element.id_multiplicador,
                         )[0].code
                       : "N",
                     this.$store.state.pricing.datosPrincipales.volumen,
                     this.$store.state.pricing.datosPrincipales.peso,
                     this.$store.state.pricing.datosPrincipales.containers,
-                    this.$store.state.pricing.datosPrincipales.amount
+                    this.$store.state.pricing.datosPrincipales.amount,
                   );
               } else {
                 this.resumenOpcion.aduana += this.calcularValor(
                   this.$store.state.pricing.datosPrincipales.amount,
                   this.totalFleteVentas,
                   this.$store.state.pricing.listMultiplicador.filter(
-                    (v) => v.id == element.id_multiplicador
+                    (v) => v.id == element.id_multiplicador,
                   ).length > 0
                     ? this.$store.state.pricing.listMultiplicador.filter(
-                        (v) => v.id == element.id_multiplicador
+                        (v) => v.id == element.id_multiplicador,
                       )[0].code
                     : "",
                   this.$store.state.pricing.listMultiplicador.some(
                     (v) =>
                       v.id == element.id_multiplicador &&
-                      (v.code == 14 || v.code == 13 || v.code == 5)
+                      (v.code == 14 || v.code == 13 || v.code == 5),
                   )
                     ? this.$store.state.pricing.listMultiplicador.some(
                         (v) =>
                           v.id == element.id_multiplicador &&
-                          (v.code == 14 || v.code == 13)
+                          (v.code == 14 || v.code == 13),
                       )
                       ? element.cif
                       : element.seguro
-                    : 0
+                    : 0,
                 );
               }
             }
@@ -629,50 +629,50 @@ export default {
               if (this.isNotPorcentaje(element, element.id_multiplicador)) {
                 this.resumenOpcion.almacen +=
                   (this.$store.state.pricing.listMultiplicador.filter(
-                    (v) => v.id == element.id_multiplicador
+                    (v) => v.id == element.id_multiplicador,
                   ).length > 0
                     ? this.$store.state.pricing.listMultiplicador.filter(
-                        (v) => v.id == element.id_multiplicador
+                        (v) => v.id == element.id_multiplicador,
                       )[0].valor
                     : 0) *
                   element.costounitario *
                   this.calcularFac(
                     this.$store.state.pricing.listMultiplicador.filter(
-                      (v) => v.id == element.id_multiplicador
+                      (v) => v.id == element.id_multiplicador,
                     ).length > 0
                       ? this.$store.state.pricing.listMultiplicador.filter(
-                          (v) => v.id == element.id_multiplicador
+                          (v) => v.id == element.id_multiplicador,
                         )[0].code
                       : "N",
                     this.$store.state.pricing.datosPrincipales.volumen,
                     this.$store.state.pricing.datosPrincipales.peso,
                     this.$store.state.pricing.datosPrincipales.containers,
-                    this.$store.state.pricing.datosPrincipales.amount
+                    this.$store.state.pricing.datosPrincipales.amount,
                   );
               } else {
                 this.resumenOpcion.almacen += this.calcularValor(
                   this.$store.state.pricing.datosPrincipales.amount,
                   this.totalFleteVentas,
                   this.$store.state.pricing.listMultiplicador.filter(
-                    (v) => v.id == element.id_multiplicador
+                    (v) => v.id == element.id_multiplicador,
                   ).length > 0
                     ? this.$store.state.pricing.listMultiplicador.filter(
-                        (v) => v.id == element.id_multiplicador
+                        (v) => v.id == element.id_multiplicador,
                       )[0].code
                     : "",
                   this.$store.state.pricing.listMultiplicador.some(
                     (v) =>
                       v.id == element.id_multiplicador &&
-                      (v.code == 14 || v.code == 13 || v.code == 5)
+                      (v.code == 14 || v.code == 13 || v.code == 5),
                   )
                     ? this.$store.state.pricing.listMultiplicador.some(
                         (v) =>
                           v.id == element.id_multiplicador &&
-                          (v.code == 14 || v.code == 13)
+                          (v.code == 14 || v.code == 13),
                       )
                       ? element.cif
                       : element.seguro
-                    : 0
+                    : 0,
                 );
               }
             }
@@ -683,50 +683,50 @@ export default {
               if (this.isNotPorcentaje(element, element.id_multiplicador)) {
                 this.resumenOpcion.gastostercero +=
                   (this.$store.state.pricing.listMultiplicador.filter(
-                    (v) => v.id == element.id_multiplicador
+                    (v) => v.id == element.id_multiplicador,
                   ).length > 0
                     ? this.$store.state.pricing.listMultiplicador.filter(
-                        (v) => v.id == element.id_multiplicador
+                        (v) => v.id == element.id_multiplicador,
                       )[0].valor
                     : 0) *
                   element.costounitario *
                   this.calcularFac(
                     this.$store.state.pricing.listMultiplicador.filter(
-                      (v) => v.id == element.id_multiplicador
+                      (v) => v.id == element.id_multiplicador,
                     ).length > 0
                       ? this.$store.state.pricing.listMultiplicador.filter(
-                          (v) => v.id == element.id_multiplicador
+                          (v) => v.id == element.id_multiplicador,
                         )[0].code
                       : "N",
                     this.$store.state.pricing.datosPrincipales.volumen,
                     this.$store.state.pricing.datosPrincipales.peso,
                     this.$store.state.pricing.datosPrincipales.containers,
-                    this.$store.state.pricing.datosPrincipales.amount
+                    this.$store.state.pricing.datosPrincipales.amount,
                   );
               } else {
                 this.resumenOpcion.gastostercero += this.calcularValor(
                   this.$store.state.pricing.datosPrincipales.amount,
                   this.totalFleteVentas,
                   this.$store.state.pricing.listMultiplicador.filter(
-                    (v) => v.id == element.id_multiplicador
+                    (v) => v.id == element.id_multiplicador,
                   ).length > 0
                     ? this.$store.state.pricing.listMultiplicador.filter(
-                        (v) => v.id == element.id_multiplicador
+                        (v) => v.id == element.id_multiplicador,
                       )[0].code
                     : "",
                   this.$store.state.pricing.listMultiplicador.some(
                     (v) =>
                       v.id == element.id_multiplicador &&
-                      (v.code == 14 || v.code == 13 || v.code == 5)
+                      (v.code == 14 || v.code == 13 || v.code == 5),
                   )
                     ? this.$store.state.pricing.listMultiplicador.some(
                         (v) =>
                           v.id == element.id_multiplicador &&
-                          (v.code == 14 || v.code == 13)
+                          (v.code == 14 || v.code == 13),
                       )
                       ? element.cif
                       : element.seguro
-                    : 0
+                    : 0,
                 );
               }
             }
@@ -757,7 +757,7 @@ export default {
     },
     isGastosTercero(data) {
       let val = data.some(
-        (v) => v.esgastostercerosflag == 1 && v.status == true
+        (v) => v.esgastostercerosflag == 1 && v.status == true,
       );
       return val;
     },
@@ -799,26 +799,26 @@ export default {
         val.forEach((element) => {
           monto += parseFloat(
             (this.$store.state.pricing.listMultiplicador.some(
-              (v) => v.id == element.id_multiplicador
+              (v) => v.id == element.id_multiplicador,
             )
               ? this.$store.state.pricing.listMultiplicador.filter(
-                  (v) => v.id == element.id_multiplicador
+                  (v) => v.id == element.id_multiplicador,
                 )[0].valor
               : 0) *
               element.costounitario *
               this.calcularFac(
                 this.$store.state.pricing.listMultiplicador.some(
-                  (v) => v.id == element.id_multiplicador
+                  (v) => v.id == element.id_multiplicador,
                 )
                   ? this.$store.state.pricing.listMultiplicador.filter(
-                      (v) => v.id == element.id_multiplicador
+                      (v) => v.id == element.id_multiplicador,
                     )[0].code
                   : "N",
                 this.$store.state.pricing.datosPrincipales.volumen,
                 this.$store.state.pricing.datosPrincipales.peso,
                 this.$store.state.pricing.datosPrincipales.containers,
-                this.$store.state.pricing.datosPrincipales.amount
-              )
+                this.$store.state.pricing.datosPrincipales.amount,
+              ),
           );
         });
       }
@@ -844,7 +844,7 @@ export default {
       let code = [5, 13, 14];
 
       let mul = this.$store.state.pricing.listMultiplicador.some(
-        (v) => v.id == id_multiplicador && code.includes(v.code)
+        (v) => v.id == id_multiplicador && code.includes(v.code),
       );
 
       return !mul;
@@ -856,7 +856,6 @@ export default {
   },
   watch: {
     async actualizarComparativa() {
-      console.log("comparativa");
       await this.calcularTotalesOpciones();
 
       setTimeout(async () => {

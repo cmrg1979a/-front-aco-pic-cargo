@@ -274,8 +274,7 @@ export default {
       mostrarBtnContinuarNotas: false,
     };
   },
-  mounted() {
-  },
+  mounted() {},
   methods: {
     irAComparativa() {
       this.$store.state.pricing.tab = 3;
@@ -362,13 +361,13 @@ export default {
               (objeto) => ({
                 ...objeto,
                 nro_propuesta,
-              })
+              }),
             );
             let listNotasQuote = this.$store.state.pricing.listNotasQuote.map(
               (objeto) => ({
                 ...objeto,
                 nro_propuesta,
-              })
+              }),
             );
             this.$store.state.pricing.opcionCostos.push({
               nro_propuesta: this.$store.state.pricing.index + 2,
@@ -400,7 +399,7 @@ export default {
       if (this.$refs.frmFecha.validate()) {
         this.$store.state.pricing.costoflag = true;
         let cost = this.$store.state.pricing.listCostos.filter(
-          (v) => v.esopcionflag == 1
+          (v) => v.esopcionflag == 1,
         );
         cost.forEach((element) => {
           let res = this.validateCost({ costo: element });
@@ -416,12 +415,12 @@ export default {
       this.mostrarContinuarVentas = false;
       console.log(
         this.$store.state.pricing.listServices.some(
-          (v) => v.code_service == "15" || v.code_service == 15
-        )
+          (v) => v.code_service == "15" || v.code_service == 15,
+        ),
       );
       if (
         this.$store.state.pricing.listServices.some(
-          (v) => v.code_service == "15" || v.code_service == 15
+          (v) => v.code_service == "15" || v.code_service == 15,
         )
       ) {
         this.mostrarSeccionImpuestos = true;
@@ -458,12 +457,12 @@ export default {
     },
     validateCost({ costo }) {
       let service = this.$store.state.pricing.listServices.filter(
-        (v) => v.status == 1
+        (v) => v.status == 1,
       );
       let multiplocadores = this.$store.state.pricing.listMultiplicador.filter(
         (v) => {
           return this.comienzaNoConCaracter(v.text, "%");
-        }
+        },
       );
       let idMultiplicador = multiplocadores.map((v) => v.id);
       let idServices = service.map((v) => v.id_groupservices);
@@ -524,7 +523,7 @@ export default {
     mostrarImpuestos() {
       let imp = this.$store.state.pricing.listServices.some(
         (v) =>
-          (v.code_service == 15 || v.code_service == "15") && v.status == true
+          (v.code_service == 15 || v.code_service == "15") && v.status == true,
       );
 
       return imp;

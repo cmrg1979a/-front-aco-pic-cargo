@@ -12,6 +12,9 @@ const state = {
   lstProveedor: [],
   lstPersona: [],
   lstEmails: [],
+  lstDatosTarifas: [],
+  itemsImportacion: [],
+  itemsExportacion: [],
   titleVal: "",
   filtro: {
     correlativo: "",
@@ -143,6 +146,9 @@ const mutations = {
   },
   SET_LIST_PROVEEDORES_X_DOCUMENTO(state, data) {
     state.lstProveedores_x_documento = data;
+  },
+  SET_LIST_DATOS_TARIFAS(state, data) {
+    state.lstDatosTarifas = data;
   },
 };
 
@@ -470,7 +476,7 @@ const actions = {
   async guardarProveedor({ commit }) {
     let res = {};
     state.proveedor.id_branch = JSON.parse(
-      sessionStorage.getItem("dataUser")
+      sessionStorage.getItem("dataUser"),
     )[0].id_branch;
     state.proveedor.lstTelefonos = state.lstTelefonos;
     state.proveedor.lstContactos = state.lstContactos;
@@ -478,6 +484,10 @@ const actions = {
     state.proveedor.lstTarifas = state.lstTarifas;
     state.proveedor.lstInformacionBancaria = state.lstInformacionBancaria;
     state.proveedor.lstEmails = state.lstEmails;
+    state.proveedor.datosTarifa = [
+      ...state.itemsImportacion,
+      ...state.itemsExportacion,
+    ];
 
     var config = {
       method: "post",
@@ -552,7 +562,7 @@ const actions = {
   },
   async actualizarProveedor({ commit }) {
     state.proveedor.id_branch = JSON.parse(
-      sessionStorage.getItem("dataUser")
+      sessionStorage.getItem("dataUser"),
     )[0].id_branch;
     state.proveedor.lstTelefonos = state.lstTelefonos;
     state.proveedor.lstContactos = state.lstContactos;
@@ -710,7 +720,7 @@ const actions = {
       .post(
         process.env.VUE_APP_URL_MAIN + `export_list_proveedor`,
         data,
-        headers
+        headers,
       )
       .then((response) => {
         const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -719,7 +729,7 @@ const actions = {
         // let name = this.uuidv4();
         link.setAttribute(
           "download",
-          `Listo Proveedor ${moment().format("DD-MM-YYYY hh:mm:ss")}.xlsx`
+          `Listo Proveedor ${moment().format("DD-MM-YYYY hh:mm:ss")}.xlsx`,
         );
         document.body.appendChild(link);
         link.click();
@@ -897,7 +907,7 @@ const actions = {
   },
   async guardarCliente({ commit }) {
     state.cliente.id_branch = JSON.parse(
-      sessionStorage.getItem("dataUser")
+      sessionStorage.getItem("dataUser"),
     )[0].id_branch;
     state.cliente.lstTelefonos = state.lstTelefonos;
     state.cliente.lstContactos = state.lstContactos;
@@ -1077,7 +1087,7 @@ const actions = {
   },
   async actualizarCliente({ commit }) {
     state.cliente.id_branch = JSON.parse(
-      sessionStorage.getItem("dataUser")
+      sessionStorage.getItem("dataUser"),
     )[0].id_branch;
     state.cliente.lstTelefonos = state.lstTelefonos;
     state.cliente.lstContactos = state.lstContactos;
@@ -1186,7 +1196,7 @@ const actions = {
         // let name = this.uuidv4();
         link.setAttribute(
           "download",
-          `Listo Proveedor ${moment().format("DD-MM-YYYY hh:mm:ss")}.xlsx`
+          `Listo Proveedor ${moment().format("DD-MM-YYYY hh:mm:ss")}.xlsx`,
         );
         document.body.appendChild(link);
         link.click();
@@ -1262,6 +1272,33 @@ const actions = {
           commit("SET_LIST_PROVEEDORES_X_DOCUMENTO", data.data);
         } else {
           commit("SET_LIST_PROVEEDORES_X_DOCUMENTO", []);
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  },
+  async cargarDatosTatifasEntite({ commit }, data) {
+    var config = {
+      method: "get",
+      url: process.env.VUE_APP_URL_MAIN + `entitie/cargar_datos_tarifas`,
+      headers: {
+        "auth-token": sessionStorage.getItem("auth-token"),
+        "Content-Type": "application/json",
+      },
+      params: data,
+    };
+
+    await axios(config)
+      .then(function (response) {
+        // console.log(response);
+        let { data } = response;
+        sessionStorage.setItem("auth-token", data.token);
+        if (data.estadoflag == true) {
+          console.log(data.data[0].datos);
+          commit("SET_LIST_DATOS_TARIFAS", data.data[0].datos);
+        } else {
+          commit("SET_LIST_DATOS_TARIFAS", []);
         }
       })
       .catch(function (error) {

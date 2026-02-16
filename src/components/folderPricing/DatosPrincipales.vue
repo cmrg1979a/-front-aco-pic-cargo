@@ -1,7 +1,7 @@
 <template>
   <v-container fluid class="pa-0">
     <v-card elevation="0" ref="frmPuerto">
-      <v-card-title primary-title> Datos Principales </v-card-title>
+      <v-card-title primary-title>Datos Principales</v-card-title>
       <v-card-text>
         <v-form class="" ref="frmDatosPrincipales">
           <v-container>
@@ -263,6 +263,10 @@ export default {
       type: Boolean,
       default: true,
     },
+    recargarFlag: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
@@ -320,6 +324,7 @@ export default {
       }
     },
     recargarServiciosCostos() {
+      if (!this.recargarFlag) return;
       //this.$emit("recargarServiciosCostos", true);
       Swal.fire({
         icon: "success",
@@ -327,8 +332,7 @@ export default {
         text: "Se han activado todas las opciones, actualice los montos de los nuevos registros, y los multiplicadores respectivo.",
         allowEnterKey: false,
         allowOutsideClick: false,
-      }).then((res) => {
-      });
+      }).then((res) => {});
     },
   },
   computed: {
@@ -357,7 +361,7 @@ export default {
       let exw = this.$store.state.pricing.listIncoterms.filter(
         (v) =>
           v.id == this.$store.state.pricing.datosPrincipales.idincoterms &&
-          v.name == "EXW"
+          v.name == "EXW",
       );
 
       return exw.length > 0 ? true : false;
@@ -371,11 +375,12 @@ export default {
       console.log("llegó");
       if (!!this.$store.state.entities.id) {
         let cliente = this.$store.state.itemsEntities.filter(
-          (v) => v.id == this.$store.state.entities.id
+          (v) => v.id == this.$store.state.entities.id,
         )[0];
         console.log("cliente", cliente);
         this.$store.state.pricing.datosPrincipales.id_entitie = cliente.id;
-        this.$store.state.pricing.datosPrincipales.nombre = cliente.nombrecompleto;
+        this.$store.state.pricing.datosPrincipales.nombre =
+          cliente.nombrecompleto;
         this.$store.state.pricing.datosPrincipales.telefono = cliente.phone;
       }
       this.buscarClienteDialog = false;

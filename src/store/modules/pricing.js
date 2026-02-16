@@ -7,6 +7,7 @@ import masterusuario from "./masterusuario";
 import enterprise from "./enterprise";
 import modules from "./../index";
 const state = {
+  step: 1,
   preServices: [],
   preCostos: [],
   itemsDataRoleList: [],
@@ -1543,7 +1544,6 @@ const actions = {
       state.datosPrincipales.amount = res.monto;
       // --------------------------------------------------------------
       state.opcionCostos = [];
-      console.log(res.id_status);
       res.opcioncostos.forEach((element) => {
         state.opcionCostos.push({
           id: element.id,

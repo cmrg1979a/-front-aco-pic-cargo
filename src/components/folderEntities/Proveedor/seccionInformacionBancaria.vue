@@ -11,64 +11,124 @@
         @click="modificarProveedor"
       >
         <v-icon left small>mdi-account-edit</v-icon>
-        {{ isFormReadonly ? 'EDITAR PROVEEDOR' : 'GUARDAR CAMBIOS' }}
+        {{ isFormReadonly ? "EDITAR PROVEEDOR" : "GUARDAR CAMBIOS" }}
       </v-btn>
     </v-card-title>
     <v-card-text class="px-2">
       <div class="container-narrow">
-      <v-subheader class="px-0">
-        <b>Información Bancaria</b>
+        <v-subheader class="px-0">
+          <b>Información Bancaria</b>
 
-        <template v-if="showFormActions">
-          <v-btn color="primary" rounded small class="ml-auto" @click="agregarCuentaBancaria()">Agregar Cuenta</v-btn>
-        </template>
-      </v-subheader>
-      <v-row>
-        <v-col cols="12">
-          <v-form ref="formProv_informacionBancaria" :readonly="isFormReadonly">
-            <v-data-table :headers="isInternacional()
-          ? headersInformacionBancaria2
-          : headersInformacionBancaria1
-          " :items="$store.state.entities.lstInformacionBancaria" class="elevation-5" item-key="index">
-
-              <template v-slot:[`item.nrocuenta`]="{ item }">
-                <v-text-field v-model="item.nro_cuenta" :rules="[(v) => !!v || 'Dato Requerido']" placeholder="Nro Cuenta"></v-text-field>
-              </template>
-              <template v-slot:[`item.cci`]="{ item }">
-                <v-text-field v-model="item.cci" :rules="[(v) => !!v || 'Dato Requerido']" placeholder="CCI"></v-text-field>
-              </template>
-              <template v-slot:[`item.banco`]="{ item }">
-                <v-autocomplete :items="$store.state.bank.list" item-text="name" item-value="id" placeholder="Bancos"
-                  :rules="[(v) => !!v || 'Dato Requerido']" v-model="item.id_banco"></v-autocomplete>
-              </template>
-              <template v-slot:[`item.moneda`]="{ item }">
-                <v-autocomplete :items="$store.state.coins.itemsCoinsList" item-text="acronym" item-value="id"
-                  placeholder="Monedas" :rules="[(v) => !!v || 'Dato Requerido']" v-model="item.id_coins"></v-autocomplete>
-              </template>
-              <template v-slot:[`item.swift`]="{ item }">
-                <v-text-field placeholder="Nro swift" :rules="[(v) => !!v || 'Dato Requerido']" v-model="item.nro_swift"></v-text-field>
-              </template>
-              <template v-slot:[`item.intermediario`]="{ item }">
-                <v-autocomplete :items="$store.state.bank.list" item-text="name" item-value="id" placeholder="Bancos"
-                  :rules="[(v) => !!v || 'Dato Requerido']" v-model="item.id_intermediario"></v-autocomplete>
-              </template>
-              <template v-slot:[`item.cuenta_intermediario`]="{ item }">
-                <v-text-field placeholder="Cuenta Intermediario" :rules="[(v) => !!v || 'Dato Requerido']" v-model="item.nro_cuenta_intermediario"></v-text-field>
-              </template>
-              <template v-slot:[`item.action`]="{ item, index }" v-if="showFormActions">
-                <v-btn color="red" icon @click="eliminarInformacionBancaria(index)">
-                  <v-icon> mdi-delete</v-icon>
-                </v-btn>
-              </template>
-
-            </v-data-table>
-          </v-form>
-        </v-col>
-      </v-row>
+          <template v-if="showFormActions">
+            <v-btn
+              color="primary"
+              rounded
+              small
+              class="ml-auto"
+              @click="agregarCuentaBancaria()"
+              >Agregar Cuenta</v-btn
+            >
+          </template>
+        </v-subheader>
+        <v-row>
+          <v-col cols="12">
+            <v-form
+              ref="formProv_informacionBancaria"
+              :readonly="isFormReadonly"
+            >
+              <v-data-table
+                :headers="
+                  isInternacional()
+                    ? headersInformacionBancaria2
+                    : headersInformacionBancaria1
+                "
+                :items="$store.state.entities.lstInformacionBancaria"
+                class="elevation-5"
+                item-key="index"
+              >
+                <template v-slot:[`item.nrocuenta`]="{ item }">
+                  <v-text-field
+                    v-model="item.nro_cuenta"
+                    :rules="[(v) => !!v || 'Dato Requerido']"
+                    placeholder="Nro Cuenta"
+                  ></v-text-field>
+                </template>
+                <template v-slot:[`item.cci`]="{ item }">
+                  <v-text-field
+                    v-model="item.cci"
+                    :rules="[(v) => !!v || 'Dato Requerido']"
+                    placeholder="CCI"
+                  ></v-text-field>
+                </template>
+                <template v-slot:[`item.banco`]="{ item }">
+                  <v-autocomplete
+                    :items="$store.state.bank.list"
+                    item-text="name"
+                    item-value="id"
+                    placeholder="Bancos"
+                    :rules="[(v) => !!v || 'Dato Requerido']"
+                    v-model="item.id_banco"
+                  ></v-autocomplete>
+                </template>
+                <template v-slot:[`item.moneda`]="{ item }">
+                  <v-autocomplete
+                    :items="$store.state.coins.itemsCoinsList"
+                    item-text="acronym"
+                    item-value="id"
+                    placeholder="Monedas"
+                    :rules="[(v) => !!v || 'Dato Requerido']"
+                    v-model="item.id_coins"
+                  ></v-autocomplete>
+                </template>
+                <template v-slot:[`item.swift`]="{ item }">
+                  <v-text-field
+                    placeholder="Nro swift"
+                    :rules="[(v) => !!v || 'Dato Requerido']"
+                    v-model="item.nro_swift"
+                  ></v-text-field>
+                </template>
+                <template v-slot:[`item.intermediario`]="{ item }">
+                  <v-autocomplete
+                    :items="$store.state.bank.list"
+                    item-text="name"
+                    item-value="id"
+                    placeholder="Bancos"
+                    :rules="[(v) => !!v || 'Dato Requerido']"
+                    v-model="item.id_intermediario"
+                  ></v-autocomplete>
+                </template>
+                <template v-slot:[`item.cuenta_intermediario`]="{ item }">
+                  <v-text-field
+                    placeholder="Cuenta Intermediario"
+                    :rules="[(v) => !!v || 'Dato Requerido']"
+                    v-model="item.nro_cuenta_intermediario"
+                  ></v-text-field>
+                </template>
+                <template
+                  v-slot:[`item.action`]="{ item, index }"
+                  v-if="showFormActions"
+                >
+                  <v-btn
+                    color="red"
+                    icon
+                    @click="eliminarInformacionBancaria(index)"
+                  >
+                    <v-icon> mdi-delete</v-icon>
+                  </v-btn>
+                </template>
+              </v-data-table>
+            </v-form>
+          </v-col>
+        </v-row>
       </div>
     </v-card-text>
     <v-card-actions v-if="showNavigationButtons">
-      <v-btn color="primary" @click="$store.state.entities.stepper--">Regresar</v-btn>
+      <v-btn color="primary" @click="$store.state.entities.stepper--"
+        >Regresar</v-btn
+      >
+      <v-btn color="primary" class="ml-auto" @click="validarFormulario">
+        Continuar
+      </v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -93,10 +153,13 @@ export default {
         { text: "Moneda", value: "moneda" },
         { text: "Nro. de Swift", value: "swift" },
         { text: "Banco Intermediario", value: "intermediario" },
-        { text: "Nro Cuenta de Banco Intermediario", value: "cuenta_intermediario" },
+        {
+          text: "Nro Cuenta de Banco Intermediario",
+          value: "cuenta_intermediario",
+        },
         { text: "Acciones", value: "action" },
       ],
-    }
+    };
   },
   computed: {
     isFormReadonly() {
@@ -106,16 +169,23 @@ export default {
       return !this.$store.state.entities.isReadonly;
     },
     showNavigationButtons() {
-      return !(this.$store.state.entities.isEdit || this.$store.state.entities.isReadonly);
+      return !(
+        this.$store.state.entities.isEdit ||
+        this.$store.state.entities.isReadonly
+      );
     },
   },
   methods: {
     ...mapActions(["actualizarProveedor"]),
+    validarFormulario() {
+      var vm = this;
+      vm.$store.state.entities.stepper = 5;
+    },
     isInternacional() {
       let val = this.$store.state.masterusuarios.lstTipoTransaccion.some(
         (v) =>
           v.codigo == "02" &&
-          v.id == this.$store.state.entities.proveedor.id_tipotransaccion
+          v.id == this.$store.state.entities.proveedor.id_tipotransaccion,
       );
 
       return val;
@@ -162,7 +232,7 @@ export default {
         }
       },
       immediate: true,
-    }
-  }
-}
+    },
+  },
+};
 </script>
