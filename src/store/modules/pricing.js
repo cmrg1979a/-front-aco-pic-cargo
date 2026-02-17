@@ -1480,6 +1480,7 @@ const actions = {
     };
     let vm = this;
     let res = await axios(config).then(async (response) => {
+      console.log("crearCarpetaOneDrive", response.data.data);
       state.urlFolder = response.data.data;
     });
   },
@@ -1493,7 +1494,7 @@ const actions = {
       },
       data: {
         id: id,
-        url: url,
+        url: state.urlFolder,
       },
     };
     await axios(config).then(async (response) => {
