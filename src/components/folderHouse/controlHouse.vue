@@ -1377,7 +1377,7 @@ export default {
             vm.$store.state.copy_house.nro_hbl
               ? vm.$store.state.copy_house.nro_hbl
               : ""
-          }`;
+          } EXPEDIENTE: ${this.$store.state.house_master_expediente}`;
           // 4. ABRIR EL MAIL: Solo ocurre DESPUÉS de cerrar el alert
           const body = encodeURIComponent("CONTROL + V (PEGA LA TABLA AQUÍ)");
           window.location.href = `mailto:${

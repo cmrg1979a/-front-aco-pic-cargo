@@ -233,14 +233,14 @@
         <v-icon>mdi-account-tie-hat</v-icon> EDITAR
       </v-btn>
 
-      <v-btn
+      <!-- <v-btn
         color="#009688"
         dark
         @click="abrirModalPilotoAutomatico()"
-        v-if="getNameUrl() == 'editQuote' && $store.state.pricing.step == 2"
+        v-if="getNameUrl() == 'editQuote'"
       >
         COTIZAR PILOTO AUTOMATICO
-      </v-btn>
+      </v-btn> -->
       <v-spacer v-if="getNameUrl() == 'controlMasterEditar'"></v-spacer>
       <v-btn
         color="#009688"
@@ -667,46 +667,54 @@ export default {
       const to = selected
         .map((v) => v.email)
         .filter((e) => e)
-        .join(",");
+        .join(";");
 
-      const subject = "Cotizacion Nro: " + this.$store.state.pricing.nro_quote;
+      let incoterms = this.$store.state.pricing.listIncoterms.find(
+        (v) => v.id == this.$store.state.pricing.datosPrincipales.idincoterms,
+      );
+      const subject = `QUOTE${this.$store.state.pricing.nro_quote} ${
+        incoterms ? incoterms.name : ""
+      } ${this.$store.state.pricing.datosPrincipales.peso || ""}KGS / ${
+        this.$store.state.pricing.datosPrincipales.volumen || ""
+      }M3`;
 
-      // 1. Preparamos el HTML de la tabla
+      let miEmail = sessionStorage.getItem("dataUser")
+        ? JSON.parse(sessionStorage.getItem("dataUser"))[0].correoemail
+        : "";
+
       const tablaHtml = `
-    <div style="font-family: Arial, sans-serif;">
-      <p>Hola colega, me ayudas cotizando este embarque:</p>
-      <table border="1" style="border-collapse: collapse; width: 100%; max-width: 500px;">
-        <tr style="background-color: #eeeeee;">
-          <th style="padding: 8px; border: 1px solid #333;">CONCEPTO</th>
-          <th style="padding: 8px; border: 1px solid #333;">DETALLE</th>
-        </tr>
-        <tr><td style="padding: 8px; border: 1px solid #333;">INCOTERMS</td><td style="padding: 8px; border: 1px solid #333;">EXWORKS</td></tr>
-        <tr><td style="padding: 8px; border: 1px solid #333;">PESO</td><td style="padding: 8px; border: 1px solid #333;">${
-          this.$store.state.pricing.datosPrincipales.peso || ""
-        }</td></tr>
-        <tr><td style="padding: 8px; border: 1px solid #333;">M3</td><td style="padding: 8px; border: 1px solid #333;">${
-          this.$store.state.pricing.datosPrincipales.volumen || ""
-        }</td></tr>
-      </table>
-      <p>Saludos.</p>
-    </div>
-  `;
+        <div style="font-family: Arial, sans-serif;">
+          <p>Hola colega, me ayudas cotizando este embarque:</p>
+          <table border="1" style="border-collapse: collapse; width: 100%; max-width: 500px;">
+            <tr style="background-color: #eeeeee;">
+              <th style="padding: 8px; border: 1px solid #333;">CONCEPTO</th>
+              <th style="padding: 8px; border: 1px solid #333;">DETALLE</th>
+            </tr>
+            <tr><td style="padding: 8px; border: 1px solid #333;">INCOTERMS</td><td style="padding: 8px; border: 1px solid #333;">${
+              incoterms ? incoterms.name : ""
+            }</td></tr>
+            <tr><td style="padding: 8px; border: 1px solid #333;">PESO</td><td style="padding: 8px; border: 1px solid #333;">${
+              this.$store.state.pricing.datosPrincipales.peso || ""
+            }</td></tr>
+            <tr><td style="padding: 8px; border: 1px solid #333;">M3</td><td style="padding: 8px; border: 1px solid #333;">${
+              this.$store.state.pricing.datosPrincipales.volumen || ""
+            }</td></tr>
+          </table>
+          <p>Saludos.</p>
+        </div>
+      `;
 
       try {
-        // 2. Ejecutamos la copia al portapapeles primero
         const blob = new Blob([tablaHtml], { type: "text/html" });
         const data = [new ClipboardItem({ ["text/html"]: blob })];
         await navigator.clipboard.write(data);
 
-        // 3. EL ALERT: Detiene la ejecución hasta que el usuario dé clic
-        // Esto asegura que el usuario sepa que ya se copió
         alert(
           "Información de cotización copiada. Al aceptar, se abrirá Outlook. (Luego presiona Ctrl+V)",
         );
 
-        // 4. ABRIR EL MAIL: Solo ocurre DESPUÉS de cerrar el alert
-        const body = encodeURIComponent("Hola colega, (PEGA LA TABLA AQUÍ)");
-        window.location.href = `mailto:${to}?subject=${encodeURIComponent(
+        const body = encodeURIComponent("Hola colega, (PEGA LA TABLA AQUI)");
+        window.location.href = `mailto:${miEmail}?bcc=${to}&subject=${encodeURIComponent(
           subject,
         )}&body=${body}`;
       } catch (err) {

@@ -164,22 +164,6 @@
                     x-small
                     v-bind="attrs"
                     v-on="on"
-                    @click="to_direct({ url: item.url_folderonedrive })"
-                    v-if="item.url_folderonedrive"
-                  >
-                    <v-icon color="#FFAB00" dense small>mdi-folder</v-icon>
-                  </v-btn>
-                </template>
-                <span>Abrir Carpeta cotización</span>
-              </v-tooltip>
-              <!--  -->
-              <v-tooltip top>
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    fab
-                    x-small
-                    v-bind="attrs"
-                    v-on="on"
                     @click="eliminar(item.id, item.codigo)"
                     v-if="!(item.statusmain == 0 || item.aprobadoflag)"
                   >
@@ -188,6 +172,25 @@
                 </template>
                 <span>Eliminar</span>
               </v-tooltip>
+            </v-btn-toggle>
+            <v-btn-toggle>
+              <!--  -->
+              <v-tooltip top>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                    fab
+                    x-small
+                    v-bind="attrs"
+                    v-on="on"
+                    @click="abrirCaperta(item)"
+                  >
+                    <v-icon color="#FFAB00" dense small>mdi-folder</v-icon>
+                  </v-btn>
+                </template>
+                <span>Abrir Carpeta cotización</span>
+              </v-tooltip>
+              <!--  -->
+
               <v-tooltip top>
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
@@ -316,7 +319,7 @@
               :rules="[(v) => !!v || 'Dato Requerido']"
               v-if="
                 $store.state.pricing.listEnviadoCliente.filter(
-                  (v) => v.id == id_master_enviadocliente && v.codigo == 'SE'
+                  (v) => v.id == id_master_enviadocliente && v.codigo == 'SE',
                 ).length > 0
               "
               v-model="fecha_enviocliente"
@@ -436,7 +439,8 @@
     <v-dialog v-model="modalEnlazarHouse" max-width="900">
       <v-card>
         <v-card-title>
-          Enlazar Houses a Cotización {{ quoteSeleccionada ? quoteSeleccionada.codigo : '' }}
+          Enlazar Houses a Cotización
+          {{ quoteSeleccionada ? quoteSeleccionada.codigo : "" }}
           <v-spacer></v-spacer>
           <v-btn icon @click="modalEnlazarHouse = false">
             <v-icon>mdi-close</v-icon>
@@ -458,6 +462,40 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+    <!-- Modal abrir y/o editar url -->
+    <v-dialog
+      v-model="dialogUrl"
+      scrollable
+      persistent
+      max-width="30%"
+      transition="dialog-transition"
+    >
+      <v-card>
+        <v-card-title> Actualizar URL Carpeta </v-card-title>
+        <v-card-text>
+          <v-btn
+            color="success"
+            small
+            :disabled="!quoteEditar.url_folderonedrive"
+            @click="to_direct({ url: quoteEditar.url_folderonedrive })"
+          >
+            Abrir <v-icon class="mx-1">mdi-folder-open-outline</v-icon>
+          </v-btn>
+          <v-divider class="my-3"></v-divider>
+          <v-text-field
+            label="Nueva URL"
+            id="id"
+            v-model="url_folderonedrive"
+            append-icon="mdi-folder-check"
+            @click:append="actualizarUrl"
+          ></v-text-field>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="error" @click="dialogUrl = false">Cerrar</v-btn>
+          </v-card-actions>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -470,6 +508,11 @@ export default {
   name: "ListQuoteComponent",
   data() {
     return {
+      dialogUrl: false,
+      quoteEditar: {
+        url_folderonedrive: "",
+      },
+      url_folderonedrive: null,
       lstPricing: true,
       id_status: null,
       comentario: "",
@@ -494,12 +537,12 @@ export default {
       loadingHouses: false,
       quoteSeleccionada: null,
       headersHouses: [
-        { text: 'Código House', value: 'codigo' },
-        { text: 'Master', value: 'master' },
-        { text: 'Cliente', value: 'cliente' },
-        { text: 'Origen', value: 'origen' },
-        { text: 'Destino', value: 'destino' },
-        { text: 'Acciones', value: 'actions', sortable: false },
+        { text: "Código House", value: "codigo" },
+        { text: "Master", value: "master" },
+        { text: "Cliente", value: "cliente" },
+        { text: "Origen", value: "origen" },
+        { text: "Destino", value: "destino" },
+        { text: "Acciones", value: "actions", sortable: false },
       ],
       cabCotizaciones: [
         // {
@@ -646,6 +689,7 @@ export default {
       "cargarMaster",
       "aprobarCotizacion",
       "validarUsuarioAdmin",
+      "actualizarURLEnElQuote",
     ]),
     displayMarketing(item) {
       // Prefer server-provided friendly name if present
@@ -653,19 +697,19 @@ export default {
       const id = item.id_marketing || item.idmarketing || item.idMarketing;
       if (!id) return "";
       const m = (this.$store.state.pricing.listMarketing || []).find(
-        (v) => String(v.id) === String(id)
+        (v) => String(v.id) === String(id),
       );
       return m ? m.name : "";
-    }, 
+    },
     esItemAprobado(item) {
       // Verificar por aprobadoflag
       if (item.aprobadoflag === true) return true;
-       
+
       const statusName = (item.status || "").toString().toUpperCase().trim();
       if (statusName === "APROBADO" || statusName === "APROBADA") return true;
-      
+
       return false;
-    }, 
+    },
     esUsuarioAdmin() {
       try {
         const dataUser = JSON.parse(sessionStorage.getItem("dataUser"));
@@ -677,15 +721,15 @@ export default {
         console.error("Error al verificar usuario admin:", e);
       }
       return false;
-    }, 
-    handleEditar(item) { 
-      if (this.esItemAprobado(item)) { 
+    },
+    handleEditar(item) {
+      if (this.esItemAprobado(item)) {
         if (this.esUsuarioAdmin()) {
           this.ira("editQuote", item.id);
-        } else { 
+        } else {
           this.iraAprobado(item.id);
         }
-      } else { 
+      } else {
         this.ira("editQuote", item.id);
       }
     },
@@ -766,6 +810,12 @@ export default {
     to_direct({ url }) {
       window.open(url, "_blank");
     },
+    abrirCaperta(item) {
+      this.quoteEditar = { ...item };
+      this.url_folderonedrive = "";
+      this.dialogUrl = true;
+      // window.open(url, "_blank");
+    },
 
     async reporteListado() {
       this.loading2 = true;
@@ -787,6 +837,16 @@ export default {
         console.log(e);
       });
       this.loading = false;
+    },
+    async actualizarUrl() {
+      await this.actualizarURLEnElQuote({
+        id: this.quoteEditar.id,
+        url: this.url_folderonedrive,
+      });
+      this.quoteEditar.url_folderonedrive = this.url_folderonedrive;
+      setTimeout(async () => {
+        await this.getListQuote();
+      }, 1000);
     },
     abrirModal(quote) {
       this.quote = quote;
@@ -884,7 +944,7 @@ export default {
 
                 if (selectedDate.isSameOrBefore(currentDate)) {
                   Swal.showValidationMessage(
-                    "La fecha debe ser mayor que la fecha actual"
+                    "La fecha debe ser mayor que la fecha actual",
                   );
                 } else {
                   return dateInput;
@@ -976,7 +1036,7 @@ export default {
           Swal.fire(
             "ELIMINADO!",
             "COTIZACIÓN " + codigo + " ELIMINADA CON ÉXITO",
-            "success"
+            "success",
           );
           this.lstPricing = false;
           await vm.getListQuote().catch((err) => {
@@ -991,30 +1051,34 @@ export default {
       this.modalEnlazarHouse = true;
       this.loadingHouses = true;
       try {
-        const id_branch = JSON.parse(sessionStorage.getItem("dataUser"))[0].id_branch;
+        const id_branch = JSON.parse(sessionStorage.getItem("dataUser"))[0]
+          .id_branch;
         const response = await axios.get(
           process.env.VUE_APP_URL_MAIN + "listado_houses",
           {
-            params: { 
+            params: {
               id_branch,
             },
             headers: {
               "auth-token": sessionStorage.getItem("auth-token"),
             },
-          }
+          },
         );
         console.log("✅ Houses disponibles:", response.data);
         const allHouses = response.data.data || [];
-        const housesFiltrados = allHouses.filter(house => !house.id_cot || house.id_cot === 0 || house.id_cot === '0');
-        
+        const housesFiltrados = allHouses.filter(
+          (house) =>
+            !house.id_cot || house.id_cot === 0 || house.id_cot === "0",
+        );
+
         // Mapear los campos del backend a los que espera el frontend
-        this.housesDisponibles = housesFiltrados.map(house => ({
+        this.housesDisponibles = housesFiltrados.map((house) => ({
           id: house.id,
-          codigo: house.code_house || house.code_master || 'N/A',
-          master: house.nro_house || house.nro_hbl || 'N/A',
-          cliente: house.nameconsigner || 'Sin cliente',
-          origen: house.nameportbegin || 'N/A',
-          destino: house.nameportend || 'N/A',
+          codigo: house.code_house || house.code_master || "N/A",
+          master: house.nro_house || house.nro_hbl || "N/A",
+          cliente: house.nameconsigner || "Sin cliente",
+          origen: house.nameportbegin || "N/A",
+          destino: house.nameportend || "N/A",
         }));
         sessionStorage.setItem("auth-token", response.data.token);
       } catch (error) {
@@ -1051,7 +1115,7 @@ export default {
             headers: {
               "auth-token": sessionStorage.getItem("auth-token"),
             },
-          }
+          },
         );
 
         sessionStorage.setItem("auth-token", response.data.token);
@@ -1077,7 +1141,7 @@ export default {
     },
   },
   async mounted() {
-    this.$store.state.mainTitle = 'LISTADO DE COTIZACIONES';
+    this.$store.state.mainTitle = "LISTADO DE COTIZACIONES";
 
     this.$store.state.pricing.filtro = {
       id_marketing: "",

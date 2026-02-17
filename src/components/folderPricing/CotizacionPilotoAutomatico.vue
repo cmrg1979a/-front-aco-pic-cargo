@@ -48,10 +48,50 @@
 
       <v-stepper-step :complete="e6 > 2" step="2">
         Costos Requerido:
+        <v-simple-table dense>
+          <thead>
+            <tr>
+              <th></th>
+              <th style="">Proveedor</th>
+              <th style="">Conceptos</th>
+              <th style="">Multipicador</th>
+              <th class="derecha" style="">Costo Unitario</th>
+              <th style="">Sub Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="(valor, i) in $store.state.pricing.opcionCostos[
+                $store.state.pricing.index
+              ].listCostos.filter(
+                (v) => v.esopcionflag == 1 && v.costounitario == 0,
+              )"
+              :key="i"
+            >
+              <td class="colProveedorMultiplicador">
+                <v-autocomplete
+                  dense
+                  item-text="namelong"
+                  item-value="id"
+                  :items="$store.state.proveedor.lstProveedores"
+                  @update:search-input="recargarProveedores"
+                  v-model="valor.id_proveedor"
+                  hide-details
+                  append-icon="mdi-plus"
+                  @click:append="abrirModalRegistroProveedor(valor)"
+                ></v-autocomplete>
+              </td>
+
+              <td>{{ valor.concepto }}</td>
+              <td>{{ valor.multiplicador }}</td>
+              <td class="derecha">{{ currencyFormat(valor.costounitario) }}</td>
+              <td>{{ currencyFormat(valor.subtotal) }}</td>
+            </tr>
+          </tbody>
+        </v-simple-table>
       </v-stepper-step>
 
       <v-stepper-content step="2">
-        <v-card color="grey lighten-1" class="mb-12" height="200px"></v-card>
         <v-btn small class="mx-1" color="primary" @click="continuar(3)">
           Continue
         </v-btn>
@@ -133,6 +173,20 @@ export default {
     };
   },
   methods: {
+    async recargarProveedores(e) {
+      let opciones = [...this.$store.state.pricing.opcionCostos];
+      let IdProveedor = [];
+      opciones.forEach((opcion) => {
+        opcion.listCostos.forEach((costo) => {
+          if (!IdProveedor.some((v) => v == costo.id_proveedor))
+            IdProveedor.push(costo.id_proveedor);
+        });
+      });
+      await this.obtenerProveedorPricing({
+        id: IdProveedor.join(","),
+        search: e,
+      });
+    },
     isDateValid(date) {
       if (!date) {
         return true; // Pasa la validación si el campo está vacío
