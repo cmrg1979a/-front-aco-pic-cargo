@@ -417,7 +417,7 @@ export default {
           }).catch((err) => {
             console.log("crearCarpetaOneDrive", err);
           });
-
+          console.log("New Quote");
           await this.actualizarURLEnElQuote({
             id: this.$store.state.pricing.id,
             url: this.$store.state.pricing.urlFolder,

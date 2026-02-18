@@ -1869,7 +1869,6 @@ export default {
   },
   mounted() {
     this.calcTotales();
-    console.log("VALORES", this.valores);
   },
   methods: {
     eliminarCostos({ costo = null }) {

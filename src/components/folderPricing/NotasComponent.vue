@@ -64,7 +64,7 @@
                     $store.state.pricing.page - 1
                   ].listNotasQuote.filter(
                     (v) =>
-                      v.estado == 1 && !v.statusincluye && !v.statusnoincluye
+                      v.estado == 1 && !v.statusincluye && !v.statusnoincluye,
                   )
                 "
                 hide-default-footer
@@ -118,7 +118,7 @@
                 </v-btn>
               </span>
             </v-expansion-panel-header>
-            
+
             <v-expansion-panel-content>
               <v-data-table
                 :headers="headers"
@@ -534,110 +534,73 @@ export default {
     async generar() {
       this.$store.state.pricing.tiporeporte = this.tiporeporte;
       this.loading = true;
-      if (!this.$route.params.id) {
-        if (this.$refs.frmReporte.validate()) {
-          this.$store.state.spiner = true;
-          await this.registrarQuote({ fullflag: true }).catch((e) => {
-            console.log(e);
-          });
-          if (this.$store.state.pricing.nro_quote) {
-            this.$store.state.spiner = false;
-            let vm = this;
-            await this.obtenerDatosEmpresa().catch((e) => {
-              console.log(e);
-            });
 
-            for (
-              let index = 0;
-              index < this.$store.state.pricing.opcionCostos.length;
-              index++
-            ) {
-              if (
-                this.$store.state.pricing.opcionCostos[index].selected == true
-              ) {
-                await this.generarReporte({
-                  tipo: this.tiporeporte,
-                  nro_propuesta:
-                    this.$store.state.pricing.opcionCostos[index].nro_propuesta,
-                }).catch((e) => {
-                  console.log(e);
-                });
-              }
-            }
-            this.loadingTable = false;
-            this.loading = false;
-            this.$store.state.spiner = false;
-            let id_branch = JSON.parse(sessionStorage.getItem("dataUser"))[0]
-              .id_branch;
-            let branchCreacion = [1, 2];
-            if (branchCreacion.includes(id_branch)) {
-              this.crearCarpetaOneDrive({
-                nro_quote: this.$store.state.pricing.nro_quote,
-                nombre: this.$store.state.pricing.datosPrincipales.nombre,
-              }).catch((err) => {
-                console.log("crearCarpetaOneDrive", err);
-              });
+      if (this.$refs.frmReporte.validate()) {
+        this.$store.state.spiner = true;
 
-              await this.actualizarURLEnElQuote({
-                id: this.$store.state.pricing.id,
-                url: this.$store.state.pricing.urlFolder,
-              }).catch((err) => {
-                console.log("actualizarURLEnElQuote", err);
-              });
-            }
-            this.$router.push({
-              name: "verQuote",
-              params: {
-                id: this.$store.state.pricing.id,
-              },
-            });
-          }
-        }
-      } else {
-        if (this.$refs.frmReporte.validate()) {
-          this.$store.state.spiner = true;
-          this.imprimirFlag = false;
+        // 1. Registro inicial
+        await this.registrarQuote({ fullflag: true }).catch((e) =>
+          console.log(e),
+        );
 
-          await this.updateQuote();
-          await this.obtenerDatosEmpresa();
+        if (this.$store.state.pricing.nro_quote) {
+          this.$store.state.spiner = false;
+          await this.obtenerDatosEmpresa().catch((e) => console.log(e));
 
+          // 2. Generación de reportes
           for (
             let index = 0;
             index < this.$store.state.pricing.opcionCostos.length;
             index++
           ) {
-            Swal.fire({
-              icon: "info",
-              text: "Se está generando el (los) pdf.",
-              allowEnterKey: false,
-              allowEscapeKey: false,
-              allowOutsideClick: false,
-              timerProgressBar: true,
-              timer: null,
-              didOpen: () => {
-                Swal.showLoading();
-              },
-            });
             if (
               this.$store.state.pricing.opcionCostos[index].selected == true
             ) {
               await this.generarReporte({
-                tipo: this.$store.state.pricing.tiporeporte,
+                tipo: this.tiporeporte,
                 nro_propuesta:
                   this.$store.state.pricing.opcionCostos[index].nro_propuesta,
-              }).catch((e) => {
-                console.error(e);
-              });
+              }).catch((e) => console.log(e));
             }
           }
-          Swal.close();
+
+          this.loadingTable = false;
+          this.loading = false;
+
+          // 3. Lógica de OneDrive
+          let userStr = sessionStorage.getItem("dataUser");
+          let id_branch = userStr ? JSON.parse(userStr)[0].id_branch : null;
+          let branchCreacion = [1, 2];
+
+          if (branchCreacion.includes(id_branch)) {
+            console.log("Iniciando creación de carpeta...");
+
+            // Aquí recibimos el return de la función anterior
+            const urlGenerada = await this.crearCarpetaOneDrive({
+              nro_quote: this.$store.state.pricing.nro_quote,
+              nombre: this.$store.state.pricing.datosPrincipales.nombre,
+            });
+
+            console.log("URL capturada en generar():", urlGenerada);
+
+            if (urlGenerada) {
+              await this.actualizarURLEnElQuote({
+                id: this.$store.state.pricing.id,
+                url: urlGenerada,
+              });
+              console.log("Base de datos actualizada con URL de OneDrive");
+            } else {
+              console.warn(
+                "No se obtuvo URL de OneDrive, se saltó la actualización.",
+              );
+            }
+          }
+
+          // 4. Redirección final
           this.$router.push({
             name: "verQuote",
-            params: {
-              id: this.$store.state.pricing.id,
-            },
+            params: { id: this.$store.state.pricing.id },
           });
-          this.$store.state.spiner = false;
         }
       }
     },
@@ -655,7 +618,7 @@ export default {
         (estatus) =>
           estatus.defaultstatus === 1 ||
           estatus.defaultstatus === "1" ||
-          estatus.defaultstatus === true
+          estatus.defaultstatus === true,
       );
 
       if (estatusDefault) {
@@ -698,7 +661,7 @@ export default {
     },
     lstSeIncluye() {
       let val = this.$store.state.pricing.listServices.filter(
-        (v) => v.status == 1
+        (v) => v.status == 1,
       );
 
       let opcion = this.opcionesSeleccionadas[
@@ -709,22 +672,28 @@ export default {
       let final = [...val, ...opcion];
 
       // Agregar al final: Fecha de Vigencia y Tiempo de Tránsito (si existen)
-      const opt = this.opcionesSeleccionadas[this.$store.state.pricing.page - 1] || {};
-      const fechaVigencia = opt.date_end || this.$store.state.pricing.datosPrincipales.fecha_fin;
-      const ttransito = opt.tiempo_transito || this.$store.state.pricing.datosPrincipales.tiempo_transito;
+      const opt =
+        this.opcionesSeleccionadas[this.$store.state.pricing.page - 1] || {};
+      const fechaVigencia =
+        opt.date_end || this.$store.state.pricing.datosPrincipales.fecha_fin;
+      const ttransito =
+        opt.tiempo_transito ||
+        this.$store.state.pricing.datosPrincipales.tiempo_transito;
       if (fechaVigencia) {
-        final.push({ service: `Fecha de vigencia: ${this.formatDate(fechaVigencia)}` });
+        final.push({
+          service: `Fecha de vigencia: ${this.formatDate(fechaVigencia)}`,
+        });
       }
       if (ttransito) {
         const unidad = Number(ttransito) === 1 ? "día" : "días";
         final.push({ service: `Tiempo de tránsito: ${ttransito} ${unidad}` });
       }
-      
+
       return final;
     },
     lstNoIncluye() {
       let val = this.$store.state.pricing.listServices.filter(
-        (v) => v.status == 0
+        (v) => v.status == 0,
       );
 
       let opcion = this.opcionesSeleccionadas[
@@ -733,7 +702,7 @@ export default {
       opcion = opcion.map((v) => ({ ...v, service: v.descripcion }));
 
       let final = [...val, ...opcion];
-    
+
       return final;
     },
   },
