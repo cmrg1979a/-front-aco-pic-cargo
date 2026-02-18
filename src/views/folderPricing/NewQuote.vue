@@ -171,6 +171,7 @@ export default {
       "cargarMasterDetallePercepcionAduana",
       "_getContainers",
       "crearCarpetaOneDrive",
+      "actualizarURLEnElQuote",
     ]),
     recargar() {
       if (this.$store.state.pricing.listServices.length > 0) {
