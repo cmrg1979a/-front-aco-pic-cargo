@@ -410,7 +410,6 @@ const miMixin = {
     formatearNotas({ notas = [] }) {
       let notes = [];
       notas.forEach((nota) => {
-        console.log(notas)
         notes.push({
           id: nota.id ? nota.id : null,
           descripcion: nota.descripcion,

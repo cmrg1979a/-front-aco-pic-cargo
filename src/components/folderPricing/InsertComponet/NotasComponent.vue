@@ -425,7 +425,7 @@ export default {
     this.dialog = false;
     if (
       (this.opcionesSeleccionadas = this.$store.state.pricing.opcionCostos.some(
-        (v) => !!v.selected
+        (v) => !!v.selected,
       ))
     ) {
       this.opcionesSeleccionadas =
@@ -535,10 +535,14 @@ export default {
             }).catch((err) => {
               console.log("crearCarpetaOneDrive", err);
             });
-
-            await this.actualizarURLEnElQuote({
-              id: this.$store.state.pricing.id,
-              url: this.$store.state.pricing.urlFolder,
+            setTimeout(async () => {
+              await this.actualizarURLEnElQuote(
+                {
+                  id: this.$store.state.pricing.id,
+                  url: this.$store.state.pricing.urlFolder,
+                },
+                100,
+              );
             }).catch((err) => {
               console.log("actualizarURLEnElQuote", err);
             });
@@ -565,7 +569,7 @@ export default {
         (estatus) =>
           estatus.defaultstatus === 1 ||
           estatus.defaultstatus === "1" ||
-          estatus.defaultstatus === true
+          estatus.defaultstatus === true,
       );
 
       if (estatusDefault) {

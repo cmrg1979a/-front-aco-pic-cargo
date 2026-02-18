@@ -233,14 +233,14 @@
         <v-icon>mdi-account-tie-hat</v-icon> EDITAR
       </v-btn>
 
-      <!-- <v-btn
+      <v-btn
         color="#009688"
         dark
         @click="abrirModalPilotoAutomatico()"
         v-if="getNameUrl() == 'editQuote'"
       >
         COTIZAR PILOTO AUTOMATICO
-      </v-btn> -->
+      </v-btn>
       <v-spacer v-if="getNameUrl() == 'controlMasterEditar'"></v-spacer>
       <v-btn
         color="#009688"
