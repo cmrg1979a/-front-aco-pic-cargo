@@ -390,7 +390,7 @@
           </v-btn>
         </v-card-title>
         <v-card-text>
-          <CotizacionPilotoAutomatico />
+          <CotizacionPilotoAutomatico @close="dialogPilotoAutomatico = false" />
         </v-card-text>
         <!-- <v-card-actions> </v-card-actions> -->
       </v-card>

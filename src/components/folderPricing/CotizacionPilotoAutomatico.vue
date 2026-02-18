@@ -456,13 +456,14 @@ export default {
     },
     continuar(step) {
       this.$store.state.pricing.tiporeporte = "AGRUPADO";
-      if (step == 1 && !this.$refs.frmFecha.validate()) {
+      if (step == 2 && !this.$refs.frmFecha.validate()) {
         return;
       }
       if (step === 5) {
+        console.log(this.$store.state.pricing.listMultiplicador);
         let idEmbarque = this.$store.state.pricing.listMultiplicador.filter(
-          (v) => v.code == 1,
-        )[0].valor;
+          (v) => Number(v.code) == 1,
+        )[0].id;
         let flags = { origin: 0, local: 0, aduana: 0, almacen: 0, terceros: 0 };
         if (this.mostrarOrigen) {
           flags.origin = 1;
@@ -476,10 +477,12 @@ export default {
           flags.terceros = 1;
         }
         let fromDataService = {
+          id: "",
+          code_cost: "0",
           ventaFlag: 0,
           esopcionflag: 0,
           id_begend: 0,
-          costounitario: this.profit,
+          costounitario: Number(this.profit),
           esorigenflag: 0,
           eslocalflag: 1,
           esaduanaflag: 0,
@@ -491,17 +494,7 @@ export default {
           id_groupservices: 0,
           id_multiplicador: idEmbarque,
           id_proveedor: 0,
-          nameservice: "Profit",
-          // id_multiplicador: idEmbarque,
-          // nameservice: "Profit",
-          // costounitario: this.profit,
-          // esventaflag: 1,
-          // eslocalflag: 1,
-          // esaduanaflag: 1,
-          // esalmacenflag: 1,
-          // gastostercero: 1,
-          // idOpcion: "LO",
-          // status: 1,
+          nameservice: "PROFIT",
         };
         this.$store.state.pricing.opcionCostos[0].listCostos.push(
           fromDataService,
@@ -528,7 +521,8 @@ export default {
           if (costo) {
             venta.costounitario = costo.costounitario;
             venta.id_multiplicador = costo.id_multiplicador;
-            console.log(venta);
+            venta.cif = costo.cif;
+            venta.seguro = costo.seguro;
           }
         });
       this.continuar(4);
@@ -1397,6 +1391,7 @@ export default {
         },
       });
       this.$store.state.spiner = false;
+      this.$emit("close");
       // } else {
       //   Swal.fire({
       //     title: "ADVERTENCIA",
