@@ -1479,14 +1479,12 @@ const actions = {
     };
 
     try {
-      let response = await axios(config);
-      // Guardamos en el estado de Vuex
-      state.urlFolder = response.data.data;
-      // IMPORTANTE: Retornamos el valor para que quien lo llame pueda usarlo inmediatamente
+      const response = await axios(config);
+      // IMPORTANTE: Debes retornar el valor para que 'urlGenerada' tenga contenido
       return response.data.data;
     } catch (error) {
-      console.error("Error en crearCarpetaOneDrive", error);
-      throw error;
+      console.error("Error en crearCarpetaOneDrive:", error);
+      return null; // Retornamos null para manejar el error en la siguiente etapa
     }
   },
   async actualizarURLEnElQuote(__, { id = "", url = "" }) {

@@ -493,18 +493,20 @@ export default {
     async generar() {
       this.$store.state.pricing.tiporeporte = this.tiporeporte;
       this.loading = true;
+
       if (this.$refs.frmReporte.validate()) {
         this.$store.state.spiner = true;
-        await this.registrarQuote({ fullflag: true }).catch((e) => {
-          console.log(e);
-        });
+
+        // 1. Registro inicial
+        await this.registrarQuote({ fullflag: true }).catch((e) =>
+          console.log(e),
+        );
+
         if (this.$store.state.pricing.nro_quote) {
           this.$store.state.spiner = false;
-          let vm = this;
-          await this.obtenerDatosEmpresa().catch((e) => {
-            console.log(e);
-          });
+          await this.obtenerDatosEmpresa().catch((e) => console.log(e));
 
+          // 2. Generación de reportes
           for (
             let index = 0;
             index < this.$store.state.pricing.opcionCostos.length;
@@ -517,39 +519,46 @@ export default {
                 tipo: this.tiporeporte,
                 nro_propuesta:
                   this.$store.state.pricing.opcionCostos[index].nro_propuesta,
-              }).catch((e) => {
-                console.log(e);
-              });
+              }).catch((e) => console.log(e));
             }
           }
+
           this.loadingTable = false;
           this.loading = false;
-          this.$store.state.spiner = false;
-          let id_branch = JSON.parse(sessionStorage.getItem("dataUser"))[0]
-            .id_branch;
+
+          // 3. Lógica de OneDrive
+          let userStr = sessionStorage.getItem("dataUser");
+          let id_branch = userStr ? JSON.parse(userStr)[0].id_branch : null;
           let branchCreacion = [1, 2];
+
           if (branchCreacion.includes(id_branch)) {
+            console.log("Iniciando creación de carpeta...");
+
+            // Aquí recibimos el return de la función anterior
             const urlGenerada = await this.crearCarpetaOneDrive({
               nro_quote: this.$store.state.pricing.nro_quote,
               nombre: this.$store.state.pricing.datosPrincipales.nombre,
             });
 
-            console.log("URL recibida:", urlGenerada);
+            console.log("URL capturada en generar():", urlGenerada);
 
-            // 2. Si tenemos la URL, llamamos a la actualización inmediatamente
             if (urlGenerada) {
               await this.actualizarURLEnElQuote({
                 id: this.$store.state.pricing.id,
-                url: urlGenerada, // Usamos la variable local, no la del store que podría no estar sincronizada aún
+                url: urlGenerada,
               });
-              console.log("Quote actualizado con éxito");
+              console.log("Base de datos actualizada con URL de OneDrive");
+            } else {
+              console.warn(
+                "No se obtuvo URL de OneDrive, se saltó la actualización.",
+              );
             }
           }
+
+          // 4. Redirección final
           this.$router.push({
             name: "verQuote",
-            params: {
-              id: this.$store.state.pricing.id,
-            },
+            params: { id: this.$store.state.pricing.id },
           });
         }
       }
