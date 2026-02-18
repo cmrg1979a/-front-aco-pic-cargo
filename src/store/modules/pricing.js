@@ -1467,7 +1467,6 @@ const actions = {
   },
   async crearCarpetaOneDrive(__, { nro_quote = "", nombre = "" }) {
     let folder = nro_quote + "-" + nombre;
-    // let folder = "test";
     let config = {
       method: "get",
       url:
@@ -1478,10 +1477,17 @@ const actions = {
         "Content-Type": "application/json",
       },
     };
-    let vm = this;
-    let res = await axios(config).then(async (response) => {
+
+    try {
+      let response = await axios(config);
+      // Guardamos en el estado de Vuex
       state.urlFolder = response.data.data;
-    });
+      // IMPORTANTE: Retornamos el valor para que quien lo llame pueda usarlo inmediatamente
+      return response.data.data;
+    } catch (error) {
+      console.error("Error en crearCarpetaOneDrive", error);
+      throw error;
+    }
   },
   async actualizarURLEnElQuote(__, { id = "", url = "" }) {
     console.log("crearCarpetaOneDrive", url);

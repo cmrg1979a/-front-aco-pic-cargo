@@ -529,23 +529,21 @@ export default {
             .id_branch;
           let branchCreacion = [1, 2];
           if (branchCreacion.includes(id_branch)) {
-            this.crearCarpetaOneDrive({
+            const urlGenerada = await this.crearCarpetaOneDrive({
               nro_quote: this.$store.state.pricing.nro_quote,
               nombre: this.$store.state.pricing.datosPrincipales.nombre,
-            }).catch((err) => {
-              console.log("crearCarpetaOneDrive", err);
             });
-            setTimeout(async () => {
-              await this.actualizarURLEnElQuote(
-                {
-                  id: this.$store.state.pricing.id,
-                  url: this.$store.state.pricing.urlFolder,
-                },
-                100,
-              );
-            }).catch((err) => {
-              console.log("actualizarURLEnElQuote", err);
-            });
+
+            console.log("URL recibida:", urlGenerada);
+
+            // 2. Si tenemos la URL, llamamos a la actualización inmediatamente
+            if (urlGenerada) {
+              await this.actualizarURLEnElQuote({
+                id: this.$store.state.pricing.id,
+                url: urlGenerada, // Usamos la variable local, no la del store que podría no estar sincronizada aún
+              });
+              console.log("Quote actualizado con éxito");
+            }
           }
           this.$router.push({
             name: "verQuote",
