@@ -79,21 +79,146 @@
           </v-card>
         </v-col>
       </v-row>
-      <div style="position: fixed; bottom: 16px; right: 16px">
-        <v-fab-transition v-if="formControlHouseReadonly">
+      <div style="position: fixed; bottom: 16px; right: 16px; z-index: 3000">
+        <v-speed-dial
+          v-model="fab"
+          :direction="'top'"
+          :transition="'slide-y-reverse-transition'"
+          class="acciones-dial"
+        >
+          <template v-slot:activator>
+            <v-btn v-model="fab" color="info" dark fab>
+              <v-icon v-if="fab"> mdi-close </v-icon>
+              <v-icon v-else> mdi-tools </v-icon>
+            </v-btn>
+          </template>
+
           <v-btn
-            fab
-            large
+            color="red"
             dark
-            bottom
-            left
-            color="info"
-            @click="irAVerMaster()"
+            :loading="loadingBotonEliminarHouse"
+            @click="eliminarHouse()"
           >
-            <v-icon> mdi-pencil </v-icon>
+            <v-icon left>mdi-delete</v-icon>
+            Eliminar
           </v-btn>
-        </v-fab-transition>
+          <v-btn
+            color="orange darken-2"
+            dark
+            :loading="loadingBotonTracking"
+            @click="_generateTrackingToken"
+          >
+            <v-icon left>mdi-link-variant</v-icon>
+            Tracking
+          </v-btn>
+          <v-btn
+            :style="{ backgroundColor: 'rgb(92, 116, 137)', color: 'white' }"
+            @click="abrirModalFormato()"
+          >
+            <v-icon left style="color: white">mdi-printer</v-icon>
+            Imprimir
+          </v-btn>
+
+          <v-btn color="deep-purple" dark @click="openNotificaciones">
+            <v-icon left style="transform: rotate(-45deg)">mdi-send</v-icon>
+            Notificaciones
+          </v-btn>
+          <v-btn color="light-green lighten-1" dark @click="irAVerMaster()">
+            <v-icon left>mdi-pencil</v-icon>
+            Editar
+          </v-btn>
+        </v-speed-dial>
       </div>
+      <div
+        v-if="$store.state.house_enlace_tracking"
+        style="
+          position: fixed;
+          right: 88px;
+          bottom: 16px;
+          z-index: 3500;
+          max-width: 420px;
+          width: calc(100vw - 120px);
+        "
+      >
+        <v-text-field
+          v-model="$store.state.house_enlace_tracking"
+          label="Enlace de Tracking"
+          readonly
+          outlined
+          dense
+          hide-details
+        >
+          <template v-slot:append>
+            <v-btn
+              icon
+              small
+              color="primary"
+              @click="_copyEnlaceTracking($store.state.house_enlace_tracking)"
+            >
+              <v-icon small>mdi-content-copy</v-icon>
+            </v-btn>
+          </template>
+        </v-text-field>
+      </div>
+      <!-- Menú de notificaciones -->
+      <v-menu
+        v-model="openMenuNotificaciones"
+        top
+        offset-y
+        content-class="elevation-0"
+      >
+        <template v-slot:activator="{ on, attrs }">
+          <span v-bind="attrs" v-on="on"></span>
+        </template>
+        <v-list color="transparent" v-show="displayMenuNotificaciones">
+          <v-list-item
+            v-for="(item, index) in getItemsNotificaciones()"
+            :key="index"
+            class="px-0"
+          >
+            <v-list-item-title>
+              <v-btn
+                depressed
+                block
+                small
+                color="primary"
+                @click="sendNotificacion(item)"
+              >
+                {{ item.title }}
+              </v-btn>
+            </v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
+      <!-- Modal para seleccionar formato de impresión -->
+      <v-dialog v-model="dialogFormato" max-width="400px">
+        <v-card>
+          <v-card-title primary-title class="light-blue darken-2 white--text">
+            Imprimir Formato {{ isAereo() ? "GUÍA AÉREA" : "BL" }}
+          </v-card-title>
+          <v-card-text class="pt-4">
+            <p class="subtitle-1 mb-2">¿Imprimir con fondo?</p>
+            <v-radio-group v-model="formatoflag">
+              <v-radio label="Sí" :value="true"></v-radio>
+              <v-radio label="No" :value="false"></v-radio>
+            </v-radio-group>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="success" v-if="isAereo()" @click="exportarFormatoAWB()">
+              <v-icon left>mdi-printer</v-icon>
+              Imprimir Guía Aérea
+            </v-btn>
+            <v-btn color="success" v-else @click="exportarFormatoHBL()">
+              <v-icon left>mdi-printer</v-icon>
+              Imprimir BL
+            </v-btn>
+            <v-btn color="grey" text @click="dialogFormato = false">
+              Cancelar
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-container>
     
     <!-- <v-footer app color="white" elevation="5" height="72" inset>
@@ -190,6 +315,11 @@ export default {
     loadingBotonNotificaciones: false,
     loadingBotonGuardarHouse: false,
     loadingBotonEliminarHouse: false,
+    fab: false,
+    loadingBotonTracking: false,
+    openMenuNotificaciones: false,
+    dialogFormato: false,
+    formatoflag: true,
   }),
   async mounted() {
     this.$store.state.spiner = true;
@@ -234,6 +364,164 @@ export default {
         id: this.$route.params.id,
       });
       window.location.reload();
+    },
+    abrirModalFormato() {
+      this.dialogFormato = true;
+    },
+    async exportarFormatoAWB() {
+      try {
+        const response = await axios({
+          method: "get",
+          url: `${process.env.VUE_APP_URL_MAIN}generar_formato_awb`,
+          params: {
+            id_house: this.$route.params.id,
+            formatoflag: this.formatoflag,
+          },
+          headers: {
+            "auth-token": sessionStorage.getItem("auth-token"),
+          },
+          responseType: "blob",
+        });
+
+        const blob = new Blob([response.data], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+
+        const link = document.createElement("a");
+        link.href = window.URL.createObjectURL(blob);
+        const timestamp = new Date()
+          .toISOString()
+          .replace(/[:.]/g, "-")
+          .slice(0, -5);
+        const filename = `formato_awb_${timestamp}.xlsx`;
+        link.download = filename;
+        link.click();
+
+        window.URL.revokeObjectURL(link.href);
+      } catch (err) {
+        console.error("Error exportando archivo:", err);
+        this.$swal({
+          icon: "error",
+          title: "Error",
+          text: "No se pudo generar el formato",
+        });
+      }
+      this.dialogFormato = false;
+    },
+    async exportarFormatoHBL() {
+      try {
+        const response = await axios({
+          method: "get",
+          url: `${process.env.VUE_APP_URL_MAIN}generar_formato_bl`,
+          params: {
+            id_house: this.$route.params.id,
+            formatoflag: this.formatoflag,
+          },
+          headers: {
+            "auth-token": sessionStorage.getItem("auth-token"),
+          },
+          responseType: "blob",
+        });
+
+        const blob = new Blob([response.data], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+
+        const link = document.createElement("a");
+        link.href = window.URL.createObjectURL(blob);
+        const timestamp = new Date()
+          .toISOString()
+          .replace(/[:.]/g, "-")
+          .slice(0, -5);
+        const filename = `formato_bl_${timestamp}.xlsx`;
+        link.download = filename;
+        link.click();
+
+        window.URL.revokeObjectURL(link.href);
+      } catch (err) {
+        console.error("Error exportando archivo:", err);
+        this.$swal({
+          icon: "error",
+          title: "Error",
+          text: "No se pudo generar el formato",
+        });
+      }
+      this.dialogFormato = false;
+    },
+    async _generateTrackingToken() {
+      const { v4: uuidv4 } = require("uuid");
+      const token = uuidv4();
+
+      this.loadingBotonTracking = true;
+      await this._setTrackingToken(token);
+      this.loadingBotonTracking = false;
+    },
+    async _setTrackingToken(token) {
+      var vm = this;
+
+      var data = {
+        id_house: vm.$route.params.id,
+        token: token,
+        fecha: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+          .toISOString()
+          .substr(0, 10),
+      };
+
+      var config = {
+        method: "put",
+        url: process.env.VUE_APP_URL_MAIN + `setTrackingToken`,
+        headers: {
+          "auth-token": sessionStorage.getItem("auth-token"),
+          "Content-Type": "application/json",
+        },
+        data: data,
+      };
+
+      await axios(config)
+        .then(function (response) {
+          sessionStorage.setItem("auth-token", response.data.token);
+
+          if (response.data.estadoflag) {
+            vm.$store.state.house_enlace_tracking =
+              "https://aco.agentedecargaonline.com/tracking/" +
+              response.data.data[0].token;
+
+            vm.$swal({
+              icon: "success",
+              title: "Éxito",
+              text: "Enlace de tracking generado correctamente",
+            });
+          } else {
+            Swal.fire({
+              icon: response.data.status == "401" ? "error" : "info",
+              text: response.data.mensaje,
+              allowOutsideClick: false,
+              allowEscapeKey: false,
+              allowEnterKey: false,
+            });
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+          vm.$swal({
+            icon: "error",
+            title: "Error",
+            text: "No se pudo generar el enlace de tracking",
+          });
+        });
+    },
+    async _copyEnlaceTracking(texto) {
+      await navigator.clipboard.writeText(texto);
+      this.$swal({
+        icon: "success",
+        title: "Copiado",
+        text: "Enlace copiado al portapapeles",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    },
+    openNotificaciones() {
+      this.validarMenuNotificaciones();
     },
     _setMasterContainer(id_master, id_containers, quantity) {
       var vm = this;
@@ -690,13 +978,6 @@ export default {
           console.log(error);
         });
     },
-    irAVerMaster() {
-      this.$router.push({
-        name: "controlHouseEditar",
-        id: this.$route.params.id,
-      });
-      window.location.reload();
-    },
     async _getHouseServices() {
       var vm = this;
 
@@ -849,5 +1130,27 @@ export default {
 .title_button_bottom {
   text-decoration: none;
   color: #252c32;
+}
+
+.acciones-dial ::v-deep .v-speed-dial__list {
+  align-items: flex-end !important;
+}
+.acciones-dial ::v-deep .v-speed-dial__list .v-btn {
+  align-self: flex-end;
+  min-width: 220px;
+}
+.acciones-dial ::v-deep .v-speed-dial__list .v-btn .v-btn__content {
+  justify-content: flex-start;
+  width: 100%;
+  font-size: 1.2rem;
+  line-height: 1.4;
+}
+.acciones-dial ::v-deep .v-speed-dial__list .v-btn .v-icon {
+  font-size: 22px !important;
+  margin-right: 8px;
+}
+.acciones-dial {
+  position: relative;
+  z-index: 4000 !important;
 }
 </style>
