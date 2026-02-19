@@ -1,11 +1,22 @@
 <template>
   <div>
-    <!-- <v-list three-line> -->
     <template>
       <v-expansion-panels v-model="openExpand">
         <v-expansion-panel>
-          <v-expansion-panel-header> LISTA DE HOUSE </v-expansion-panel-header>
           <v-expansion-panel-content>
+            <v-tabs v-model="activeTab" background-color="transparent" color="primary">
+              <v-tab key="houses">
+                <v-icon left>mdi-home-group</v-icon>
+                Lista de House
+              </v-tab>
+              <v-tab key="comments">
+                <v-icon left>mdi-comment-text-multiple</v-icon>
+                Comentarios
+              </v-tab>
+            </v-tabs>
+
+            <v-tabs-items v-model="activeTab">
+              <v-tab-item key="houses">
             <v-row dense>
               <v-col cols="12" md="3">
                 <v-text-field
@@ -74,11 +85,38 @@
                 </tbody>
               </template>
             </v-simple-table>
+              </v-tab-item>
+
+              <v-tab-item key="comments">
+                <v-simple-table v-if="masterComments && masterComments.length > 0">
+                  <thead>
+                    <tr>
+                      <th>Fecha</th>
+                      <th>Ejecutivo</th>
+                      <th>Comentario</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      v-for="(comment, index) in masterComments"
+                      :key="index"
+                      class="bg-comentarios"
+                    >
+                      <td class="bg-comentarios">{{ comment.fecha }}</td>
+                      <td class="bg-comentarios">{{ comment.ejecutivo }}</td>
+                      <td class="bg-comentarios">{{ comment.comentario }}</td>
+                    </tr>
+                  </tbody>
+                </v-simple-table>
+                <v-alert v-else type="info" text>
+                  No hay comentarios disponibles
+                </v-alert>
+              </v-tab-item>
+            </v-tabs-items>
           </v-expansion-panel-content>
         </v-expansion-panel>
       </v-expansion-panels>
     </template>
-    <!-- </v-list> -->
   </div>
 </template>
 
@@ -89,6 +127,21 @@ export default {
     displayedItems() {
       const list = this.$store.state.itemsHouseList || [];
       return this.showAll ? list : list.slice(0, 3);
+    },
+    masterComments() {
+      const masterId = this.$store.state.master_insertId || this.$store.state.master_Id_get;
+      if (!masterId) return [];
+      
+      if (this.$store.state.rowMaster && this.$store.state.rowMaster.list_comentarios) {
+        return this.$store.state.rowMaster.list_comentarios;
+      }
+      
+      if (this.$store.state.itemsMasterList) {
+        const masterItem = this.$store.state.itemsMasterList.find(m => m.id == masterId);
+        return masterItem && masterItem.list_comentarios ? masterItem.list_comentarios : [];
+      }
+      
+      return [];
     },
     totalHouses() {
       const list = this.$store.state.itemsHouseList || [];
@@ -155,6 +208,7 @@ export default {
   data: () => ({
     openExpand: 0,
     showAll: false,
+    activeTab: 0, 
     items: [
       { header: "LISTA DE HOUSE" },
       {

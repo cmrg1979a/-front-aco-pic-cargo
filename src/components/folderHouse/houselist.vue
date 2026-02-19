@@ -1,8 +1,20 @@
 <template>
   <div>
     <v-card class="mx-auto">
-      <v-card-title>LISTA DE HOUSE</v-card-title>
       <v-card-text>
+        <v-tabs v-model="activeTab" background-color="transparent" color="primary">
+          <v-tab key="houses">
+            <v-icon left>mdi-home-group</v-icon>
+            Lista de House
+          </v-tab>
+          <v-tab key="comments">
+            <v-icon left>mdi-comment-text-multiple</v-icon>
+            Comentarios
+          </v-tab>
+        </v-tabs>
+
+        <v-tabs-items v-model="activeTab">
+          <v-tab-item key="houses">
         <v-simple-table dense>
           <template v-slot:default>
             <thead>
@@ -30,6 +42,34 @@
             </tbody>
           </template>
         </v-simple-table>
+          </v-tab-item>
+
+          <v-tab-item key="comments">
+            <v-simple-table v-if="houseComments && houseComments.length > 0">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Ejecutivo</th>
+                  <th>Comentario</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(comment, index) in houseComments"
+                  :key="index"
+                  class="bg-comentarios"
+                >
+                  <td class="bg-comentarios">{{ comment.fecha }}</td>
+                  <td class="bg-comentarios">{{ comment.ejecutivo }}</td>
+                  <td class="bg-comentarios">{{ comment.comentario }}</td>
+                </tr>
+              </tbody>
+            </v-simple-table>
+            <v-alert v-else type="info" text>
+              No hay comentarios disponibles
+            </v-alert>
+          </v-tab-item>
+        </v-tabs-items>
       </v-card-text>
     </v-card>
   </div>
@@ -38,6 +78,23 @@
 <script>
 export default {
   name: "houselist",
+  computed: {
+    houseComments() {
+      const houseId = this.$route.params.id;
+      if (!houseId) return [];
+      
+      if (this.$store.state.houses && this.$store.state.houses.house && this.$store.state.houses.house.list_comentarios) {
+        return this.$store.state.houses.house.list_comentarios;
+      }
+      
+      if (this.$store.state.itemsHouseList) {
+        const houseItem = this.$store.state.itemsHouseList.find(h => h.id == houseId);
+        return houseItem && houseItem.list_comentarios ? houseItem.list_comentarios : [];
+      }
+      
+      return [];
+    },
+  },
   methods: {
     getIncotermName(item) {
       if (item.incoterm) return item.incoterm;
@@ -53,6 +110,7 @@ export default {
     },
   },
   data: () => ({
+    activeTab: 0, 
     items: [
       { header: "LISTA DE HOUSE" },
       {
