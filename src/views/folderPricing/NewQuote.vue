@@ -414,19 +414,25 @@ export default {
           .id_branch;
         let branchCreacion = [1, 2];
         if (branchCreacion.includes(id_branch)) {
-          await this.crearCarpetaOneDrive({
+          console.log("Iniciando creación de carpeta...");
+          const urlGenerada = await this.crearCarpetaOneDrive({
             nro_quote: this.$store.state.pricing.nro_quote,
             nombre: this.$store.state.pricing.datosPrincipales.nombre,
-          }).catch((err) => {
-            console.log("crearCarpetaOneDrive", err);
           });
-          console.log("New Quote");
-          await this.actualizarURLEnElQuote({
-            id: this.$store.state.pricing.id,
-            url: this.$store.state.pricing.urlFolder,
-          }).catch((err) => {
-            console.log("actualizarURLEnElQuote", err);
-          });
+
+          console.log("URL capturada en generar():", urlGenerada);
+
+          if (urlGenerada) {
+            await this.actualizarURLEnElQuote({
+              id: this.$store.state.pricing.id,
+              url: urlGenerada,
+            });
+            console.log("Base de datos actualizada con URL de OneDrive");
+          } else {
+            console.warn(
+              "No se obtuvo URL de OneDrive, se saltó la actualización.",
+            );
+          }
         }
       }
     },
