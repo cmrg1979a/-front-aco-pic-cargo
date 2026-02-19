@@ -6111,16 +6111,14 @@ const actions = {
     await axios(config).then(async (res) => {
       let data = res.data;
       const name =
-        data.data[0].nro_master + " - " + state.datosPrincipales.nombre;
+        data.data[0].code_master + " - " + state.datosPrincipales.nombre;
 
-      // if (dataParaAprobar.nuevoexpediente == true) {
-      //   let url_carpeta = await dispatch("createCarpetaOneDrive", { name });
-
-      //   await dispatch("actualizarMaster", {
-      //     id: data.data[0].id_master,
-      //     url: url_carpeta,
-      //   });
-      // }
+      if (dataParaAprobar.nuevoexpediente == true) {
+        await dispatch("guardarCarpetaHouse", {
+          nroMaster: name,
+          id: data.data[0].id_master,
+        });
+      }
       Swal.fire({
         icon: data.estadoflag == true ? "success" : "error",
         title: "Aviso",

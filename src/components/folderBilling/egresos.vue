@@ -1512,7 +1512,6 @@ export default {
       });
 
       const grupos = Array.from(gruposMap.values());
-      console.log("[egresos] grupos por cliente", grupos);
       return grupos;
     },
     abrirExpandEgreso(index) {},

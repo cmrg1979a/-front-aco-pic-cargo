@@ -544,12 +544,7 @@ export default {
   computed: {
     ...mapState(["itemsMasterList", "itemsModality", "totalItemsMasterList"]),
     mastersConHouse() {
-      return (this.itemsMasterList || []).filter(function (v) {
-        return (
-          parseInt(v.cantidad_houses) > 0 ||
-          (v.list_houses && v.list_houses.length > 0)
-        );
-      });
+      return this.itemsMasterList || [];
     },
   },
   methods: {
