@@ -17,7 +17,7 @@ const mutations = {
 const actions = {
   async verHouse({ commit }, filtros) {
     filtros.id_branch = JSON.parse(
-      sessionStorage.getItem("dataUser")
+      sessionStorage.getItem("dataUser"),
     )[0].id_branch;
     await axios
       .get(process.env.VUE_APP_URL_MAIN + `house_ver`, {
@@ -27,17 +27,34 @@ const actions = {
       })
       .then(function (response) {
         let data = response.data;
-        console.log(data)
         commit("SET_VER_HOUSE", data.data ? data.data[0] : {});
       })
       .catch(function (error) {
         console.log(error);
       });
-    console.log(state.house);
+  },
+
+  async guardarCarpetaHouse({ commit }, data) {
+    var headers = {
+      "auth-token": sessionStorage.getItem("auth-token"),
+      "Content-Type": "application/json",
+    };
+
+    var config = {
+      method: "put",
+      url: process.env.VUE_APP_URL_MAIN + `crear-carpeta-house`,
+      headers: headers,
+      data: data,
+    };
+
+    axios(config).then((response) => {
+      let res = response.data;
+      console.log("Respuesta de guardarCarpetaHouse:", res);
+    });
   },
   async listarHouse({ commit }, filtros) {
     filtros.id_branch = JSON.parse(
-      sessionStorage.getItem("dataUser")
+      sessionStorage.getItem("dataUser"),
     )[0].id_branch;
     await axios
       .get(process.env.VUE_APP_URL_MAIN + `listado_houses`, {
@@ -47,7 +64,6 @@ const actions = {
       })
       .then(function (response) {
         let data = response.data;
-       
 
         commit("SET_LIST_HOUSE", data.data ? data.data : []);
       })
@@ -72,7 +88,6 @@ const actions = {
     await axios(config)
       .then(function (response) {
         let data = response.data;
-       
 
         commit("SET_LIST_HOUSE", data.data ? data.data : []);
       })

@@ -412,9 +412,9 @@ import { io } from "socket.io-client";
 export default {
   created() {
     this.socket = io(process.env.VUE_APP_URL_MAIN);
-    this.socket.on("connect", () => {
-      console.log("Conectado al servidor Socket.IO:", this.socket.id);
-    });
+    // this.socket.on("connect", () => {
+    //   console.log("Conectado al servidor Socket.IO:", this.socket.id);
+    // });
     this.socket.on("connect_error", (err) => {
       console.error("Error al conectar con Socket.IO:", err);
     });

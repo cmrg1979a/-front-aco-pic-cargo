@@ -92,6 +92,14 @@
             </v-icon>
 
             <v-icon
+              color="#FFD600"
+              class="mr-1"
+              @click.stop="abrirCaperta(item)"
+            >
+              mdi-folder
+            </v-icon>
+
+            <v-icon
               v-if="statusList != '2'"
               color="info"
               class="mr-1"
@@ -183,6 +191,39 @@
         </v-card>
       </v-dialog>
     </v-card>
+    <v-dialog
+      v-model="dialogUrl"
+      scrollable
+      persistent
+      max-width="30%"
+      transition="dialog-transition"
+    >
+      <v-card>
+        <v-card-title> Actualizar URL Carpeta </v-card-title>
+        <v-card-text>
+          <v-btn
+            color="success"
+            small
+            :disabled="!houseEditar.url_folderonedrive"
+            @click="to_link({ url: houseEditar.url_folderonedrive })"
+          >
+            Abrir <v-icon class="mx-1">mdi-folder-open-outline</v-icon>
+          </v-btn>
+          <v-divider class="my-3"></v-divider>
+          <v-text-field
+            label="Nueva URL"
+            id="id"
+            v-model="url_folderonedrive"
+            append-icon="mdi-folder-check"
+            @click:append="actualizarUrl"
+          ></v-text-field>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="error" @click="dialogUrl = false">Cerrar</v-btn>
+          </v-card-actions>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 <script>
@@ -198,7 +239,9 @@ export default {
   data() {
     return {
       search: "",
-
+      dialogUrl: false,
+      url_folderonedrive: "",
+      houseEditar: {},
       options: {},
       expanded: [],
       singleExpand: false,
@@ -254,7 +297,29 @@ export default {
       "getModulesEntities",
       "insertComentarioHouse",
       "listarHouse",
+      "actualizarURLEnElMaster",
     ]),
+    abrirCaperta(item) {
+      console.log("item:", item);
+      this.houseEditar = { ...item };
+      this.url_folderonedrive = "";
+      this.dialogUrl = true;
+      // window.open(url, "_blank");
+    },
+    async actualizarUrl() {
+      await this.actualizarURLEnElMaster({
+        id: this.houseEditar.id,
+        url: this.url_folderonedrive,
+      });
+      this.houseEditar.url_folderonedrive = this.url_folderonedrive;
+      this.dialogUrl = false;
+      setTimeout(async () => {
+        await this.listarHouse(this.$store.state.house_filtro);
+      }, 1000);
+    },
+    to_link({ url = "" }) {
+      window.open(url, "_blank");
+    },
     editHouse(id) {
       this.$router.push("/home/folderHouse/control/editar/" + id);
     },

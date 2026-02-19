@@ -360,6 +360,7 @@ export default new Vuex.Store({
     house_id_coins: "",
     house_master_monto: "",
     house_blmaster: "",
+    url_onedrive: "",
 
     house_expediente: "",
     house_master: "",

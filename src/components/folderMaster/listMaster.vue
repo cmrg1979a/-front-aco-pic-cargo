@@ -180,6 +180,13 @@
                     <v-btn
                       icon
                       color="primary"
+                      @click="redirectHouseVer(i.id_house)"
+                    >
+                      <v-icon>mdi-eye</v-icon>
+                    </v-btn>
+                    <v-btn
+                      icon
+                      color="#FFD600"
                       @click="redirectHouse(i.id_house)"
                     >
                       <v-icon>mdi-pencil</v-icon>
@@ -212,8 +219,14 @@
           {{ obtenerAgente(item) }}
         </template> -->
         <template v-slot:[`item.actions`]="{ item }">
-          <v-btn small icon class="mx-1" @click="editFechas(item)">
-            <v-icon>mdi-calendar-edit</v-icon> 
+          <v-btn
+            v-if="item.status == 1"
+            small
+            icon
+            class="mx-1"
+            @click="editFechas(item)"
+          >
+            <v-icon>mdi-calendar-edit</v-icon>
           </v-btn>
           <label
             v-if="item.status == 0"
@@ -309,7 +322,7 @@
               <v-list-item
                 link
                 v-if="item.url_folderonedrive"
-                @click="to_link({ url: item.url_folderonedrive })"
+                @click="abrirCaperta(item)"
               >
                 <v-list-item-icon>
                   <v-icon>mdi-folder</v-icon>
@@ -434,6 +447,39 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog
+      v-model="dialogUrl"
+      scrollable
+      persistent
+      max-width="30%"
+      transition="dialog-transition"
+    >
+      <v-card>
+        <v-card-title> Actualizar URL Carpeta </v-card-title>
+        <v-card-text>
+          <v-btn
+            color="success"
+            small
+            :disabled="!masterEditar.url_folderonedrive"
+            @click="to_link({ url: masterEditar.url_folderonedrive })"
+          >
+            Abrir <v-icon class="mx-1">mdi-folder-open-outline</v-icon>
+          </v-btn>
+          <v-divider class="my-3"></v-divider>
+          <v-text-field
+            label="Nueva URL"
+            id="id"
+            v-model="url_folderonedrive"
+            append-icon="mdi-folder-check"
+            @click:append="actualizarUrl"
+          ></v-text-field>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="error" @click="dialogUrl = false">Cerrar</v-btn>
+          </v-card-actions>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 <script>
@@ -445,6 +491,9 @@ export default {
   name: "listMasterCom",
   data() {
     return {
+      dialogUrl: false,
+      url_folderonedrive: "",
+      masterEditar: {},
       exp: {},
       dialogFecha: false,
       dialogEscogerCotizacion: false,
@@ -496,7 +545,10 @@ export default {
     ...mapState(["itemsMasterList", "itemsModality", "totalItemsMasterList"]),
     mastersConHouse() {
       return (this.itemsMasterList || []).filter(function (v) {
-        return parseInt(v.cantidad_houses) > 0 || (v.list_houses && v.list_houses.length > 0);
+        return (
+          parseInt(v.cantidad_houses) > 0 ||
+          (v.list_houses && v.list_houses.length > 0)
+        );
       });
     },
   },
@@ -513,10 +565,22 @@ export default {
       "_getModality",
       "_getShipment",
       "_getProveedor",
+      "actualizarURLEnElMaster",
     ]),
     editFechas(item) {
       this.exp = { ...item };
       this.dialogFecha = true;
+    },
+    async actualizarUrl() {
+      await this.actualizarURLEnElMaster({
+        id: this.masterEditar.id,
+        url: this.url_folderonedrive,
+      });
+      this.masterEditar.url_folderonedrive = this.url_folderonedrive;
+      this.dialogUrl = false;
+      setTimeout(async () => {
+        await this._getMasterList();
+      }, 1000);
     },
     async guardarFechas() {
       try {
@@ -775,11 +839,33 @@ export default {
     viewMaster(id) {
       this.$router.push("/home/folderMaster/control/ver/" + id);
     },
+
+    abrirCaperta(item) {
+      console.log("item:", item);
+      this.masterEditar = { ...item };
+      this.url_folderonedrive = "";
+      this.dialogUrl = true;
+      // window.open(url, "_blank");
+    },
+
     to_link({ url = "" }) {
       window.open(url, "_blank");
     },
     redirectHouse(id) {
-      this.$router.push("/home/folderMaster/control/editar/" + id);
+      this.$router.push({
+        name: "controlHouseEditar",
+        params: {
+          id: id,
+        },
+      });
+    },
+    redirectHouseVer(id) {
+      this.$router.push({
+        name: "controlHouseVer",
+        params: {
+          id: id,
+        },
+      });
     },
     abrirModalNotaMaster(item) {
       this.master = item;

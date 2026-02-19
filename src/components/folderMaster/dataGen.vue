@@ -123,7 +123,7 @@
         ></v-autocomplete>
       </v-col>
 
-      <v-col cols="12" md="6">
+      <v-col cols="12" md="6" v-if="$route.params.id">
         <v-text-field
           type="text"
           step="1"
@@ -332,7 +332,8 @@ export default {
 
             vm.$store.state.master_insertId = vm.$store.state.master_Id_get;
             vm.$store.state.nro_master = response.data.data[0].nro_master;
-            vm.$store.state.master_cantidad_house = response.data.data[0].cantidad_house;
+            vm.$store.state.master_cantidad_house =
+              response.data.data[0].cantidad_house;
             vm.$store.state.master_nro_expediente =
               response.data.data[0].code_master;
             vm.$store.state.master_expediente =
@@ -422,7 +423,7 @@ export default {
                 return {
                   ...item,
                   name: vm.itemsContainers.filter(
-                    (v) => v.id == item.id_container
+                    (v) => v.id == item.id_container,
                   ).length
                     ? vm.itemsContainers.find((v) => v.id == item.id_container)
                         .name
@@ -483,13 +484,13 @@ export default {
     async obternerDatosCotizacion() {
       if (!!this.$store.state.master_cotizanion && !this.$route.params.id) {
         let cot = this.$store.state.pricing.listQuotes.filter(
-          (v) => v.id == this.$store.state.master_cotizanion
+          (v) => v.id == this.$store.state.master_cotizanion,
         )[0];
         let vm = this;
         vm.$store.state.master_sentido = cot.id_modality;
         vm.$store.state.master_id_trasnport = cot.id_shipment;
         let id_transport = this.itemsShipment.filter(
-          (v) => v.id == cot.id_shipment
+          (v) => v.id == cot.id_shipment,
         )[0].id_transport;
         await this._activePort(id_transport);
         vm.$store.state.master_incoterms = cot.id_incoterms;
@@ -592,10 +593,10 @@ export default {
       if (this.isImportacion()) {
         const nombreEmpresa = "PIC CARGO S.A.C";
         const empresa = this.$store.state.clientes.filter(
-          (item) => item.namelong.toUpperCase() == nombreEmpresa
+          (item) => item.namelong.toUpperCase() == nombreEmpresa,
         ).length
           ? this.$store.state.clientes.find(
-              (item) => item.namelong.toUpperCase() == nombreEmpresa
+              (item) => item.namelong.toUpperCase() == nombreEmpresa,
             ).id
           : "";
 
