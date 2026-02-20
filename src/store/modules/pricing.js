@@ -1537,6 +1537,7 @@ const actions = {
       state.datosPrincipales.nameStatusQuote = res.namestatusquote;
       state.datosPrincipales.descripcioncarga = res.descripcionmercancia;
       state.datosPrincipales.fecha_inicio = res.fecha_inicio;
+      state.datosPrincipales.url_folderonedrive = res.url_folderonedrive;
       // --------------------------------------------------------------
       state.datosPrincipales.iddestino = res.iddestino;
       state.datosPrincipales.idorigen = res.idorigen;
@@ -1689,6 +1690,7 @@ const actions = {
         valor: element.cantidad,
       });
     });
+    let nombre_cotizacion = getNombreCotizacion(opcion.listNotasQuote);
 
     /** incluye - no incluye */
     state.listServices.forEach((element) => {
@@ -3460,6 +3462,8 @@ const actions = {
       (isGastosTercero == true ? totalGastosTercero : 0);
     /* GENERAR */
     let data = {
+      url_folderonedrive: state.datosPrincipales.url_folderonedrive,
+      nombre_cotizacion: nombre_cotizacion,
       nombre_impuesto: enterprise.state.impuesto.nombre_impuesto,
       impuesto: enterprise.state.impuesto.impuesto / 100,
       esunica: state.opcionCostos.filter((v) => v.selected).length == 1,
@@ -3589,7 +3593,6 @@ const actions = {
       "auth-token": sessionStorage.getItem("auth-token"),
       "Content-Type": "application/json",
     };
-
     await axios
       .post(
         process.env.VUE_APP_URL_MAIN + "quote_preview_totales",
@@ -9012,6 +9015,39 @@ function isNotPorcentaje(element, id_multiplicador) {
 
   return !mul;
 }
+
+function getNombreCotizacion(listNotasQuote) {
+  // COTIZACION  Servicio *Maritimo*  Salida Semanal. *CLIENTE No 10060*
+
+  let shipment = state.listShipment.find(
+    (v) => v.id == state.datosPrincipales.idtipocarga,
+  );
+  
+
+  let Servicio = ''
+
+  switch (shipment.code) {
+    case 'Aéreo':
+      Servicio ='Aéreo'
+      break;
+    case 'LCL':
+      Servicio ='Maritimo Consolidado Individual'
+      break;
+      case 'FCL':
+      Servicio ='Maritimo Contenedor Completo'
+      break;
+
+    default:
+      break;
+  }
+
+  let nota = listNotasQuote[0]
+
+
+  let name = `COTIZACION Servicio ${Servicio} ${nota.descripcion} ${state.datosPrincipales.nombre}`;
+  return name;
+}
+
 export default {
   namespace: true,
   state,

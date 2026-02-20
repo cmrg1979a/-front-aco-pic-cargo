@@ -147,7 +147,7 @@
         @click="abrirCorreo()"
       >
         <v-icon class="mx-1" dense small>mdi-email-fast</v-icon>
-        ENVIAR MAIL
+        CORREO
       </v-btn>
 
       <v-btn
@@ -158,7 +158,20 @@
         @click="abrirCorreo()"
       >
         <v-icon class="mx-1" dense small>mdi-email-fast</v-icon>
-        ENVIAR MAIL
+        CORREO
+      </v-btn>
+
+      <v-btn
+        v-if="getNameUrl() == 'editQuote' || getNameUrl() == 'verQuote'"
+        class="mx-1"
+         color="#FFD600"
+        dark
+        @click="
+          abrirCarpeta($store.state.pricing.datosPrincipales.url_folderonedrive)
+        "
+      >
+        <v-icon class="mx-1" dense small>mdi-folder</v-icon>
+        ABRIR
       </v-btn>
 
       <v-btn
@@ -169,7 +182,7 @@
         @click="copiarCotizacion()"
       >
         <v-icon class="mx-1" dense small>mdi-content-copy</v-icon>
-        COPIAR COTIZACIÓN
+        COPIAR
       </v-btn>
 
       <!--MODULO CLIENTES-->
@@ -497,6 +510,13 @@ export default {
       "actualizarQuoteAduana",
       "_getRole",
     ]),
+    abrirCarpeta(url) {
+      // console.log("item:", item);
+      // this.houseEditar = { ...item };
+      // this.url_folderonedrive = "";
+      // this.dialogUrl = true;
+      window.open(url, "_blank");
+    },
     async guardarCotizacion() {
       let validacion = this.validarRegistro();
       if (!!validacion) {

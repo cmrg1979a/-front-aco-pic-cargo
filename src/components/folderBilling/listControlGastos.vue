@@ -54,6 +54,14 @@
           </v-icon>
           <v-icon
             large
+            color="#FFD600"
+            class="mr-2"
+            @click="abrirCaperta(item)"
+          >
+            mdi-folder
+          </v-icon>
+          <v-icon
+            large
             color="orange"
             class="mr-2"
             @click="editControlGasto(item)"
@@ -74,24 +82,32 @@
     </v-card>
 
     <modalListHouse :dialog="statusDialog" />
+    <GuardarUrlMaster
+      :dialogUrl="dialogUrl"
+      :masterEditar="masterEditar"
+      @cerrar="cerrarDialog"
+    />
   </div>
 </template>
 <script>
 import { mapState, mapActions } from "vuex";
 import modalListHouse from "@/components/modal/modalListFile";
-
+import GuardarUrlMaster from "../comun/GuardarUrlMaster.vue";
 export default {
   name: "listMasterCom",
   components: {
     modalListHouse,
+    GuardarUrlMaster,
   },
   props: {
     statusReport: Boolean,
   },
   data() {
     return {
+      dialogUrl: false,
+      url_folderonedrive: "",
       search: "",
-
+      masterEditar: {},
       statusDialog: false,
 
       headers: [
@@ -122,7 +138,19 @@ export default {
   },
   methods: {
     ...mapActions(["_getControlList"]),
-
+    async cerrarDialog() {
+      this.dialogUrl = false;
+      this.$store.state.spiner = true;
+      await this._getControlList();
+      this.$store.state.spiner = false;
+    },
+    abrirCaperta(item) {
+      console.log("item:", item);
+      this.masterEditar = { ...item };
+      this.url_folderonedrive = "";
+      this.dialogUrl = true;
+      // window.open(url, "_blank");
+    },
     editControlGasto(master) {
       this.$router.push({
         name: "editControlGasto",

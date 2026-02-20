@@ -330,11 +330,7 @@
                 >
               </v-list-item>
 
-              <v-list-item
-                link
-                v-if="item.url_folderonedrive"
-                @click="abrirCaperta(item)"
-              >
+              <v-list-item link @click="abrirCaperta(item)">
                 <v-list-item-icon>
                   <v-icon>mdi-folder</v-icon>
                 </v-list-item-icon>
@@ -458,39 +454,11 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog
-      v-model="dialogUrl"
-      scrollable
-      persistent
-      max-width="30%"
-      transition="dialog-transition"
-    >
-      <v-card>
-        <v-card-title> Actualizar URL Carpeta </v-card-title>
-        <v-card-text>
-          <v-btn
-            color="success"
-            small
-            :disabled="!masterEditar.url_folderonedrive"
-            @click="to_link({ url: masterEditar.url_folderonedrive })"
-          >
-            Abrir <v-icon class="mx-1">mdi-folder-open-outline</v-icon>
-          </v-btn>
-          <v-divider class="my-3"></v-divider>
-          <v-text-field
-            label="Nueva URL"
-            id="id"
-            v-model="url_folderonedrive"
-            append-icon="mdi-folder-check"
-            @click:append="actualizarUrl"
-          ></v-text-field>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="error" @click="dialogUrl = false">Cerrar</v-btn>
-          </v-card-actions>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
+    <GuardarUrlMaster
+      :dialogUrl="dialogUrl"
+      :masterEditar="masterEditar"
+      @cerrar="cerrarDialog"
+    />
   </v-container>
 </template>
 <script>
@@ -498,7 +466,9 @@ import { mapState, mapActions } from "vuex";
 import axios from "axios";
 import moment from "moment";
 import Swal from "sweetalert2";
+import GuardarUrlMaster from "../comun/GuardarUrlMaster.vue";
 export default {
+  components: { GuardarUrlMaster },
   name: "listMasterCom",
   data() {
     return {
@@ -573,6 +543,12 @@ export default {
       "_getProveedor",
       "actualizarURLEnElMaster",
     ]),
+    async cerrarDialog() {
+      this.dialogUrl = false;
+      this.$store.state.spiner = true;
+      await this._getMasterList();
+      this.$store.state.spiner = false;
+    },
     irControlGastos(id) {
       this.$router.push({
         name: "editControlGasto",
@@ -864,9 +840,6 @@ export default {
       // window.open(url, "_blank");
     },
 
-    to_link({ url = "" }) {
-      window.open(url, "_blank");
-    },
     redirectHouse(id) {
       this.$router.push({
         name: "controlHouseEditar",
