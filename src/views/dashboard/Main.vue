@@ -236,6 +236,15 @@
       <v-btn
         color="#009688"
         dark
+        v-if="getNameUrl() == 'editControlGasto'"
+        @click="ira('listControlGastos', null)"
+      >
+        <v-icon>mdi-format-list-bulleted</v-icon> IR AL LISTADO
+      </v-btn>
+
+      <v-btn
+        color="#009688"
+        dark
         @click="abrirModalPilotoAutomatico()"
         v-if="getNameUrl() == 'editQuote'"
       >

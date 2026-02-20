@@ -163,6 +163,22 @@
         >
           IMPRIMIR CONTROL DETALLADO
         </v-btn>
+        <v-btn
+          color="success"
+          class="my-1"
+          block
+          v-if="
+            $store.state.controlGastos.listControlGastos[0].url_folderonedrive
+          "
+          @click="
+            to_direct({
+              url: $store.state.controlGastos.listControlGastos[0]
+                .url_folderonedrive,
+            })
+          "
+        >
+          <v-icon class="mx-2">mdi-folder</v-icon> ABRIR CARPETA
+        </v-btn>
       </v-col>
       <v-col cols="12">
         <Ingresos
@@ -288,7 +304,9 @@ export default {
     ]),
     // ...mapAction([])
     // --------------------
-
+    to_direct({ url }) {
+      window.open(url, "_blank");
+    },
     // --------------------
     async recargarDatos() {
       this.$store.state.spiner = true;
@@ -298,7 +316,7 @@ export default {
     },
     calcularMontoDolar() {
       this.monto = parseFloat(
-        (this.monto_abonado ? this.monto_abonado : 0) / this.tipocambio
+        (this.monto_abonado ? this.monto_abonado : 0) / this.tipocambio,
       ).toFixed(2);
     },
 
@@ -499,7 +517,7 @@ export default {
 
           window.open(
             process.env.VUE_APP_URL_MAIN + response.data.path,
-            "_blank"
+            "_blank",
           );
         })
         .catch(function (error) {

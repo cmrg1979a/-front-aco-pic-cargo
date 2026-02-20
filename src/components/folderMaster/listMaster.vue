@@ -276,6 +276,17 @@
               </v-list-item>
 
               <v-list-item
+                v-if="item.status == 1"
+                @click="irControlGastos(item.id)"
+                link
+              >
+                <v-list-item-icon>
+                  <v-icon>mdi-truck-cargo-container</v-icon>
+                </v-list-item-icon>
+                <v-list-item-title>Ir Control Gastos</v-list-item-title>
+              </v-list-item>
+
+              <v-list-item
                 v-if="!item.statuslock"
                 @click="_lockMaster(item.id)"
                 link
@@ -562,6 +573,16 @@ export default {
       "_getProveedor",
       "actualizarURLEnElMaster",
     ]),
+    irControlGastos(id) {
+      this.$router.push({
+        name: "editControlGasto",
+        params: {
+          id: id,
+          id_branch: JSON.parse(sessionStorage.getItem("dataUser"))[0]
+            .id_branch,
+        },
+      });
+    },
     editFechas(item) {
       this.exp = { ...item };
       this.dialogFecha = true;
