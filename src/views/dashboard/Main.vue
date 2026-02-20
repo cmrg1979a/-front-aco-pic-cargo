@@ -668,6 +668,7 @@ export default {
     //   window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
     // },
     async abrirCorreoSend() {
+      let valIncoterms = ["EXW", "FCA", "FOB"];
       const selected = this.lstDatosTarifa.filter((v) => v.selected);
       const to = selected
         .map((v) => v.email)
@@ -677,17 +678,40 @@ export default {
       let incoterms = this.$store.state.pricing.listIncoterms.find(
         (v) => v.id == this.$store.state.pricing.datosPrincipales.idincoterms,
       );
-      const subject = `QUOTE${this.$store.state.pricing.nro_quote} ${
-        incoterms ? incoterms.name : ""
-      } ${this.$store.state.pricing.datosPrincipales.peso || ""}KGS / ${
-        this.$store.state.pricing.datosPrincipales.volumen || ""
-      }M3`;
+      let subject = ``;
 
       let miEmail = sessionStorage.getItem("dataUser")
         ? JSON.parse(sessionStorage.getItem("dataUser"))[0].correoemail
         : "";
 
-      const tablaHtml = `
+      let origen = this.$store.state.pricing.listPortBegin.find(
+        (v) => v.id_port == this.$store.state.pricing.datosPrincipales.idorigen,
+      );
+
+      let destino = this.$store.state.pricing.listPortEnd.find(
+        (v) =>
+          v.id_port == this.$store.state.pricing.datosPrincipales.iddestino,
+      );
+      let tablaHtml = "";
+
+      if (!valIncoterms.includes(incoterms.name)) {
+        Swal.fire({
+          title: "ADVERTENCIA",
+          icon: "error",
+          text: "El INCOTERMS seleccionado no es compatible con el formato de correo automático. Por favor, seleccione EXW, FCA o FOB para usar esta función.",
+        });
+        return;
+      }
+      if (incoterms.name == "EXW") {
+        subject = `QUOTE${this.$store.state.pricing.nro_quote} ${
+          incoterms ? incoterms.name : ""
+        } ${origen ? origen.name : ""} - ${destino ? destino.name : ""}  ${
+          this.$store.state.pricing.datosPrincipales.peso || ""
+        }KGS / ${this.$store.state.pricing.datosPrincipales.volumen || ""}M3 ${
+          this.$store.state.pricing.datosPrincipales.nombre
+        }`;
+        /* CREAR EL BOBY */
+        tablaHtml = `
         <div style="font-family: Arial, sans-serif;">
           <p>Hola colega, me ayudas cotizando este embarque:</p>
           <table border="1" style="border-collapse: collapse; width: 100%; max-width: 500px;">
@@ -698,16 +722,94 @@ export default {
             <tr><td style="padding: 8px; border: 1px solid #333;">INCOTERMS</td><td style="padding: 8px; border: 1px solid #333;">${
               incoterms ? incoterms.name : ""
             }</td></tr>
-            <tr><td style="padding: 8px; border: 1px solid #333;">PESO</td><td style="padding: 8px; border: 1px solid #333;">${
-              this.$store.state.pricing.datosPrincipales.peso || ""
-            }</td></tr>
+            <tr>
+              <td>DIRECCIÓN:</td>
+              <td></td>
+              </tr>
+            <tr>
+              <td>PUERTO SALIDA:</td>
+              <td>${origen ? origen.name : ""}</td>
+              </tr>
+            <tr>
+              <td>PUERTO LLEGADAA:</td>
+              <td>${destino ? destino.name : ""}</td>
+              </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #333;">PESO</td>
+              <td style="padding: 8px; border: 1px solid #333;">${
+                this.$store.state.pricing.datosPrincipales.peso || ""
+              }
+              </td>
+            </tr>
             <tr><td style="padding: 8px; border: 1px solid #333;">M3</td><td style="padding: 8px; border: 1px solid #333;">${
               this.$store.state.pricing.datosPrincipales.volumen || ""
-            }</td></tr>
+            }</td>
+            </tr>
+            <tr>
+              <td>DESCRIPCIÓN DE LA MERCANCÍA:</td>
+              <td>${
+                this.$store.state.pricing.datosPrincipales
+                  .descripcionMercancia || ""
+              }</td>
+            <tr>
           </table>
           <p>Saludos.</p>
         </div>
       `;
+      }
+      if (incoterms.name == "FCA" || incoterms.name == "FOB") {
+        subject = `QUOTE${this.$store.state.pricing.nro_quote} ${
+          incoterms ? incoterms.name : ""
+        } ${origen ? origen.name : ""} - ${destino ? destino.name : ""}  ${
+          this.$store.state.pricing.datosPrincipales.peso || ""
+        }KGS / ${this.$store.state.pricing.datosPrincipales.volumen || ""}M3`;
+        /* CREAR EL BOBY */
+        tablaHtml = `
+        <div style="font-family: Arial, sans-serif;">
+          <p>Hola colega, me ayudas cotizando este embarque:</p>
+          <table border="1" style="border-collapse: collapse; width: 100%; max-width: 500px;">
+            <tr style="background-color: #eeeeee;">
+              <th style="padding: 8px; border: 1px solid #333;">CONCEPTO</th>
+              <th style="padding: 8px; border: 1px solid #333;">DETALLE</th>
+            </tr>
+            <tr>
+                <td style="padding: 8px; border: 1px solid #333;">INCOTERMS</td>
+                <td style="padding: 8px; border: 1px solid #333;">${
+                  incoterms ? incoterms.name : ""
+                }</td>
+            </tr>
+
+            <tr>
+              <td>PUERTO SALIDA:</td>
+              <td>${origen ? origen.name : ""}</td>
+              </tr>
+            <tr>
+              <td>PUERTO LLEGADAA:</td>
+              <td>${destino ? destino.name : ""}</td>
+              </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #333;">PESO</td>
+              <td style="padding: 8px; border: 1px solid #333;">${
+                this.$store.state.pricing.datosPrincipales.peso || ""
+              }
+              </td>
+            </tr>
+            <tr><td style="padding: 8px; border: 1px solid #333;">M3</td><td style="padding: 8px; border: 1px solid #333;">${
+              this.$store.state.pricing.datosPrincipales.volumen || ""
+            }</td>
+            </tr>
+            <tr>
+              <td>DESCRIPCIÓN DE LA MERCANCÍA:</td>
+              <td>${
+                this.$store.state.pricing.datosPrincipales
+                  .descripcionMercancia || ""
+              }</td>
+            <tr>
+          </table>
+          <p>Saludos.</p>
+        </div>
+      `;
+      }
 
       try {
         const blob = new Blob([tablaHtml], { type: "text/html" });
