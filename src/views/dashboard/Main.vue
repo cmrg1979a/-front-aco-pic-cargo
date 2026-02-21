@@ -512,6 +512,14 @@ export default {
       "_getRole",
     ]),
     abrirCarpeta(url) {
+      if(!url){
+        Swal.fire({
+          icon:"warning",
+          title:"Error",
+          text:"No existe carpeta asociada."
+        })
+        return
+      }
       // console.log("item:", item);
       // this.houseEditar = { ...item };
       // this.url_folderonedrive = "";
