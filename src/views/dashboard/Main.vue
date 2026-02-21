@@ -118,7 +118,7 @@
         "
         @click="editarCotizacion()"
       >
-         <v-icon small class="mx-1">mdi-content-save-all</v-icon> GUARDAR 
+        <v-icon small class="mx-1">mdi-content-save-all</v-icon> GUARDAR
       </v-btn>
       <!-- ver -->
       <label class="monto" v-if="getNameUrl() == 'verQuote'">
@@ -164,7 +164,7 @@
       <v-btn
         v-if="getNameUrl() == 'editQuote' || getNameUrl() == 'verQuote'"
         class="mx-1"
-         color="#FFD600"
+        color="#FFD600"
         dark
         @click="
           abrirCarpeta($store.state.pricing.datosPrincipales.url_folderonedrive)
@@ -224,7 +224,7 @@
           )
         }}
       </label>
-     
+
       <v-btn
         color="#009688"
         dark
@@ -232,7 +232,7 @@
         @click="editarCotizacionAduana()"
         small
       >
-        <v-icon class="mx-1">mdi-save</v-icon> GUARDAR 
+        <v-icon class="mx-1">mdi-save</v-icon> GUARDAR
       </v-btn>
 
       <v-btn
@@ -778,8 +778,8 @@ export default {
             <tr>
               <td>DESCRIPCIÓN DE LA MERCANCÍA:</td>
               <td>${
-                this.$store.state.pricing.datosPrincipales
-                  .descripcionMercancia || ""
+                this.$store.state.pricing.datosPrincipales.descripcioncarga ||
+                ""
               }</td>
             <tr>
           </table>
@@ -831,8 +831,8 @@ export default {
             <tr>
               <td>DESCRIPCIÓN DE LA MERCANCÍA:</td>
               <td>${
-                this.$store.state.pricing.datosPrincipales
-                  .descripcionMercancia || ""
+                this.$store.state.pricing.datosPrincipales.descripcioncarga ||
+                ""
               }</td>
             <tr>
           </table>
