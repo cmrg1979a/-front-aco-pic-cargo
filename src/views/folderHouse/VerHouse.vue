@@ -276,6 +276,7 @@ import Bitacora from "@/components/folderHouse/bitacoraVer.vue";
 import services from "@/components/folderHouse/servicesVer.vue";
 import { mapActions, mapState } from "vuex";
 import Swal from "sweetalert2";
+import axios from "axios";
 export default {
   name: "controlMasterCom",
   components: {

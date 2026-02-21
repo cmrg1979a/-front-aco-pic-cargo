@@ -118,7 +118,7 @@
         "
         @click="editarCotizacion()"
       >
-        GUARDAR CAMBIOS
+         <v-icon small class="mx-1">mdi-content-save-all</v-icon> GUARDAR 
       </v-btn>
       <!-- ver -->
       <label class="monto" v-if="getNameUrl() == 'verQuote'">
@@ -224,14 +224,15 @@
           )
         }}
       </label>
-      <v-spacer></v-spacer>
+     
       <v-btn
         color="#009688"
         dark
         v-if="getNameUrl() == 'EditarAduana'"
         @click="editarCotizacionAduana()"
+        small
       >
-        GUARDAR CAMBIOS
+        <v-icon class="mx-1">mdi-save</v-icon> GUARDAR 
       </v-btn>
 
       <v-btn
@@ -261,7 +262,7 @@
         @click="abrirModalPilotoAutomatico()"
         v-if="getNameUrl() == 'editQuote'"
       >
-        COTIZAR PILOTO AUTOMATICO
+        <v-icon class="mx-1">mdi-send</v-icon>AUTOMATICO
       </v-btn>
       <v-spacer v-if="getNameUrl() == 'controlMasterEditar'"></v-spacer>
       <v-btn
