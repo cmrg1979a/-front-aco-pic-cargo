@@ -537,12 +537,16 @@ export default {
 
       if (this.$refs.frmReporte.validate()) {
         this.$store.state.spiner = true;
-
+        let name = this.$route.name;
         // 1. Registro inicial
-        await this.registrarQuote({ fullflag: true }).catch((e) =>
-          console.log(e),
-        );
-
+        if (name == "newQuote") {
+          await this.registrarQuote({ fullflag: true }).catch((e) =>
+            console.log(e),
+          );
+        }
+        if (name == "editQuote") {
+          await this.updateQuote();
+        }
         if (this.$store.state.pricing.nro_quote) {
           this.$store.state.spiner = false;
           await this.obtenerDatosEmpresa().catch((e) => console.log(e));
