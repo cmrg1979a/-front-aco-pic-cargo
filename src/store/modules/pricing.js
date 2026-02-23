@@ -6115,8 +6115,13 @@ const actions = {
       let data = res.data;
       const name =
         data.data[0].code_master + " - " + state.datosPrincipales.nombre;
-
-      if (dataParaAprobar.nuevoexpediente == true) {
+      let id_branch = JSON.parse(sessionStorage.getItem("dataUser"))[0]
+        .id_branch;
+      let id_branchs = ["1", "2", 1, 2];
+      if (
+        dataParaAprobar.nuevoexpediente == true &&
+        id_branchs.includes(id_branch)
+      ) {
         await dispatch("guardarCarpetaHouse", {
           nroMaster: name,
           id: data.data[0].id_master,
@@ -9022,27 +9027,25 @@ function getNombreCotizacion(listNotasQuote) {
   let shipment = state.listShipment.find(
     (v) => v.id == state.datosPrincipales.idtipocarga,
   );
-  
 
-  let Servicio = ''
+  let Servicio = "";
 
   switch (shipment.code) {
-    case 'Aéreo':
-      Servicio ='Aéreo'
+    case "Aéreo":
+      Servicio = "Aéreo";
       break;
-    case 'LCL':
-      Servicio ='Maritimo Consolidado Individual'
+    case "LCL":
+      Servicio = "Maritimo Consolidado Individual";
       break;
-      case 'FCL':
-      Servicio ='Maritimo Contenedor Completo'
+    case "FCL":
+      Servicio = "Maritimo Contenedor Completo";
       break;
 
     default:
       break;
   }
 
-  let nota = listNotasQuote[0]
-
+  let nota = listNotasQuote[0];
 
   let name = `COTIZACION Servicio ${Servicio} ${nota.descripcion} ${state.datosPrincipales.nombre}`;
   return name;

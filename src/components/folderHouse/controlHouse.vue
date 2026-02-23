@@ -929,10 +929,15 @@ export default {
           let proveedor = vm.$store.state.clientes.find(
             (v) => v.id == vm.$store.state.house_id_consigner,
           );
-          await vm.guardarCarpetaHouse({
-            id: vm.$store.state.house_master,
-            nroMaster: `${vm.$store.state.house_master_expediente}_${proveedor.namelong}`,
-          });
+          let id_branch = JSON.parse(sessionStorage.getItem("dataUser"))[0]
+            .id_branch;
+          let id_branchs = ["1", "2", 1, 2];
+          if (id_branchs.includes(id_branch)) {
+            await vm.guardarCarpetaHouse({
+              id: vm.$store.state.house_master,
+              nroMaster: `${vm.$store.state.house_master_expediente}_${proveedor.namelong}`,
+            });
+          }
         }
 
         vm.loadingBotonGuardarHouse = false;

@@ -576,7 +576,7 @@ export default {
           let id_branch = userStr ? JSON.parse(userStr)[0].id_branch : null;
           let branchCreacion = [1, 2];
 
-          if (branchCreacion.includes(id_branch)) {
+          if (branchCreacion.includes(id_branch) && name == "newQuote") {
             console.log("Iniciando creación de carpeta...");
 
             // Aquí recibimos el return de la función anterior

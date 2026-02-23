@@ -512,13 +512,13 @@ export default {
       "_getRole",
     ]),
     abrirCarpeta(url) {
-      if(!url){
+      if (!url) {
         Swal.fire({
-          icon:"warning",
-          title:"Error",
-          text:"No existe carpeta asociada."
-        })
-        return
+          icon: "warning",
+          title: "Error",
+          text: "No existe carpeta asociada.",
+        });
+        return;
       }
       // console.log("item:", item);
       // this.houseEditar = { ...item };
@@ -752,43 +752,39 @@ export default {
         tablaHtml = `
         <div style="font-family: Arial, sans-serif;">
           <p>Hola colega, me ayudas cotizando este embarque:</p>
-          <table border="1" style="border-collapse: collapse; width: 100%; max-width: 500px;">
+          <table border="1" style="border-collapse: collapse; width: 100%; max-width: 800px;">
             <tr style="background-color: #eeeeee;">
-              <th style="padding: 8px; border: 1px solid #333;">CONCEPTO</th>
-              <th style="padding: 8px; border: 1px solid #333;">DETALLE</th>
+              <th style="padding: 8px; border: 1px solid #333;"> CONCEPTO</th>
+              <th style="padding: 8px; border: 1px solid #333;"> DETALLE</th>
             </tr>
             <tr><td style="padding: 8px; border: 1px solid #333;">INCOTERMS</td><td style="padding: 8px; border: 1px solid #333;">${
               incoterms ? incoterms.name : ""
             }</td></tr>
             <tr>
-              <td>DIRECCIÓN:</td>
-              <td></td>
+              <td> DIRECCIÓN:</td>
+              <td> ${this.$store.state.pricing.datosPrincipales.direccionproveedor||""}</td>
               </tr>
             <tr>
-              <td>PUERTO SALIDA:</td>
-              <td>${origen ? origen.name : ""}</td>
+              <td> PUERTO SALIDA:</td>
+              <td> ${origen ? origen.name : ""}</td>
               </tr>
             <tr>
-              <td>PUERTO LLEGADAA:</td>
-              <td>${destino ? destino.name : ""}</td>
+              <td> PUERTO LLEGADAA:</td>
+              <td> ${destino ? destino.name : ""}</td>
               </tr>
             <tr>
-              <td style="padding: 8px; border: 1px solid #333;">PESO</td>
-              <td style="padding: 8px; border: 1px solid #333;">${
-                this.$store.state.pricing.datosPrincipales.peso || ""
-              }
+              <td style="padding: 8px; border: 1px solid #333;"> PESO(Kgs)</td>
+              <td style="padding: 8px; border: 1px solid #333;"> ${this.$store.state.pricing.datosPrincipales.peso || ""}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #333;">M3</td><td style="padding: 8px; border: 1px solid #333;"> 
+                ${this.$store.state.pricing.datosPrincipales.volumen || ""}</td>
+            </tr>
+            <tr>
+              <td> DESCRIPCIÓN DE LA MERCANCÍA:</td>
+              <td> 
+                ${this.$store.state.pricing.datosPrincipales.descripcioncarga ||""}
               </td>
-            </tr>
-            <tr><td style="padding: 8px; border: 1px solid #333;">M3</td><td style="padding: 8px; border: 1px solid #333;">${
-              this.$store.state.pricing.datosPrincipales.volumen || ""
-            }</td>
-            </tr>
-            <tr>
-              <td>DESCRIPCIÓN DE LA MERCANCÍA:</td>
-              <td>${
-                this.$store.state.pricing.datosPrincipales.descripcioncarga ||
-                ""
-              }</td>
             <tr>
           </table>
           <p>Saludos.</p>
@@ -805,40 +801,40 @@ export default {
         tablaHtml = `
         <div style="font-family: Arial, sans-serif;">
           <p>Hola colega, me ayudas cotizando este embarque:</p>
-          <table border="1" style="border-collapse: collapse; width: 100%; max-width: 500px;">
+          <table border="1" style="border-collapse: collapse; width: 100%; max-width: 800px;">
             <tr style="background-color: #eeeeee;">
-              <th style="padding: 8px; border: 1px solid #333;">CONCEPTO</th>
-              <th style="padding: 8px; border: 1px solid #333;">DETALLE</th>
+              <th style="padding: 8px; border: 1px solid #333;"> CONCEPTO</th>
+              <th style="padding: 8px; border: 1px solid #333;"> DETALLE</th>
             </tr>
             <tr>
-                <td style="padding: 8px; border: 1px solid #333;">INCOTERMS</td>
+                <td style="padding: 8px; border: 1px solid #333;"> INCOTERMS</td>
                 <td style="padding: 8px; border: 1px solid #333;">${
                   incoterms ? incoterms.name : ""
                 }</td>
             </tr>
 
             <tr>
-              <td>PUERTO SALIDA:</td>
+              <td> PUERTO SALIDA:</td>
               <td>${origen ? origen.name : ""}</td>
               </tr>
             <tr>
-              <td>PUERTO LLEGADAA:</td>
-              <td>${destino ? destino.name : ""}</td>
+              <td> PUERTO LLEGADAA:</td>
+              <td> ${destino ? destino.name : ""}</td>
               </tr>
             <tr>
-              <td style="padding: 8px; border: 1px solid #333;">PESO</td>
-              <td style="padding: 8px; border: 1px solid #333;">${
+              <td style="padding: 8px; border: 1px solid #333;"> PESO</td>
+              <td style="padding: 8px; border: 1px solid #333;"> ${
                 this.$store.state.pricing.datosPrincipales.peso || ""
               }
               </td>
             </tr>
-            <tr><td style="padding: 8px; border: 1px solid #333;">M3</td><td style="padding: 8px; border: 1px solid #333;">${
+            <tr><td style="padding: 8px; border: 1px solid #333;">M3</td><td style="padding: 8px; border: 1px solid #333;"> ${
               this.$store.state.pricing.datosPrincipales.volumen || ""
             }</td>
             </tr>
             <tr>
-              <td>DESCRIPCIÓN DE LA MERCANCÍA:</td>
-              <td>${
+              <td> DESCRIPCIÓN DE LA MERCANCÍA:</td>
+              <td> ${
                 this.$store.state.pricing.datosPrincipales.descripcioncarga ||
                 ""
               }</td>
