@@ -210,23 +210,7 @@
           <p>LISTA DE CONTENTEDORES</p>
         </div> -->
       </v-col>
-
-      <v-col cols="12" md="12" v-if="$store.state.comentario.length > 0">
-        <v-card>
-          <v-card-title primary-title>
-            Listado de Estado/Comentario
-          </v-card-title>
-          <v-card-text>
-            <v-data-table
-              disable-sort
-              :headers="headers"
-              :items="$store.state.comentario"
-              item-key="id"
-            >
-            </v-data-table>
-          </v-card-text>
-        </v-card>
-      </v-col>
+ 
     </v-row>
   </div>
 </template>
