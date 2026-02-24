@@ -12,7 +12,8 @@ const state = {
   preCostos: [],
   itemsDataRoleList: [],
   listadoResumen: [],
-  listadoFilesDrive: [],selectedFile:[],
+  listadoFilesDrive: [],
+  selectedFile: [],
   actualizarCostosFlag: true,
   costoflag: false,
   impuestoflag: false,
@@ -1625,7 +1626,10 @@ const actions = {
       state.datosEmpresa = data;
     });
   },
-  async generarReporte(__, { tipo = "", nro_propuesta = 0 }) {
+  async generarReporte(
+    __,
+    { tipo = "", nro_propuesta = 0, guardarFlag = false },
+  ) {
     let opcion = state.opcionCostos.filter(
       (v) => v.nro_propuesta == nro_propuesta,
     )[0];
@@ -3467,6 +3471,7 @@ const actions = {
       (isGastosTercero == true ? totalGastosTercero : 0);
     /* GENERAR */
     let data = {
+      guardarFlag: guardarFlag,
       url_folderonedrive: state.datosPrincipales.url_folderonedrive,
       nombre_cotizacion: nombre_cotizacion,
       nombre_impuesto: enterprise.state.impuesto.nombre_impuesto,
@@ -3608,15 +3613,18 @@ const actions = {
         Swal.fire({
           icon: "success",
           title: "PDF Generado",
-          text: "El PDF se descargará automaticamente",
+          text: guardarFlag
+            ? "Se ha guardado los archivos correctamente."
+            : "El PDF se descargará automaticamente",
           showConfirmButton: true,
         });
-
-        window.open(
-          `${process.env.VUE_APP_URL_MAIN}${response.data.path}`,
-          // "",
-          "_blank",
-        );
+        if (!guardarFlag) {
+          window.open(
+            `${process.env.VUE_APP_URL_MAIN}${response.data.path}`,
+            // "",
+            "_blank",
+          );
+        }
       })
       .catch((e) => console.log(e));
   },
@@ -6130,7 +6138,7 @@ const actions = {
         await dispatch("guardarCarpetaHouse", {
           nroMaster: name,
           id: data.data[0].id_master,
-          idSelectedFile: state.selectedFile.map(v => v.id)
+          idSelectedFile: state.selectedFile.map((v) => v.id),
         });
       }
       Swal.fire({
@@ -6872,7 +6880,7 @@ const actions = {
       });
   },
   async GetArchivos({ commit }, folderUrl) {
-    console.log('folderUrl',folderUrl)
+    console.log("folderUrl", folderUrl);
     let config = {
       method: "get",
       url: `${process.env.VUE_APP_URL_MAIN}listado_files`,

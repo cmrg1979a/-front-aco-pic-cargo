@@ -402,12 +402,34 @@
 
           <v-spacer></v-spacer>
           <v-btn
+            v-if="$store.state.pricing.datosPrincipales.url_folderonedrive"
+            color="#FFD600"
+            class="mx-1"
+            small
+            @click="
+              to_link({
+                url: $store.state.pricing.datosPrincipales.url_folderonedrive,
+              })
+            "
+          >
+            <v-icon>mdi-folder-open-outline</v-icon>
+            Abrir Carpeta
+          </v-btn>
+          <v-btn
+            color="#FFD600"
+            class="mx-1"
+            small
+            @click="abrirModalTipoReporte(true)"
+          >
+            <v-icon>mdi-folder-arrow-right</v-icon> Guardar En Folder
+          </v-btn>
+          <v-btn
             color="#A43542"
             class="mx-1"
-            style="color: white !important"
+            dark
             small
             :disabled="$store.state.pricing.bloquearBtnImprimir"
-            @click="abrirModalTipoReporte()"
+            @click="abrirModalTipoReporte(false)"
           >
             Imprimir Cotizacion
           </v-btn>
@@ -433,7 +455,7 @@ export default {
         { value: "index", text: "#" },
         { value: "description", text: "Descripción", align: "center" },
       ],
-
+      guardarFlag: false,
       pagePrev: 1,
       tiporeporte: "",
       descripcion: "",
@@ -447,10 +469,15 @@ export default {
       statusnoincluye: 0,
       cambiarStatus: false,
       selectedStatusId: null,
+      esNuevoFlag: this.$route.name == "newQuote",
     };
   },
   mounted() {
     this.dialog = false;
+    console.log(
+      "esNuevoFlag",
+      this.$store.state.pricing.datosPrincipales.url_folderonedrive,
+    );
   },
   methods: {
     ...mapActions([
@@ -475,6 +502,9 @@ export default {
       } catch (e) {
         return String(val);
       }
+    },
+    to_link({ url = "" }) {
+      window.open(url, "_blank");
     },
     llenarNotasSeleccionadas() {
       this.opcionesSeleccionadas =
@@ -564,6 +594,7 @@ export default {
                 tipo: this.tiporeporte,
                 nro_propuesta:
                   this.$store.state.pricing.opcionCostos[index].nro_propuesta,
+                guardarFlag: this.guardarFlag,
               }).catch((e) => console.log(e));
             }
           }
@@ -608,7 +639,8 @@ export default {
         }
       }
     },
-    abrirModalTipoReporte() {
+    abrirModalTipoReporte(guardarFlag = false) {
+      this.guardarFlag = guardarFlag;
       this.imprimirFlag = true;
     },
     abrirModalTipoReportePreview() {

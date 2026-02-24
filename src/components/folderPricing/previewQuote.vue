@@ -97,7 +97,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(serv, index) in lstServices" :key="index">
+            <tr v-for="(serv, servIndex) in lstServices" :key="servIndex">
               <td>{{ serv.name }}</td>
               <td>{{ serv.estado }}</td>
             </tr>
@@ -136,9 +136,9 @@
           </thead>
           <tbody>
             <tr
-              v-for="(element, index) in data.OpcionesSelecciondas[index - 1]
+              v-for="(element, fleteIndex) in data.OpcionesSelecciondas[index - 1]
                 .datosFlete"
-              :key="index"
+              :key="fleteIndex"
             >
               <td class="text-left" colspan="5">{{ element.name }}</td>
               <td class="text-right" colspan="1">{{ element.valor }}</td>
@@ -180,9 +180,9 @@
           </thead>
           <tbody>
             <tr
-              v-for="(element, index) in data.OpcionesSelecciondas[index - 1]
+              v-for="(element, elementIndex) in data.OpcionesSelecciondas[index - 1]
                 .datosOrigen"
-              :key="index"
+              :key="elementIndex"
             >
               <td class="text-left" colspan="5">{{ element.name }}</td>
               <td class="text-right" colspan="1">{{ element.valor }}</td>
@@ -225,9 +225,9 @@
           </thead>
           <tbody>
             <tr
-              v-for="(element, index) in data.OpcionesSelecciondas[index - 1]
+              v-for="(element, elementIndex) in data.OpcionesSelecciondas[index - 1]
                 .datosLocales"
-              :key="index"
+              :key="elementIndex"
             >
               <td class="text-left" colspan="5">{{ element.name }}</td>
               <td class="text-right" colspan="1">{{ element.valor }}</td>
@@ -270,9 +270,9 @@
           </thead>
           <tbody>
             <tr
-              v-for="(element, index) in data.OpcionesSelecciondas[index - 1]
+              v-for="(element, elementIndex) in data.OpcionesSelecciondas[index - 1]
                 .datosAduanas"
-              :key="index"
+              :key="elementIndex"
             >
               <td class="text-left" colspan="5">{{ element.name }}</td>
               <td class="text-right" colspan="1">{{ element.valor }}</td>
@@ -316,9 +316,9 @@
           </thead>
           <tbody>
             <tr
-              v-for="(element, index) in data.OpcionesSelecciondas[index - 1]
+              v-for="(element, elementIndex) in data.OpcionesSelecciondas[index - 1]
                 .datosFlete"
-              :key="index"
+              :key="elementIndex"
             >
               <td class="text-left" colspan="5">{{ element.name }}</td>
               <td class="text-right" colspan="1">{{ element.valor }}</td>
@@ -361,9 +361,9 @@
           </thead>
           <tbody>
             <tr
-              v-for="(element, index) in data.OpcionesSelecciondas[index - 1]
+              v-for="(element, elementIndex) in data.OpcionesSelecciondas[index - 1]
                 .datosAlmacenes"
-              :key="index"
+              :key="elementIndex"
             >
               <td class="text-left" colspan="5">{{ element.name }}</td>
               <td class="text-right" colspan="1">{{ element.valor }}</td>
@@ -406,9 +406,9 @@
           </thead>
           <tbody>
             <tr
-              v-for="(element, index) in data.OpcionesSelecciondas[index - 1]
-                .datosGastosTerceros"
-              :key="index"
+              v-for="(element, elementIndex) in data.OpcionesSelecciondas[index - 1]
+                .datosGastosTercero"
+              :key="elementIndex"
             >
               <td class="text-left" colspan="5">{{ element.name }}</td>
               <td class="text-right" colspan="1">{{ element.valor }}</td>
@@ -440,9 +440,9 @@
           </thead>
           <tbody>
             <tr
-              v-for="(concepto, index) in data.OpcionesSelecciondas[index - 1]
+              v-for="(concepto, conceptoIndex) in data.OpcionesSelecciondas[index - 1]
                 .conceptos"
-              :key="index"
+              :key="conceptoIndex"
             >
               <td class="text-left" colspan="6">{{ concepto.name }}</td>
             </tr>
@@ -478,9 +478,9 @@
           </thead>
           <tbody>
             <tr
-              v-for="(imp, index) in data.OpcionesSelecciondas[index - 1]
+              v-for="(imp, impIndex) in data.OpcionesSelecciondas[index - 1]
                 .impuesto"
-              :key="index"
+              :key="impIndex"
             >
               <td class="text-left" colspan="2">{{ imp.name }}</td>
               <td class="text-right" colspan="2">
@@ -557,7 +557,7 @@
       <v-col cols="6">
         <v-row>
           <v-col cols="12">
-            <v-table-simple
+            <v-simple-table
               dense
               style="
                 width: 100% !important;
@@ -576,16 +576,16 @@
                 </td>
               </tr>
 
-              <tr v-for="(i, index) in incluye" :key="index">
+              <tr v-for="(i, incluyeIndex) in incluye" :key="incluyeIndex">
                 <td style="text-transform: uppercase">
                   <span style="color: green; font-size: 1em">&#10004;</span>
                   {{ i.name }}
                 </td>
               </tr>
-            </v-table-simple>
+            </v-simple-table>
           </v-col>
           <v-col cols="12">
-            <v-table-simple
+            <v-simple-table
               dense
               style="
                 width: 100% !important;
@@ -603,18 +603,18 @@
                   ESTA OFERTA NO INCLUYE
                 </td>
               </tr>
-              <tr v-for="(i, index) in noincluye" :key="index">
+              <tr v-for="(i, noincluyeIndex) in noincluye" :key="noincluyeIndex">
                 <td style="text-transform: uppercase">
                   <span style="color: green; font-size: 1em">&#10004;</span>
                   {{ i.name }}
                 </td>
               </tr>
-            </v-table-simple>
+            </v-simple-table>
           </v-col>
         </v-row>
       </v-col>
       <v-col cols="6">
-        <v-table-simple
+        <v-simple-table
           dense
           style="
             width: 100% !important;
@@ -625,12 +625,12 @@
           <tr>
             <td style="background: #ffeb3b !important">IMPORTANTE</td>
           </tr>
-          <tr v-for="(i, index) in notasPrincipales" :key="index">
+          <tr v-for="(i, notasIndex) in notasPrincipales" :key="notasIndex">
             <td style="text-transform: uppercase">
               {{ i.name }}
             </td>
           </tr>
-        </v-table-simple>
+        </v-simple-table>
       </v-col>
     </v-row>
   </v-card>

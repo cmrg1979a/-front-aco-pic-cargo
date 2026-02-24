@@ -156,16 +156,29 @@
         </v-alert>
 
         <v-btn
-          color="info"
+          color="red"
           class="my-1"
           block
-          @click="imprimirControlDetallado()"
+          dark
+          small
+          @click="imprimirControlDetallado(false)"
         >
-          IMPRIMIR CONTROL DETALLADO
+          <v-icon class="mx-1">mdi-printer-outline</v-icon> CONTROL DETALLADO
         </v-btn>
         <v-btn
-          color="success"
+          color="teal darken-4"
           class="my-1"
+          block
+          small
+          dark
+          @click="imprimirControlDetallado(true)"
+        >
+         <v-icon class="mx-1">mdi-content-save-all-outline</v-icon> CONTROL DETALLADO
+        </v-btn>
+        <v-btn
+          color="#FFD600"
+          class="my-1"
+          small
           block
           v-if="
             $store.state.controlGastos.listControlGastos[0].url_folderonedrive
