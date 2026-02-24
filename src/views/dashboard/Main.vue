@@ -1704,7 +1704,7 @@ export default {
       await axios(config).then((res) => {
         let data = res.data;
         this.lstDatosTarifa = data.data.datos.map((v) => {
-          return { ...v, selected: true };
+          return { ...v, selected: v.proveedorprincipalflag };
         });
       });
     },

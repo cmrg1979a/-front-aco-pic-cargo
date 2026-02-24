@@ -12,6 +12,7 @@ const state = {
   preCostos: [],
   itemsDataRoleList: [],
   listadoResumen: [],
+  listadoFilesDrive: [],selectedFile:[],
   actualizarCostosFlag: true,
   costoflag: false,
   impuestoflag: false,
@@ -338,6 +339,9 @@ const mutations = {
   },
   LISTADO_RESUMEN(state, data) {
     state.listadoResumen = data;
+  },
+  LISTADO_FILES_DRIVE(state, data) {
+    state.listadoFilesDrive = data;
   },
   PRE_SERVICES(state, data) {
     state.preServices = data;
@@ -1505,7 +1509,7 @@ const actions = {
       return response.data.data;
     });
   },
-  async getQuote(__, { id: id }) {
+  async getQuote({ dispatch }, { id: id }) {
     let config = {
       method: "get",
       url: process.env.VUE_APP_URL_MAIN + `getQuoteId?id=${id}`,
@@ -1573,6 +1577,7 @@ const actions = {
       state.mostrarBtnActualizarFlag = !(
         res.statusmain == 0 || res.aprobadoflag == true
       );
+      dispatch("GetArchivos", res.url_folderonedrive);
     });
   },
   async getInstructivoId({ commit }, { id: id }) {
@@ -6125,6 +6130,7 @@ const actions = {
         await dispatch("guardarCarpetaHouse", {
           nroMaster: name,
           id: data.data[0].id_master,
+          idSelectedFile: state.selectedFile.map(v => v.id)
         });
       }
       Swal.fire({
@@ -6864,6 +6870,28 @@ const actions = {
       .catch(function (error) {
         console.log(error);
       });
+  },
+  async GetArchivos({ commit }, folderUrl) {
+    console.log('folderUrl',folderUrl)
+    let config = {
+      method: "get",
+      url: `${process.env.VUE_APP_URL_MAIN}listado_files`,
+      params: {
+        folderUrl: folderUrl,
+      },
+      headers: {
+        "auth-token": sessionStorage.getItem("auth-token"),
+        "Content-Type": "application/json",
+      },
+    };
+    axios(config).then((response) => {
+      let data = response.data;
+      if (data.estadoflag) {
+        // sessionStorage.setItem("auth-token", data.token);
+        console.log("GetArchivos", data);
+        commit("LISTADO_FILES_DRIVE", data.data);
+      }
+    });
   },
 };
 

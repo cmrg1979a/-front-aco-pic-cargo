@@ -219,160 +219,220 @@
           {{ obtenerAgente(item) }}
         </template> -->
         <template v-slot:[`item.actions`]="{ item }">
-          <v-btn
-            v-if="item.status == 1"
-            small
-            icon
-            class="mx-1"
-            @click="editFechas(item)"
-          >
-            <v-icon>mdi-calendar-edit</v-icon>
-          </v-btn>
           <label
             v-if="item.status == 0"
             style="color: red; font-weight: 700 !important"
-            >ANULADO</label
           >
-          <v-menu v-if="item.status == 1" bottom offset-y>
+            ANULADO
+          </label>
+          <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
               <v-btn
-                fab
+                v-if="item.status == 1"
+                color="#212121"
                 small
-                color="default"
-                elevation="0"
-                v-bind="attrs"
+                icon
+                class="mx-1"
+                fab
                 v-on="on"
+                v-bind="attrs"
+                @click="editFechas(item)"
               >
-                <v-icon dark> mdi-format-list-bulleted </v-icon>
+                <v-icon>mdi-calendar-edit</v-icon>
               </v-btn>
             </template>
-
-            <v-list>
-              <v-list-item
+            <span>Editar Fechas</span>
+          </v-tooltip>
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
                 v-if="!item.statuslock && item.status == 1"
+                color="#212121"
+                small
                 @click="editMaster(item.id)"
-                link
+                icon
+                fab
+                v-on="on"
+                v-bind="attrs"
               >
-                <v-list-item-icon>
-                  <v-icon>mdi-pencil</v-icon>
-                </v-list-item-icon>
-                <v-list-item-title>Editar</v-list-item-title>
-              </v-list-item>
-
-              <!-- <v-list-item v-if="!item.statuslock && item.status == 1" link>
-                <v-list-item-icon> </v-list-item-icon>
-                <v-list-item-title>Editar Fechas</v-list-item-title>
-              </v-list-item> -->
-
-              <v-list-item
+                <v-icon>mdi-pencil</v-icon>
+              </v-btn>
+            </template>
+            <span>Editar Master</span>
+          </v-tooltip>
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                icon
+                fab
+                v-on="on"
+                v-bind="attrs"
                 v-if="item.status == 1"
+                color="#212121"
+                small
                 @click="viewMaster(item.id)"
-                link
               >
-                <v-list-item-icon>
-                  <v-icon>mdi-eye</v-icon>
-                </v-list-item-icon>
-                <v-list-item-title>Ver</v-list-item-title>
-              </v-list-item>
-
-              <v-list-item
+                <v-icon>mdi-eye</v-icon>
+              </v-btn>
+            </template>
+            <span>Ver Master</span>
+          </v-tooltip>
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                icon
+                fab
+                v-on="on"
+                v-bind="attrs"
                 v-if="item.status == 1"
+                color="#212121"
+                small
                 @click="irControlGastos(item.id)"
-                link
               >
-                <v-list-item-icon>
-                  <v-icon>mdi-truck-cargo-container</v-icon>
-                </v-list-item-icon>
-                <v-list-item-title>Ir Control Gastos</v-list-item-title>
-              </v-list-item>
+                <v-icon>mdi-truck-cargo-container</v-icon>
 
-              <v-list-item
-                v-if="!item.statuslock"
+                <!-- <v-btn-title>Ir Control Gastos</v-btn-title> -->
+              </v-btn>
+            </template>
+            <span>Ir Control Gastos</span>
+          </v-tooltip>
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                icon
+                fab
+                v-on="on"
+                v-bind="attrs"
+                v-if="!item.statuslock && item.status == 1"
                 @click="_lockMaster(item.id)"
-                link
+                color="#212121"
+                small
               >
-                <v-list-item-icon>
-                  <v-icon>mdi-lock</v-icon>
-                </v-list-item-icon>
-                <v-list-item-title
-                  >Cerrar Expediente Operativo</v-list-item-title
-                >
-              </v-list-item>
+                <v-icon>mdi-lock</v-icon>
 
-              <v-list-item v-if="item.statuslock" link>
-                <v-list-item-icon>
-                  <v-icon>mdi-lock-open</v-icon>
-                </v-list-item-icon>
-                <v-list-item-title
-                  >Abrir Expediente Operativo</v-list-item-title
-                >
-              </v-list-item>
+                <!-- <v-btn-title>Cerrar Expediente Operativo</v-btn-title> -->
+              </v-btn>
+            </template>
+            <span>Cerrar Expediente Operativo</span>
+          </v-tooltip>
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <!--
+          <v-btn
+            icon
+            v-if="item.statuslock && item.status == 1"
+            color="#212121" small
+          >
+            <v-icon>mdi-lock-open</v-icon>
 
-              <v-list-item
-                v-if="!item.statuslockadm"
+             <v-btn-title>Abrir Expediente Operativo</v-btn-title> 
+          </v-btn>
+          -->
+              <v-btn
+                icon
+                fab
+                v-on="on"
+                v-bind="attrs"
+                v-if="!item.statuslockadm && item.status == 1"
                 @click="_lockMasterAdm(item.id)"
-                link
+                color="#212121"
+                small
               >
-                <v-list-item-icon>
-                  <v-icon>mdi-lock</v-icon>
-                </v-list-item-icon>
-                <v-list-item-title
-                  >Cerrar Expediente Administrativo</v-list-item-title
-                >
-              </v-list-item>
+                <v-icon>mdi-lock</v-icon>
 
-              <v-list-item v-if="item.statuslockadm" link>
-                <v-list-item-icon>
-                  <v-icon>mdi-lock-open</v-icon>
-                </v-list-item-icon>
-                <v-list-item-title
-                  >Abrir Expediente Administrativo</v-list-item-title
-                >
-              </v-list-item>
+                <!-- <v-btn-title>Cerrar Expediente Administrativo</v-btn-title> -->
+              </v-btn>
+            </template>
+            <span>Cerrar Expediente Administrativo</span>
+          </v-tooltip>
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <!-- 
+          <v-btn
+            icon
+            v-if="item.statuslockadm && item.status == 1"
+            color="#212121" small
+          >
+            <v-icon>mdi-lock-open</v-icon>
 
-              <v-list-item link @click="abrirCaperta(item)">
-                <v-list-item-icon>
-                  <v-icon>mdi-folder</v-icon>
-                </v-list-item-icon>
-                <v-list-item-title>Abrir Carpeta </v-list-item-title>
-              </v-list-item>
+          <v-btn-title>Abrir Expediente Administrativo</v-btn-title> 
+          </v-btn>
+-->
+              <v-btn
+                v-if="item.status == 1"
+                icon
+                fab
+                v-on="on"
+                v-bind="attrs"
+                @click="abrirCaperta(item)"
+                color="#212121"
+                small
+              >
+                <v-icon>mdi-folder</v-icon>
+
+                <!-- <v-btn-title>Abrir Carpeta </v-btn-title> -->
+              </v-btn>
+            </template>
+            <span>Abrir Carpeta</span>
+          </v-tooltip>
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
               <!-- ------------------- -->
-              <v-list-item link @click="abrirModalNotaMaster(item)">
-                <v-list-item-icon>
-                  <v-icon>mdi-comment-alert-outline</v-icon>
-                </v-list-item-icon>
-                <v-list-item-title
-                  >Añadir Estado/ Comentario
-                </v-list-item-title>
-              </v-list-item>
-              <!-- ------------------- -->
-              <v-list-item
-                style="background: #ffd9d9; color: #890606"
+              <v-btn
+                icon
+                fab
+                v-on="on"
+                v-bind="attrs"
+                v-if="item.status == 1"
+                @click="abrirModalNotaMaster(item)"
+                color="#212121"
+                small
+              >
+                <v-icon>mdi-comment-alert-outline</v-icon>
+
+                <!-- <v-btn-title>Añadir Estado/ Comentario </v-btn-title> -->
+              </v-btn>
+            </template>
+            <span>Añadir Estado/ Comentario</span>
+          </v-tooltip>
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
                 @click="_nullMaster(item.id)"
-                link
+                icon
+                fab
+                v-on="on"
+                v-bind="attrs"
                 v-if="item.status == 1"
+                color="#212121"
+                small
               >
-                <v-list-item-icon>
-                  <v-icon color="#890606">mdi-cancel</v-icon>
-                </v-list-item-icon>
-                <v-list-item-title>Anular</v-list-item-title>
-              </v-list-item>
-              <v-list-item
+                <v-icon>mdi-cancel</v-icon>
+
+                <!-- <v-btn-title>Anular</v-btn-title> -->
+              </v-btn>
+            </template>
+            <span>Anular</span>
+          </v-tooltip>
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
                 @click="deleteMaster(item.id)"
-                link
+                icon
+                fab
+                v-on="on"
+                v-bind="attrs"
                 v-if="item.status == 1"
+                color="#212121"
+                small
               >
-                <v-list-item-icon>
-                  <v-icon>mdi-trash-can</v-icon>
-                </v-list-item-icon>
-                <v-list-item-title>Eliminar</v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-          <!-- <v-icon large color="orange" class="mr-2"> mdi-pencil </v-icon> -->
-          <!-- <v-icon small color="red" @click="deleteItem(item)">
-            mdi-delete
-          </v-icon> -->
+                <v-icon>mdi-trash-can</v-icon>
+
+                <!-- <v-btn-title>Eliminar</v-btn-title> -->
+              </v-btn>
+            </template>
+            <span>Editar Master</span>
+          </v-tooltip>
         </template>
       </v-data-table>
     </v-card>

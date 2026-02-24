@@ -110,8 +110,8 @@
               <v-tooltip top>
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
-                    fab
                     x-small
+                    fab
                     v-on="on"
                     v-bind="attrs"
                     @click="handleEditar(item)"
@@ -463,39 +463,12 @@
       </v-card>
     </v-dialog>
     <!-- Modal abrir y/o editar url -->
-    <v-dialog
-      v-model="dialogUrl"
-      scrollable
-      persistent
-      max-width="30%"
-      transition="dialog-transition"
-    >
-      <v-card>
-        <v-card-title> Actualizar URL Carpeta </v-card-title>
-        <v-card-text>
-          <v-btn
-            color="success"
-            small
-            :disabled="!quoteEditar.url_folderonedrive"
-            @click="to_direct({ url: quoteEditar.url_folderonedrive })"
-          >
-            Abrir <v-icon class="mx-1">mdi-folder-open-outline</v-icon>
-          </v-btn>
-          <v-divider class="my-3"></v-divider>
-          <v-text-field
-            label="Nueva URL"
-            id="id"
-            v-model="url_folderonedrive"
-            append-icon="mdi-folder-check"
-            @click:append="actualizarUrl"
-          ></v-text-field>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="error" @click="dialogUrl = false">Cerrar</v-btn>
-          </v-card-actions>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
+    
+    <GuardarUrlPricing
+      :dialogUrl="dialogUrl"
+      :masterEditar="masterEditar"
+      @cerrar="cerrarDialog"
+    />
   </v-container>
 </template>
 
@@ -504,11 +477,19 @@ import moment from "moment";
 import { mapActions } from "vuex";
 import Swal from "sweetalert2";
 import axios from "axios";
+import GuardarUrlPricing from "../comun/GuardarUrlPricing.vue";
 export default {
+  components: {
+    GuardarUrlPricing,
+  },
   name: "ListQuoteComponent",
   data() {
     return {
       dialogUrl: false,
+      url_folderonedrive: "",
+      search: "",
+      masterEditar: {},
+      statusDialog: false,
       quoteEditar: {
         url_folderonedrive: "",
       },
@@ -811,12 +792,19 @@ export default {
       window.open(url, "_blank");
     },
     abrirCaperta(item) {
-      this.quoteEditar = { ...item };
+      console.log("item:", item);
+      this.masterEditar = { ...item };
       this.url_folderonedrive = "";
       this.dialogUrl = true;
       // window.open(url, "_blank");
     },
-
+    async cerrarDialog() {
+      console.log('llegó')
+      this.dialogUrl = false;
+      this.$store.state.spiner = true;
+      await this.getListQuote();
+      this.$store.state.spiner = false;
+    },
     async reporteListado() {
       this.loading2 = true;
       await this.imprimiReporteListado(this.filtro).catch((e) => {
@@ -838,16 +826,16 @@ export default {
       });
       this.loading = false;
     },
-    async actualizarUrl() {
-      await this.actualizarURLEnElQuote({
-        id: this.quoteEditar.id,
-        url: this.url_folderonedrive,
-      });
-      this.quoteEditar.url_folderonedrive = this.url_folderonedrive;
-      setTimeout(async () => {
-        await this.getListQuote();
-      }, 1000);
-    },
+    // async actualizarUrl() {
+    //   await this.actualizarURLEnElQuote({
+    //     id: this.quoteEditar.id,
+    //     url: this.url_folderonedrive,
+    //   });
+    //   this.quoteEditar.url_folderonedrive = this.url_folderonedrive;
+    //   setTimeout(async () => {
+    //     await this.getListQuote();
+    //   }, 1000);
+    // },
     abrirModal(quote) {
       this.quote = quote;
       this.id_master_recibidocotizacion = quote.id_master_recibidocotizacion;

@@ -58,7 +58,7 @@ export default {
     return { url_folderonedrive: "", err: "" };
   },
   methods: {
-    ...mapActions(["actualizarURLEnElMaster"]),
+    ...mapActions(["actualizarURLEnElQuote"]),
     to_link({ url = "" }) {
       window.open(url, "_blank");
     },
@@ -68,7 +68,7 @@ export default {
         this.err = "Dato requerido";
         return;
       }
-      await this.actualizarURLEnElMaster({
+      await this.actualizarURLEnElQuote({
         id: this.masterEditar.id,
         url: this.url_folderonedrive,
       });

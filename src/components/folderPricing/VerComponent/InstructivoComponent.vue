@@ -107,11 +107,11 @@
                 v-for="(
                   opcion, index
                 ) in $store.state.pricing.opcionCostos.filter(
-                  (v) => v.selected
+                  (v) => v.selected,
                 )"
                 :key="index"
                 :label="`Opción ${opcion.nro_propuesta} - ${getProveedor(
-                  opcion
+                  opcion,
                 )}`"
               >
               </v-radio>
@@ -120,7 +120,11 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn class="mx-1" @click="abrirModalAprobar()" color="success">
+          <v-btn
+            class="mx-1"
+            @click="abrirModalListadoArchivos()"
+            color="success"
+          >
             Enviar a Operaciones - Tráfico
           </v-btn>
           <v-btn
@@ -165,7 +169,8 @@
             $store.state.pricing.aprobadoflag == true
               ? "APROBADO"
               : $store.state.pricing.listQuoteStatus.filter(
-                  (v) => v.id == $store.state.pricing.datosPrincipales.id_status
+                  (v) =>
+                    v.id == $store.state.pricing.datosPrincipales.id_status,
                 )[0].name
           }}
           | Exp. Master:
@@ -600,6 +605,41 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="dialogFiles" max-width="40%">
+      <v-card>
+        <v-card-title> Archivos a Copiar </v-card-title>
+        <v-card-text>
+          <v-data-table
+            :headers="headersFiles"
+            :items="$store.state.pricing.listadoFilesDrive"
+            show-select
+            v-model="$store.state.pricing.selectedFile"
+            item-key="id"
+          >
+            <template v-slot:[`item.action`]="{ item }">
+              <v-btn
+                icon
+                small
+                :color="getColorIcon(item)"
+                :href="item.webUrl"
+                target="_blank"
+              >
+                <v-icon>{{ getIconFile(item) }}</v-icon>
+              </v-btn>
+            </template>
+          </v-data-table>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn small color="success" @click="abrirModalAprobar"
+            >Continuar</v-btn
+          >
+          <v-btn small color="error" @click="dialogFiles = false"
+            >Cancelar</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -617,6 +657,7 @@ export default {
   },
   data() {
     return {
+      dialogFiles: false,
       nuevoexpediente: "",
       aprobarflag: "",
       id_exp: "",
@@ -647,14 +688,22 @@ export default {
       ],
       optionHouse: [
         // { id: "0", text: "Crear un nuevo house" },
-        { id: "1", text: "Reemplazar los nuevos montos, ya existente del house" },
+        {
+          id: "1",
+          text: "Reemplazar los nuevos montos, ya existente del house",
+        },
         {
           id: "2",
           text: "Sumar los nuevos montos, a los costos ya existentes del house",
         },
       ],
-      id_opcion: '0',
-      id_opcion_house: '0',
+      id_opcion: "0",
+      id_opcion_house: "0",
+      headersFiles: [
+        { text: "Archivo", value: "name" },
+        { text: "", value: "action" },
+      ],
+
     };
   },
   computed: {
@@ -714,6 +763,48 @@ export default {
       "GuardarConfiguracionEmpresa",
       "ObtenerDatosConfig",
     ]),
+    getIconFile(item) {
+      if (item.folder) return "mdi-folder";
+
+      const extension = item.extension ? item.extension.toLowerCase() : "";
+
+      switch (extension) {
+        case "pdf":
+          return "mdi-file-pdf-box";
+        case "xls":
+        case "xlsx":
+          return "mdi-file-excel";
+        case "doc":
+        case "docx":
+          return "mdi-file-word";
+        case "png":
+        case "jpg":
+        case "jpeg":
+          return "mdi-file-image";
+        case "zip":
+        case "rar":
+          return "mdi-zip-box";
+        default:
+          return "mdi-file";
+      }
+    },
+
+    getColorIcon(item) {
+      if (item.folder) return "amber";
+      const extension = item.extension ? item.extension.toLowerCase() : "";
+
+      const colors = {
+        pdf: "red",
+        xlsx: "green",
+        xls: "green",
+        docx: "blue",
+        doc: "blue",
+        png: "purple",
+        jpg: "purple",
+      };
+
+      return colors[extension] || "grey";
+    },
     async guardarConfig() {
       await this.GuardarConfiguracionEmpresa();
       await this.ObtenerDatosConfig();
@@ -724,7 +815,7 @@ export default {
       this.mostrarAdvertencia = false;
       this.textValidacionCotizacionMaster = [];
       let master = this.$store.state.itemsMasterList.filter(
-        (v) => v.id == this.id_exp
+        (v) => v.id == this.id_exp,
       )[0];
       if (
         !(
@@ -783,7 +874,7 @@ export default {
       ) {
         (function (index) {
           this.imprimirInstructivoQuote(
-            this.$store.state.pricing.opcionCostos[index].nro_propuesta
+            this.$store.state.pricing.opcionCostos[index].nro_propuesta,
           );
         }).call(this, index); // Pasamos 'index' como argumento y establecemos el contexto a 'this'
       }
@@ -815,11 +906,15 @@ export default {
     mostrarBtnAprobar() {
       return !this.$store.state.pricing.aprobadoflag;
     },
+    abrirModalListadoArchivos() {
+      this.dialogFiles = true;
+    },
     async abrirModalAprobar() {
+      this.dialogFiles = false;
       await this.generaInstructivoparaguardata();
       if (this.$refs.frmAprobar.validate()) {
         let fecha_validez = this.$store.state.pricing.opcionCostos.filter(
-          (v) => v.nro_propuesta == this.nro_propuesta
+          (v) => v.nro_propuesta == this.nro_propuesta,
         )[0].date_end;
         let esValida = moment(fecha_validez).isSameOrAfter(moment(), "day");
         if (!esValida) {
@@ -830,7 +925,7 @@ export default {
           }).then(() => false);
         }
         esValida = moment(fecha_validez, "YYYY-MM-DD").isSameOrAfter(
-          moment().add(15, "days").startOf("day")
+          moment().add(15, "days").startOf("day"),
         );
         let hoy = moment();
         let newFechaValize = moment(fecha_validez);
@@ -894,7 +989,7 @@ export default {
                       document.getElementById("swal-input1").value;
                     if (!dateInput) {
                       Swal.showValidationMessage(
-                        "La fecha de validez es requerida"
+                        "La fecha de validez es requerida",
                       );
                     } else {
                       const selectedDate = moment(dateInput, "YYYY-MM-DD"); // Parsea la fecha ingresada
@@ -902,7 +997,7 @@ export default {
 
                       if (selectedDate.isSameOrBefore(currentDate)) {
                         Swal.showValidationMessage(
-                          "La fecha debe ser mayor que la fecha actual"
+                          "La fecha debe ser mayor que la fecha actual",
                         );
                       } else {
                         return dateInput;
@@ -913,31 +1008,31 @@ export default {
                   this.fecha_validez = res.value;
                   console.log(
                     "b",
-                    this.$store.state.pricing.listIngresosInstructivoAprobar
+                    this.$store.state.pricing.listIngresosInstructivoAprobar,
                   );
                   let sum =
                     this.$store.state.pricing.listIngresosInstructivoAprobar.filter(
-                      (v) => v.nro_propuesta == this.nro_propuesta
+                      (v) => v.nro_propuesta == this.nro_propuesta,
                     );
                   let igv =
                     this.$store.state.pricing.listIngresosInstructivoAprobar
                       .filter((v) => v.nro_propuesta == this.nro_propuesta)[0]
                       .dataIngresos.filter(
-                        (v) => v.descripcion === "TOTAL"
+                        (v) => v.descripcion === "TOTAL",
                       )[0].igv;
                   let valor =
                     this.$store.state.pricing.listIngresosInstructivoAprobar
                       .filter((v) => v.nro_propuesta == this.nro_propuesta)[0]
                       .dataIngresos.filter(
-                        (v) => v.descripcion === "TOTAL"
+                        (v) => v.descripcion === "TOTAL",
                       )[0].valor;
                   let listCostosInstructivo =
                     this.$store.state.pricing.listIngresosInstructivoAprobar.filter(
-                      (v) => v.nro_propuesta == this.nro_propuesta
+                      (v) => v.nro_propuesta == this.nro_propuesta,
                     )[0].dataCostos;
                   let listVentasInstructivo =
                     this.$store.state.pricing.listIngresosInstructivoAprobar.filter(
-                      (v) => v.nro_propuesta == this.nro_propuesta
+                      (v) => v.nro_propuesta == this.nro_propuesta,
                     )[0].dataVentas;
                   if (res.isConfirmed) {
                     Swal.fire({
@@ -1016,7 +1111,7 @@ export default {
                     document.getElementById("swal-input1").value;
                   if (!dateInput) {
                     Swal.showValidationMessage(
-                      "La fecha de validez es requerida"
+                      "La fecha de validez es requerida",
                     );
                   } else {
                     const selectedDate = moment(dateInput, "YYYY-MM-DD"); // Parsea la fecha ingresada
@@ -1024,7 +1119,7 @@ export default {
 
                     if (selectedDate.isSameOrBefore(currentDate)) {
                       Swal.showValidationMessage(
-                        "La fecha debe ser mayor que la fecha actual"
+                        "La fecha debe ser mayor que la fecha actual",
                       );
                     } else {
                       return dateInput;
@@ -1035,31 +1130,31 @@ export default {
                 this.fecha_validez = res.value;
                 console.log(
                   "a",
-                  this.$store.state.pricing.listIngresosInstructivoAprobar
+                  this.$store.state.pricing.listIngresosInstructivoAprobar,
                 );
                 let sum =
                   this.$store.state.pricing.listIngresosInstructivoAprobar.filter(
-                    (v) => v.nro_propuesta == this.nro_propuesta
+                    (v) => v.nro_propuesta == this.nro_propuesta,
                   );
                 let igv =
                   this.$store.state.pricing.listIngresosInstructivoAprobar
                     .filter((v) => v.nro_propuesta == this.nro_propuesta)[0]
                     .dataIngresos.filter(
-                      (v) => v.descripcion === "TOTAL"
+                      (v) => v.descripcion === "TOTAL",
                     )[0].igv;
                 let valor =
                   this.$store.state.pricing.listIngresosInstructivoAprobar
                     .filter((v) => v.nro_propuesta == this.nro_propuesta)[0]
                     .dataIngresos.filter(
-                      (v) => v.descripcion === "TOTAL"
+                      (v) => v.descripcion === "TOTAL",
                     )[0].valor;
                 let listCostosInstructivo =
                   this.$store.state.pricing.listIngresosInstructivoAprobar.filter(
-                    (v) => v.nro_propuesta == this.nro_propuesta
+                    (v) => v.nro_propuesta == this.nro_propuesta,
                   )[0].dataCostos;
                 let listVentasInstructivo =
                   this.$store.state.pricing.listIngresosInstructivoAprobar.filter(
-                    (v) => v.nro_propuesta == this.nro_propuesta
+                    (v) => v.nro_propuesta == this.nro_propuesta,
                   )[0].dataVentas;
                 if (res.isConfirmed) {
                   Swal.fire({
@@ -1186,7 +1281,7 @@ export default {
       await this.generaInstructivoparaguardata();
 
       let sum = this.$store.state.pricing.listIngresosInstructivoAprobar.filter(
-        (v) => v.nro_propuesta == this.nro_propuesta
+        (v) => v.nro_propuesta == this.nro_propuesta,
       );
       let igv = this.$store.state.pricing.listIngresosInstructivoAprobar
         .filter((v) => v.nro_propuesta == this.nro_propuesta)[0]
@@ -1196,11 +1291,11 @@ export default {
         .dataIngresos.filter((v) => v.descripcion === "TOTAL")[0].valor;
       let listCostosInstructivo =
         this.$store.state.pricing.listIngresosInstructivoAprobar.filter(
-          (v) => v.nro_propuesta == this.nro_propuesta
+          (v) => v.nro_propuesta == this.nro_propuesta,
         )[0].dataCostos;
       let listVentasInstructivo =
         this.$store.state.pricing.listIngresosInstructivoAprobar.filter(
-          (v) => v.nro_propuesta == this.nro_propuesta
+          (v) => v.nro_propuesta == this.nro_propuesta,
         )[0].dataVentas;
       if (this.$refs.frmAprobar.validate()) {
         Swal.fire({
@@ -1225,7 +1320,7 @@ export default {
           listVentasInstructivo: listVentasInstructivo,
           id_house: this.id_house,
           id_opcion: this.id_opcion,
-          id_opcion_house:this.id_opcion_house,
+          id_opcion_house: this.id_opcion_house,
         });
         this.$store.state.spiner = true;
         this.aprobarflag = false;
@@ -1238,10 +1333,10 @@ export default {
     },
     getProveedor(element) {
       let id_proveedor = element.listCostos.some(
-        (v) => v.code_cost == 4 && v.esopcionflag == 1
+        (v) => v.code_cost == 4 && v.esopcionflag == 1,
       )
         ? element.listCostos.filter(
-            (v) => v.code_cost == 4 && v.esopcionflag == 1
+            (v) => v.code_cost == 4 && v.esopcionflag == 1,
           )[0].id_proveedor
         : "";
       let nameProveedor = id_proveedor
