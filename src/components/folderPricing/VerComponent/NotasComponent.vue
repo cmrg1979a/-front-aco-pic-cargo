@@ -399,8 +399,13 @@
               ></v-pagination>
             </div>
           </template>
+          <v-textarea
+            label="Nombre Archivo Generar"
+            v-model="$store.state.pricing.nombre_cotizacion"
+            auto-grow
+            rows="1"
+          />
 
-          <v-spacer></v-spacer>
           <v-btn
             v-if="$store.state.pricing.datosPrincipales.url_folderonedrive"
             color="#FFD600"
@@ -442,6 +447,7 @@
 <script>
 import { mapActions } from "vuex";
 import Swal from "sweetalert2";
+import { getNombreCotizacion } from "../../../store/modules/pricing";
 export default {
   components: {
     previewCotizacion: () =>
@@ -687,6 +693,7 @@ export default {
         });
         this.$store.state.spiner = false;
         this.dialogPreview = true;
+        getNombreCotizacion();
       }
     },
   },

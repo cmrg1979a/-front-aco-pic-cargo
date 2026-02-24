@@ -335,11 +335,11 @@
 
             <v-divider class="my-4"></v-divider>
 
-            <v-switch
+            <!-- <v-switch
               v-model="cambiarStatus"
               label="¿Desea cambiar el estatus de la cotización?"
               inset
-            ></v-switch>
+            ></v-switch> -->
 
             <v-slide-y-transition>
               <div v-if="cambiarStatus">
@@ -399,8 +399,13 @@
               ></v-pagination>
             </div>
           </template>
+          <v-textarea
+            label="Nombre Archivo Generar"
+            v-model="$store.state.pricing.nombre_cotizacion"
+            auto-grow
+            rows="1"
+          />
 
-          <v-spacer></v-spacer>
           <v-btn
             v-if="$store.state.pricing.datosPrincipales.url_folderonedrive"
             color="#FFD600"
@@ -442,6 +447,7 @@
 <script>
 import { mapActions } from "vuex";
 import Swal from "sweetalert2";
+import { getNombreCotizacion } from "../../store/modules/pricing";
 export default {
   components: {
     previewCotizacion: () =>
@@ -601,7 +607,14 @@ export default {
 
           this.loadingTable = false;
           this.loading = false;
-
+          this.dialog = false;
+          this.guardarFlag = false;
+          this.dialogPreview = false;
+          this.previewFlag = false;
+          this.imprimirFlag = false;
+          this.loading = false;
+          this.dialogCambioNombreSecciones = false;
+          this.cambiarStatus = false;
           // 3. Lógica de OneDrive
           let userStr = sessionStorage.getItem("dataUser");
           let id_branch = userStr ? JSON.parse(userStr)[0].id_branch : null;
@@ -680,6 +693,7 @@ export default {
         });
         this.$store.state.spiner = false;
         this.dialogPreview = true;
+        getNombreCotizacion();
       }
     },
   },

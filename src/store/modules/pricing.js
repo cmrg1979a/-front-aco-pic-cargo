@@ -40,6 +40,7 @@ const state = {
   reset: false,
   namesection: [],
   page: 1,
+  nombre_cotizacion: "",
   filtro: {
     id_marketing: "",
     id_status: "",
@@ -1699,7 +1700,7 @@ const actions = {
         valor: element.cantidad,
       });
     });
-    let nombre_cotizacion = getNombreCotizacion(opcion.listNotasQuote);
+    // state.nombre_cotizacion = getNombreCotizacion(opcion.listNotasQuote);
 
     /** incluye - no incluye */
     state.listServices.forEach((element) => {
@@ -3473,7 +3474,7 @@ const actions = {
     let data = {
       guardarFlag: guardarFlag,
       url_folderonedrive: state.datosPrincipales.url_folderonedrive,
-      nombre_cotizacion: nombre_cotizacion,
+      nombre_cotizacion: state.nombre_cotizacion,
       nombre_impuesto: enterprise.state.impuesto.nombre_impuesto,
       impuesto: enterprise.state.impuesto.impuesto / 100,
       esunica: state.opcionCostos.filter((v) => v.selected).length == 1,
@@ -9057,7 +9058,7 @@ function isNotPorcentaje(element, id_multiplicador) {
   return !mul;
 }
 
-function getNombreCotizacion(listNotasQuote) {
+export function getNombreCotizacion(listNotasQuote) {
   // COTIZACION  Servicio *Maritimo*  Salida Semanal. *CLIENTE No 10060*
 
   let shipment = state.listShipment.find(
@@ -9080,10 +9081,8 @@ function getNombreCotizacion(listNotasQuote) {
     default:
       break;
   }
-
-  let nota = listNotasQuote[0];
-
-  let name = `COTIZACION Servicio ${Servicio} ${nota.descripcion} ${state.datosPrincipales.nombre}`;
+  let nota = state.opcionCostos[0].listNotasQuote[0].descripcion;
+  state.nombre_cotizacion = `COTIZACION ${nota} ${state.datosPrincipales.nombre}`;
   return name;
 }
 
