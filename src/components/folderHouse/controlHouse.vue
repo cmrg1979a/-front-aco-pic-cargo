@@ -821,6 +821,16 @@ export default {
 
       vm.loadingBotonGuardarHouse = true;
 
+      const lstservices = (this.$store.state.itemsHouseServices || []).map(
+        (item) => ({
+          id: item.id || null,
+          id_begend: item.id_begend || null,
+          nameservice: item.nameservice || null,
+          status: item.status ? 1 : 0,
+          date_service: item.date_service || null,
+        })
+      );
+
       var data = JSON.stringify({
         id_modality: this.$store.state.house_sentido
           ? this.$store.state.house_sentido
@@ -885,7 +895,7 @@ export default {
         id_cot: vm.$store.state.house_cotizacion
           ? vm.$store.state.house_cotizacion
           : "",
-        lstservices: this.$store.state.itemsHouseServices || [],
+        lstservices,
         id: vm.$store.state.house_id,
       });
 

@@ -16,7 +16,19 @@
       ></v-app-bar-nav-icon>
 
       <v-toolbar-title>{{ $store.state.mainTitle }}</v-toolbar-title>
-      <!-- CONTROL DE GASTOS -->
+      
+      <v-spacer></v-spacer>
+
+      <v-chip 
+        v-if="operadorNombre" 
+        color="white" 
+        text-color="primary" 
+        class="mx-4"
+      >
+        <v-icon left color="primary">mdi-account</v-icon>
+        VENDEDOR: {{ operadorNombre }}
+      </v-chip>
+      
       <v-spacer></v-spacer>
       <!-- <span
         class="white--text mr-5"
@@ -425,7 +437,7 @@
 import leftMenu from "@/components/leftMenu";
 import listMenu from "@/components/listMenu";
 import CotizacionPilotoAutomatico from "@/components/folderPricing/CotizacionPilotoAutomatico.vue";
-import { Store, mapActions } from "vuex";
+import { Store, mapActions, mapState } from "vuex";
 import mixins from "@/components/mixins/funciones";
 import Swal from "sweetalert2";
 import moment from "moment";
@@ -494,6 +506,40 @@ export default {
       .esnuevoflag;
     this.$store.state.drawer = this.mostrarBtnMenu;
   },
+  
+  computed: {
+    ...mapState([
+      "itemsOperadorList",
+    ]),
+    operadorNombre() {
+      const isHousePage = this.$route.name && (
+        this.$route.name.includes('House') || 
+        this.$route.name.includes('controlHouse')
+      );
+      
+      if (!isHousePage) {
+        return "";
+      }
+      
+      if (this.$store.state.dataHouse_operador) {
+        return this.$store.state.dataHouse_operador;
+      }
+       
+      const operadorId = this.$store.state.houses && this.$store.state.houses.house 
+        ? this.$store.state.houses.house.id_operador 
+        : null;
+        
+      if (!operadorId || !this.itemsOperadorList) {
+        return "";
+      }
+      
+      const operador = this.itemsOperadorList.find(
+        op => op.id == operadorId
+      );
+      return operador ? operador.namelong : "";
+    },
+  },
+  
   methods: {
     ...mapActions([
       "copiarQuote",
