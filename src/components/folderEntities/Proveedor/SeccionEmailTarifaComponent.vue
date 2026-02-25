@@ -11,8 +11,30 @@
           @click="guardarContactos"
           small
           v-if="guardarFlag"
-          >Guardar</v-btn
         >
+          Guardar
+        </v-btn>
+      </v-col>
+      <v-col cols="12">
+        <v-row>
+          <v-checkbox
+            v-model="$store.state.entities.proveedor.proveedorprincipalflag"
+            label="Es principal"
+            hide-details
+          >
+          </v-checkbox>
+
+          <v-tooltip bottom class="my-auto">
+            <template v-slot:activator="{ on, attrs }">
+              <v-icon v-bind="attrs" v-on="on"> mdi-information </v-icon>
+            </template>
+            <span>
+              Al marcar esta opción, este registro se mostrará
+              <b>Seleccionado</b> en la lista de correos en el
+              <b>Solicitar tarifas.</b>
+            </span>
+          </v-tooltip>
+        </v-row>
       </v-col>
       <v-col cols="12" class="py-1" style="text-transform: uppercase">
         <center>
@@ -168,10 +190,10 @@ export default {
         { text: "Telefono", value: "telefono" },
         { text: "Activo/ Inactivo", value: "action" },
       ],
+      principalflag: false,
     };
   },
   async mounted() {
-    console.log("sssssssss");
     this.cargarDatos();
   },
   methods: {
@@ -236,7 +258,12 @@ export default {
           "auth-token": sessionStorage.getItem("auth-token"),
           "Content-Type": "application/json",
         },
-        data: { id: this.$route.params.id, datos: datos },
+        data: {
+          id: this.$route.params.id,
+          datos: datos,
+          proveedorprincipalflag:
+            this.$store.state.entities.proveedor.proveedorprincipalflag,
+        },
       };
 
       await axios(config).then((res) => {
@@ -248,6 +275,7 @@ export default {
           });
         }
       });
+      Swal.close();
       this.cargarDatos();
       console.log("Contactos guardados:", datos);
     },

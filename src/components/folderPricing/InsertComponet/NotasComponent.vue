@@ -425,7 +425,7 @@ export default {
     this.dialog = false;
     if (
       (this.opcionesSeleccionadas = this.$store.state.pricing.opcionCostos.some(
-        (v) => !!v.selected
+        (v) => !!v.selected,
       ))
     ) {
       this.opcionesSeleccionadas =
@@ -493,18 +493,20 @@ export default {
     async generar() {
       this.$store.state.pricing.tiporeporte = this.tiporeporte;
       this.loading = true;
+
       if (this.$refs.frmReporte.validate()) {
         this.$store.state.spiner = true;
-        await this.registrarQuote({ fullflag: true }).catch((e) => {
-          console.log(e);
-        });
+
+        // 1. Registro inicial
+        await this.registrarQuote({ fullflag: true }).catch((e) =>
+          console.log(e),
+        );
+
         if (this.$store.state.pricing.nro_quote) {
           this.$store.state.spiner = false;
-          let vm = this;
-          await this.obtenerDatosEmpresa().catch((e) => {
-            console.log(e);
-          });
+          await this.obtenerDatosEmpresa().catch((e) => console.log(e));
 
+          // 2. Generación de reportes
           for (
             let index = 0;
             index < this.$store.state.pricing.opcionCostos.length;
@@ -517,37 +519,46 @@ export default {
                 tipo: this.tiporeporte,
                 nro_propuesta:
                   this.$store.state.pricing.opcionCostos[index].nro_propuesta,
-              }).catch((e) => {
-                console.log(e);
-              });
+              }).catch((e) => console.log(e));
             }
           }
+
           this.loadingTable = false;
           this.loading = false;
-          this.$store.state.spiner = false;
-          let id_branch = JSON.parse(sessionStorage.getItem("dataUser"))[0]
-            .id_branch;
+
+          // 3. Lógica de OneDrive
+          let userStr = sessionStorage.getItem("dataUser");
+          let id_branch = userStr ? JSON.parse(userStr)[0].id_branch : null;
           let branchCreacion = [1, 2];
+
           if (branchCreacion.includes(id_branch)) {
-            this.crearCarpetaOneDrive({
+            console.log("Iniciando creación de carpeta...");
+
+            // Aquí recibimos el return de la función anterior
+            const urlGenerada = await this.crearCarpetaOneDrive({
               nro_quote: this.$store.state.pricing.nro_quote,
               nombre: this.$store.state.pricing.datosPrincipales.nombre,
-            }).catch((err) => {
-              console.log("crearCarpetaOneDrive", err);
             });
 
-            await this.actualizarURLEnElQuote({
-              id: this.$store.state.pricing.id,
-              url: this.$store.state.pricing.urlFolder,
-            }).catch((err) => {
-              console.log("actualizarURLEnElQuote", err);
-            });
+            console.log("URL capturada en generar():", urlGenerada);
+
+            if (urlGenerada) {
+              await this.actualizarURLEnElQuote({
+                id: this.$store.state.pricing.id,
+                url: urlGenerada,
+              });
+              console.log("Base de datos actualizada con URL de OneDrive");
+            } else {
+              console.warn(
+                "No se obtuvo URL de OneDrive, se saltó la actualización.",
+              );
+            }
           }
+
+          // 4. Redirección final
           this.$router.push({
             name: "verQuote",
-            params: {
-              id: this.$store.state.pricing.id,
-            },
+            params: { id: this.$store.state.pricing.id },
           });
         }
       }
@@ -565,7 +576,7 @@ export default {
         (estatus) =>
           estatus.defaultstatus === 1 ||
           estatus.defaultstatus === "1" ||
-          estatus.defaultstatus === true
+          estatus.defaultstatus === true,
       );
 
       if (estatusDefault) {

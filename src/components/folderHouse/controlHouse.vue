@@ -220,7 +220,10 @@
             <v-icon left style="color: white">mdi-printer</v-icon>
             Imprimir
           </v-btn>
-
+          <v-btn small color="primary" @click="abrirCarpeta">
+            <v-icon small left>mdi-folder-open</v-icon>
+            Carpeta
+          </v-btn>
           <v-btn color="deep-purple" dark @click="openNotificaciones">
             <v-icon left style="transform: rotate(-45deg)">mdi-send</v-icon>
             Notificaciones
@@ -481,7 +484,7 @@ export default {
       this.$store.state.spiner = true;
       try {
         if (typeof this.verHouse === "function") {
-          await this.verHouse(this.$route.params);
+          // await this.verHouse(this.$route.params);
         }
       } catch (e) {}
 
@@ -528,7 +531,7 @@ export default {
       this.$store.state.spiner = true;
       try {
         if (typeof this.verHouse === "function") {
-          await this.verHouse(this.$route.params);
+          // await this.verHouse(this.$route.params);
         }
       } catch (e) {}
 
@@ -600,6 +603,7 @@ export default {
       "fetchDataBank",
       "cargarListadoQuoteAduana",
       "verHouse",
+      "guardarCarpetaHouse",
     ]),
     getTipoDocumento() {
       return this.isAereo() ? "GUÍA AÉREA" : "BL";
@@ -806,6 +810,15 @@ export default {
     async _setHouseEdit() {
       var vm = this;
 
+      if (!vm.$store.state.house_id_consigner) {
+        vm.$swal({
+          icon: "error",
+          title: "Lo sentimos",
+          text: "Por favor, asigne un cliente para poder continuar con el proceso.",
+        });
+        return;
+      }
+
       vm.loadingBotonGuardarHouse = true;
 
       var data = JSON.stringify({
@@ -911,40 +924,36 @@ export default {
 
         vm.statusData = true;
 
+        console.log("url_onedrive:", vm.$store.state.url_onedrive);
+        if (!vm.$store.state.url_onedrive) {
+          let proveedor = vm.$store.state.clientes.find(
+            (v) => v.id == vm.$store.state.house_id_consigner,
+          );
+          let id_branch = JSON.parse(sessionStorage.getItem("dataUser"))[0]
+            .id_branch;
+          let id_branchs = ["1", "2", 1, 2];
+          if (id_branchs.includes(id_branch)) {
+            await vm.guardarCarpetaHouse({
+              id: vm.$store.state.house_master,
+              nroMaster: `${vm.$store.state.house_master_expediente}_${proveedor.namelong}`,
+            });
+          }
+        }
+
         vm.loadingBotonGuardarHouse = false;
-        await vm.$swal({
-          icon: "success",
-          title: "Excelente",
-          text: "House actualizado éxitosamente",
-        });
+        await vm
+          .$swal({
+            icon: "success",
+            title: "Excelente",
+            text: "House actualizado éxitosamente",
+            allowEnterKey: false,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+          })
+          .then(() => {
+            vm.$router.go(0); // Recarga la página para reflejar los cambios
+          });
         // Refresh data in background (non-blocking)
-        vm._getHouseList();
-        vm._getHouseById();
-        vm._getHouseServices();
-        // if (vm.$store.state.copy_house.cantidad_houses_x_master > 1) {
-        //   vm.$swal({
-        //     icon: "question",
-        //     html: "<b>¿Desea actualizar los costos en el Control de Gastos ahora?</b>",
-        //     showConfirmButton: true,
-        //     confirmButtonText: "Sí",
-        //     confirmButtonColor: "#4CAF50",
-        //     showDenyButton: true,
-        //     denyButtonText: "No, en otro momento",
-        //     allowOutsideClick: false,
-        //   }).then(({ isConfirmed }) => {
-        //     if (isConfirmed) {
-        //       // vm.$router.push("/home/folderBilling/editControlGastos/view/" + vm.$store.state.copy_house.id_master);
-        //       vm.$router.push({
-        //         name: "editControlGasto",
-        //         params: {
-        //           code_master: vm.$store.state.copy_house.code_master,
-        //           id_branch: JSON.parse(sessionStorage.getItem("dataUser"))[0]
-        //             .id_branch,
-        //         },
-        //       });
-        //     }
-        //   });
-        // }
       } catch (error) {
         console.log(error);
         vm.loadingBotonGuardarHouse = false;
@@ -955,6 +964,17 @@ export default {
         });
       } finally {
         vm.loadingBotonGuardarHouse = false;
+      }
+    },
+    abrirCarpeta() {
+      if (this.$store.state.url_onedrive) {
+        window.open(this.$store.state.url_onedrive, "_blank");
+      } else {
+        this.$swal({
+          icon: "info",
+          title: "Sin carpeta asignada",
+          text: "No se ha asignado una carpeta de OneDrive para este expediente.",
+        });
       }
     },
     eliminarHouse() {
@@ -1377,7 +1397,7 @@ export default {
             vm.$store.state.copy_house.nro_hbl
               ? vm.$store.state.copy_house.nro_hbl
               : ""
-          }`;
+          } EXPEDIENTE: ${this.$store.state.house_master_expediente}`;
           // 4. ABRIR EL MAIL: Solo ocurre DESPUÉS de cerrar el alert
           const body = encodeURIComponent("CONTROL + V (PEGA LA TABLA AQUÍ)");
           window.location.href = `mailto:${

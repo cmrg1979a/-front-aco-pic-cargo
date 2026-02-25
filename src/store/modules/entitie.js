@@ -48,6 +48,7 @@ const state = {
     emailaddress: "",
     nombrecompleto: "",
     id_tipoproveedor: "",
+    proveedorprincipalflag: false,
     convenioActual: {
       dias_credito: 0,
       fecha: "",
@@ -390,8 +391,8 @@ const actions = {
         sessionStorage.setItem("auth-token", data.token);
         if (!!data.estadoflag) {
           let res = data.data[0];
-
           state.proveedor = res;
+
           state.proveedor.convenioActual = {
             dias_credito: 0,
             fecha: "",
@@ -1295,7 +1296,6 @@ const actions = {
         let { data } = response;
         sessionStorage.setItem("auth-token", data.token);
         if (data.estadoflag == true) {
-          console.log(data.data[0].datos);
           commit("SET_LIST_DATOS_TARIFAS", data.data[0].datos);
         } else {
           commit("SET_LIST_DATOS_TARIFAS", []);

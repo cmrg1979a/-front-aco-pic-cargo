@@ -42,7 +42,7 @@ const actions = {
   },
   async insertComentarioMaster(
     __,
-    { id_entitie = 0, id_master = 0, fecha = 0, comentario = 0 }
+    { id_entitie = 0, id_master = 0, fecha = 0, comentario = 0 },
   ) {
     var config = {
       method: "post",
@@ -84,6 +84,24 @@ const actions = {
           text: res.mensaje,
         });
       }
+    });
+  },
+  async actualizarURLEnElMaster(__, { id = "", url = "" }) {
+    console.log("crearCarpetaOneDrive", url);
+    let config = {
+      method: "put",
+      url: process.env.VUE_APP_URL_MAIN + `actualizar_folder_onedrive_master`,
+      headers: {
+        "auth-token": sessionStorage.getItem("auth-token"),
+        "Content-Type": "application/json",
+      },
+      data: {
+        id: id,
+        url: url,
+      },
+    };
+    await axios(config).then(async (response) => {
+      return response.data.data;
     });
   },
 };

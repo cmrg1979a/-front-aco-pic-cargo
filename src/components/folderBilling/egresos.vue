@@ -74,7 +74,7 @@
                         @click="
                           copiarMontos(
                             null,
-                            bloquearCopiarMontos(egreso.detalle)
+                            bloquearCopiarMontos(egreso.detalle),
                           )
                         "
                       >
@@ -92,7 +92,7 @@
                     @click="
                       abriModalCopiar(
                         egreso,
-                        bloquearCopiarMontos(egreso.detalle)
+                        bloquearCopiarMontos(egreso.detalle),
                       )
                     "
                   >
@@ -192,7 +192,9 @@
               >
                 <tr
                   class="blue lighten-5"
-                  :key="`header-${grupo.id_house || grupo.code_house || grupo.consigner || idx}`"
+                  :key="`header-${
+                    grupo.id_house || grupo.code_house || grupo.consigner || idx
+                  }`"
                   style="cursor: pointer"
                   @click="toggleCliente(egreso, grupo)"
                 >
@@ -210,7 +212,12 @@
                 <tr
                   v-for="item in grupo.items"
                   v-if="isClienteAbierto(egreso, grupo)"
-                  :key="`item-${grupo.id_house || grupo.code_house || grupo.consigner || item.id}`"
+                  :key="`item-${
+                    grupo.id_house ||
+                    grupo.code_house ||
+                    grupo.consigner ||
+                    item.id
+                  }`"
                 >
                   <td>{{ item.nombre_proveedor }}</td>
                   <td>{{ item.concepto }}</td>
@@ -1087,6 +1094,17 @@
                 <v-col cols="12">
                   <v-text-field
                     dense
+                    placeholder="Beneficiario"
+                    label="Beneficiario"
+                    v-model="cuentaBancaria.beneficiario"
+                    :rules="[(v) => !!v || 'Dato Requerido']"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="12">
+                  <v-text-field
+                    dense
                     placeholder="Nro Cuenta"
                     label="Nro Cuenta"
                     v-model="cuentaBancaria.nro_cuenta"
@@ -1368,6 +1386,7 @@ export default {
         },
       ],
       headersAccount: [
+        { text: "Beneficiario", value: "beneficiario" },
         {
           text: "Cuenta",
           align: "start",
@@ -1454,11 +1473,7 @@ export default {
     },
     toggleCliente(egreso, grupo) {
       const key = this.clienteKey(egreso, grupo);
-      this.$set(
-        this.clientesAbiertos,
-        key,
-        !this.clientesAbiertos[key]
-      );
+      this.$set(this.clientesAbiertos, key, !this.clientesAbiertos[key]);
     },
     isClienteAbierto(egreso, grupo) {
       const key = this.clienteKey(egreso, grupo);
@@ -1486,7 +1501,7 @@ export default {
         // intentamos obtenerlo desde master_houses.
         if (!consigner && id_house !== null && id_house !== undefined) {
           const house = masterHouses.find(
-            (h) => h.id_house == id_house || h.id == id_house
+            (h) => h.id_house == id_house || h.id == id_house,
           );
           if (house && house.consigner) {
             consigner = house.consigner;
@@ -1512,7 +1527,6 @@ export default {
       });
 
       const grupos = Array.from(gruposMap.values());
-      console.log("[egresos] grupos por cliente", grupos);
       return grupos;
     },
     abrirExpandEgreso(index) {},
@@ -1555,7 +1569,7 @@ export default {
         this.id_coins !== null
       ) {
         const monedaSeleccionada = this.$store.state.itemsCoinsList.find(
-          (v) => v.id == this.id_coins
+          (v) => v.id == this.id_coins,
         );
 
         if (monedaSeleccionada) {
@@ -1580,7 +1594,7 @@ export default {
         this.egresos.igvpr = parseFloat(
           (this.egresos.montopr *
             this.$store.state.enterprises.impuesto.impuesto) /
-            100
+            100,
         ).toFixed(2);
         this.egresos.totalpr =
           parseFloat(this.egresos.montopr) + parseFloat(this.egresos.igvpr);
@@ -1588,33 +1602,33 @@ export default {
         this.egresos.igvopcuentabanco = parseFloat(
           (this.egresos.montoopcuentabanco *
             this.$store.state.enterprises.impuesto.impuesto) /
-            100
+            100,
         ).toFixed(2);
         this.egresos.totalopcuentabanco = parseFloat(
           parseFloat(this.egresos.montoopcuentabanco) +
             parseFloat(
               (this.egresos.montoopcuentabanco *
                 this.$store.state.enterprises.impuesto.impuesto) /
-                100
-            )
+                100,
+            ),
         ).toFixed(2);
         this.egresos.montoop = parseFloat(
-          this.egresos.montoopcuentabanco / this.tipocambio
+          this.egresos.montoopcuentabanco / this.tipocambio,
         ).toFixed(4);
         this.egresos.montoopview = parseFloat(
-          this.egresos.montoopcuentabanco / this.tipocambio
+          this.egresos.montoopcuentabanco / this.tipocambio,
         ).toFixed(2);
         this.egresos.igvop = parseFloat(
-          this.egresos.igvopcuentabanco / this.tipocambio
+          this.egresos.igvopcuentabanco / this.tipocambio,
         ).toFixed(4);
         this.egresos.totalop = parseFloat(
-          parseFloat(this.egresos.montoop) + parseFloat(this.egresos.igvop)
+          parseFloat(this.egresos.montoop) + parseFloat(this.egresos.igvop),
         ).toFixed(4);
         this.egresos.igvopview = parseFloat(
-          this.egresos.igvopcuentabanco / this.tipocambio
+          this.egresos.igvopcuentabanco / this.tipocambio,
         ).toFixed(2);
         this.egresos.totalopview = parseFloat(
-          parseFloat(this.egresos.montoop) + parseFloat(this.egresos.igvop)
+          parseFloat(this.egresos.montoop) + parseFloat(this.egresos.igvop),
         ).toFixed(2);
       } else {
         // pr
@@ -1624,19 +1638,19 @@ export default {
         // op
         this.egresos.igvopcuentabanco = 0.0;
         this.egresos.totalopcuentabanco = parseFloat(
-          parseFloat(this.egresos.montoopcuentabanco)
+          parseFloat(this.egresos.montoopcuentabanco),
         ).toFixed(2);
         this.egresos.montoop = parseFloat(
-          this.egresos.montoopcuentabanco / this.tipocambio
+          this.egresos.montoopcuentabanco / this.tipocambio,
         ).toFixed(4);
         this.egresos.montoopview = parseFloat(
-          this.egresos.montoopcuentabanco / this.tipocambio
+          this.egresos.montoopcuentabanco / this.tipocambio,
         ).toFixed(2);
         this.egresos.igvop = parseFloat(
-          this.egresos.igvopcuentabanco / this.tipocambio
+          this.egresos.igvopcuentabanco / this.tipocambio,
         ).toFixed(4);
         this.egresos.igvopview = parseFloat(
-          this.egresos.igvopcuentabanco / this.tipocambio
+          this.egresos.igvopcuentabanco / this.tipocambio,
         ).toFixed(2);
         this.egresos.totalop = parseFloat(parseFloat(this.egresos.montoop));
         this.egresos.totalopview = parseFloat(parseFloat(this.egresos.montoop));
@@ -1655,7 +1669,7 @@ export default {
 
       let statusPagado = egreso.detalle.some((v) => !!v.pagado);
       let statusAdmin_noPagado = egreso.detalle.some(
-        (v) => !!v.statusadmin && !v.pagado
+        (v) => !!v.statusadmin && !v.pagado,
       );
 
       if (!!statusPagado) {
@@ -1761,7 +1775,7 @@ export default {
             vm.$store.state.controlGastos.listControlGastos[0].master_id,
           id_orders:
             vm.$store.state.controlGastos.listControlGastos[0].master_houses.filter(
-              (v) => v.id_orders
+              (v) => v.id_orders,
             )[0].id_orders,
           id_proveedor: vm.egresos.id_proveedor,
           concepto: vm.egresos.concepto,
@@ -1819,7 +1833,7 @@ export default {
       vm.id_tipotransaccion =
         (
           vm.$store.state.itemsProveedorList.find(
-            (v) => v.id == egreso.id_proveedor
+            (v) => v.id == egreso.id_proveedor,
           ) || {}
         ).id_tipotransaccion || "";
 
@@ -1869,7 +1883,7 @@ export default {
       var data = {
         id_house:
           this.$store.state.controlGastos.listControlGastos[0].master_houses.filter(
-            (v) => v.id_house
+            (v) => v.id_house,
           )[0].id_house,
         id_proveedor: vm.egreso.id_proveedor,
         id_path: vm.payPath,
@@ -2189,22 +2203,22 @@ export default {
             consigner: element.consigner,
             code_house: element.code_house,
             total_igv_op_ingresos: parseFloat(
-              element.total_igv_op_ingresos
+              element.total_igv_op_ingresos,
             ).toFixed(2),
             total_igv_pr_ingresos: parseFloat(
-              element.total_igv_pr_ingresos
+              element.total_igv_pr_ingresos,
             ).toFixed(2),
             total_monto_op_ingresos: parseFloat(
-              element.total_monto_op_ingresos
+              element.total_monto_op_ingresos,
             ).toFixed(2),
             total_monto_pr_ingresos: parseFloat(
-              element.total_monto_pr_ingresos
+              element.total_monto_pr_ingresos,
             ).toFixed(2),
             total_total_op_ingresos: parseFloat(
-              element.total_total_op_ingresos
+              element.total_total_op_ingresos,
             ).toFixed(2),
             total_total_pr_ingresos: parseFloat(
-              element.total_total_pr_ingresos
+              element.total_total_pr_ingresos,
             ).toFixed(2),
           };
         }),
@@ -2272,22 +2286,22 @@ export default {
             consigner: element.consigner,
             code_house: element.code_house,
             total_igv_op_ingresos: parseFloat(
-              element.total_igv_op_ingresos
+              element.total_igv_op_ingresos,
             ).toFixed(2),
             total_igv_pr_ingresos: parseFloat(
-              element.total_igv_pr_ingresos
+              element.total_igv_pr_ingresos,
             ).toFixed(2),
             total_monto_op_ingresos: parseFloat(
-              element.total_monto_op_ingresos
+              element.total_monto_op_ingresos,
             ).toFixed(2),
             total_monto_pr_ingresos: parseFloat(
-              element.total_monto_pr_ingresos
+              element.total_monto_pr_ingresos,
             ).toFixed(2),
             total_total_op_ingresos: parseFloat(
-              element.total_total_op_ingresos
+              element.total_total_op_ingresos,
             ).toFixed(2),
             total_total_pr_ingresos: parseFloat(
-              element.total_total_pr_ingresos
+              element.total_total_pr_ingresos,
             ).toFixed(2),
           };
         }),
@@ -2320,7 +2334,7 @@ export default {
 
           window.open(
             process.env.VUE_APP_URL_MAIN + response.data.path,
-            "_blank"
+            "_blank",
           );
         })
         .catch(function (error) {
@@ -2341,7 +2355,7 @@ export default {
         if (result.isConfirmed) {
           var data = {
             fecha_sol: new Date(
-              Date.now() - new Date().getTimezoneOffset() * 60000
+              Date.now() - new Date().getTimezoneOffset() * 60000,
             )
               .toISOString()
               .substr(0, 10),
@@ -2456,13 +2470,13 @@ export default {
               total_pr: parseFloat(element.total_total_pr).toFixed(2),
               total_op: parseFloat(element.total_total_op).toFixed(2),
             };
-          }
+          },
         );
 
       var datas = {
         id_house:
           vm.$store.state.controlGastos.listControlGastos[0].master_houses.filter(
-            (v) => v.id_house
+            (v) => v.id_house,
           )[0].id_house,
         id_proveedor: vm.proveedorId,
         conceptos: concepto,
@@ -2512,6 +2526,8 @@ export default {
             totalSelected: vm.total,
             number: response.data.number,
             url_logo: JSON.parse(sessionStorage.getItem("dataUser"))[0].path,
+            url: vm.$store.state.controlGastos.listControlGastos[0]
+              .url_folderonedrive,
           };
           var config = {
             method: "post",
@@ -2534,7 +2550,7 @@ export default {
 
               window.open(
                 process.env.VUE_APP_URL_MAIN + response.data.path,
-                "_blank"
+                "_blank",
               );
               vm.dialogSolicitudDivision = false;
               vm.dialogSolicitud = false;
@@ -2705,7 +2721,7 @@ export default {
     },
     isProveedorInternacional() {
       let val = this.$store.state.masterusuarios.lstTipoTransaccion.some(
-        (v) => v.codigo == "02" && v.id == this.id_tipotransaccion
+        (v) => v.codigo == "02" && v.id == this.id_tipotransaccion,
       );
       return val;
     },

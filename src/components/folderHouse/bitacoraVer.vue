@@ -3,6 +3,117 @@
     <h3>Estatus del embarque</h3>
 
     <v-container style="padding: 0">
+      <v-row dense>
+        <v-col cols="12" md="12">
+          <v-autocomplete
+            append-outer-icon="mdi-plus"
+            :items="$store.state.itemsBitacoraLineal"
+            item-text="name"
+            item-value="id"
+            label="Estatus del embarque"
+            v-model="$store.state.bitacora_id_bitacora"
+            :disabled="true"
+          >
+            <template v-slot:item="{ item }">
+              <v-list-item-avatar
+                color="indigo"
+                class="text-h5 font-weight-light white--text"
+              >
+                {{ $store.state.itemsBitacoraLineal.indexOf(item) + 1 }}
+              </v-list-item-avatar>
+              <v-list-item-content class="ml-3">
+                <v-list-item-title v-text="item.name"></v-list-item-title>
+              </v-list-item-content>
+            </template>
+          </v-autocomplete>
+        </v-col>
+        <v-col cols="12" md="12" style="width: 120px">
+          <v-autocomplete
+            :items="ObtenerComentariosPredifinidos()"
+            item-text="descripcion"
+            item-value="id"
+            label="Seleccione un comentario predefinido"
+            v-model="$store.state.bitacora_comentario_predefinido"
+            content-class="custom-autocomplete-menu"
+            v-if="$store.state.bitacora_id_bitacora"
+            return-object
+            :disabled="true"
+          >
+            <template v-slot:item="{ item, on, attrs }">
+              <v-list-item v-bind="attrs" v-on="on">
+                <v-list-item-content style="width: 120px">
+                  <v-list-item-title class="wrap-text">
+                    {{ item.descripcion }}
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </template>
+          </v-autocomplete>
+        </v-col>
+
+        <v-col cols="12" md="12" v-if="$store.state.bitacora_comentario_flag">
+          <v-text-field
+            v-model="$store.state.bitacora_comentario"
+            label="Comentario"
+            id="txtBitacoraComentario"
+            readonly
+            disabled
+          ></v-text-field>
+        </v-col>
+        <v-col cols="12" md="4">
+          <v-dialog
+            ref="dialog"
+            v-model="modal"
+            :return-value.sync="date"
+            persistent
+            width="290px"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-text-field
+                v-model="$store.state.bitacora_fecha"
+                label="Fecha"
+                prepend-icon="mdi-calendar"
+                readonly
+                v-bind="attrs"
+                v-on="on"
+                :disabled="true"
+              ></v-text-field>
+            </template>
+            <v-date-picker v-model="$store.state.bitacora_fecha" scrollable>
+              <v-spacer></v-spacer>
+              <v-btn text color="primary" @click="modal = false">
+                Cancel
+              </v-btn>
+              <v-btn
+                text
+                color="primary"
+                @click="$refs.dialog.save($store.state.bitacora_fecha)"
+              >
+                OK
+              </v-btn>
+            </v-date-picker>
+          </v-dialog>
+        </v-col>
+        <v-col cols="12" md="4">
+          <p class="mb-1">Visible para cliente</p>
+          <v-switch
+            class="mt-0"
+            v-model="$store.state.bitacora_visible_cliente"
+            :disabled="true"
+          ></v-switch>
+        </v-col>
+        <v-col cols="12" md="4">
+          <v-btn
+            color="primary"
+            block
+            :loading="false"
+            disabled
+            small
+            >Agregar</v-btn
+          >
+        </v-col>
+      </v-row>
+
       <v-row>
         <v-col cols="12">
           <v-simple-table dense fixed-header>

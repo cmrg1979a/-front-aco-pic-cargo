@@ -40,6 +40,15 @@
           >
             mdi-plus
           </v-icon>
+          <v-icon
+            @click.native="_callModalEntitie(11)"
+            slot="prefix"
+            class="btn__add"
+            color="primary"
+            :disabled="isFormActionsDisabled"
+          >
+            mdi-plus
+          </v-icon>
         </v-autocomplete>
       </v-col>
       <v-col cols="12" md="6">
@@ -104,7 +113,6 @@
         ></v-text-field>
       </v-col>
 
-      
       <v-col cols="12" md="3" lg="3" xl="3">
         <v-autocomplete
           :items="itemsFleteCon"
@@ -174,7 +182,7 @@
                 $store.state.house_id_containers.name,
                 $store.state.house_nro_containers,
                 $store.state.house_nro_precinto,
-                $store.state.house_cantidad
+                $store.state.house_cantidad,
               )
             "
             slot="append"
@@ -276,19 +284,19 @@ export default {
     ]),
     mostrarContenedor() {
       let TipoEmbarque = this.itemsShipment.find(
-        (v) => v.id == this.$store.state.house_id_trasnport
+        (v) => v.id == this.$store.state.house_id_trasnport,
       );
       return TipoEmbarque && TipoEmbarque.code === "FCL";
     },
     mostrarAerolineaYGuia() {
       let TipoEmbarque = this.itemsShipment.find(
-        (v) => v.id == this.$store.state.house_id_trasnport
+        (v) => v.id == this.$store.state.house_id_trasnport,
       );
       return TipoEmbarque && TipoEmbarque.code === "Aéreo";
     },
     mostrarContenedor() {
       let TipoEmbarque = this.itemsShipment.find(
-        (v) => v.id == this.$store.state.house_id_trasnport
+        (v) => v.id == this.$store.state.house_id_trasnport,
       );
       return TipoEmbarque && TipoEmbarque.code === "FCL";
     },

@@ -46,6 +46,13 @@
                 class="elevation-5"
                 item-key="index"
               >
+                <template v-slot:[`item.beneficiario`]="{ item }">
+                  <v-text-field
+                    v-model="item.beneficiario"
+                    :rules="[(v) => !!v || 'Dato Requerido']"
+                    placeholder="Beneficiario"
+                  ></v-text-field>
+                </template>
                 <template v-slot:[`item.nrocuenta`]="{ item }">
                   <v-text-field
                     v-model="item.nro_cuenta"
@@ -140,6 +147,7 @@ export default {
   data() {
     return {
       headersInformacionBancaria1: [
+        { text: "Beneficiario", value: "beneficiario" },
         { text: "Nro de Cuenta", value: "nrocuenta" },
         { text: "CCI", value: "cci" },
         { text: "Banco", value: "banco" },

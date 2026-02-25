@@ -156,12 +156,42 @@
         </v-alert>
 
         <v-btn
-          color="info"
+          color="red"
           class="my-1"
           block
-          @click="imprimirControlDetallado()"
+          dark
+          small
+          @click="imprimirControlDetallado(false)"
         >
-          IMPRIMIR CONTROL DETALLADO
+          <v-icon class="mx-1">mdi-printer-outline</v-icon> CONTROL DETALLADO
+        </v-btn>
+        <v-btn
+          color="teal darken-4"
+          class="my-1"
+          block
+          small
+          dark
+          @click="imprimirControlDetallado(true)"
+        >
+          <v-icon class="mx-1">mdi-content-save-all-outline</v-icon> CONTROL
+          DETALLADO
+        </v-btn>
+        <v-btn
+          color="#FFD600"
+          class="my-1"
+          small
+          block
+          v-if="
+            $store.state.controlGastos.listControlGastos[0].url_folderonedrive
+          "
+          @click="
+            to_direct({
+              url: $store.state.controlGastos.listControlGastos[0]
+                .url_folderonedrive,
+            })
+          "
+        >
+          <v-icon class="mx-2">mdi-folder</v-icon> ABRIR CARPETA
         </v-btn>
       </v-col>
       <v-col cols="12">
@@ -288,7 +318,9 @@ export default {
     ]),
     // ...mapAction([])
     // --------------------
-
+    to_direct({ url }) {
+      window.open(url, "_blank");
+    },
     // --------------------
     async recargarDatos() {
       this.$store.state.spiner = true;
@@ -298,7 +330,7 @@ export default {
     },
     calcularMontoDolar() {
       this.monto = parseFloat(
-        (this.monto_abonado ? this.monto_abonado : 0) / this.tipocambio
+        (this.monto_abonado ? this.monto_abonado : 0) / this.tipocambio,
       ).toFixed(2);
     },
 
@@ -389,36 +421,36 @@ export default {
         this.$forceUpdate();
       });
     },
-    async imprimirControlDetallado() {
-      let master = this.$store.state.controlGastos.listControlGastos[0];
-      let egresos = [];
-      let totalEgreso = 0;
-      let totalIgvEgresos = 0;
-      let totalTotalEgresos = 0;
-      let totalEgresoOp = 0;
-      let totalIgvEgresosOp = 0;
-      let totalTotalEgresosOp = 0;
-      master.master_egresos.forEach((element) => {
-        element.detalle.forEach((element2) => {
-          egresos.push({
-            namePagado: "",
-            nameproveedor: element2.nombre_proveedor,
-            concepto: element2.concepto,
-            monto_pr: element2.monto_pr,
-            igv_pr: element2.igv_pr,
-            total_pr: element2.total_pr,
-            monto_op: element2.monto_op,
-            igv_op: element2.igv_op,
-            total_op: element2.total_op,
-          });
-          totalEgreso += parseFloat(element2.monto_pr);
-          totalIgvEgresos += parseFloat(element2.igv_pr);
-          totalTotalEgresos += parseFloat(element2.total_pr);
-          totalEgresoOp += parseFloat(element2.monto_op);
-          totalIgvEgresosOp += parseFloat(element2.igv_op);
-          totalTotalEgresosOp += parseFloat(element2.total_op);
-        });
-      });
+    async imprimirControlDetallado(guardarEnCarpeta) {
+      // let master = this.$store.state.controlGastos.listControlGastos[0];
+      // let egresos = [];
+      // let totalEgreso = 0;
+      // let totalIgvEgresos = 0;
+      // let totalTotalEgresos = 0;
+      // let totalEgresoOp = 0;
+      // let totalIgvEgresosOp = 0;
+      // let totalTotalEgresosOp = 0;
+      // master.master_egresos.forEach((element) => {
+      //   element.detalle.forEach((element2) => {
+      //     egresos.push({
+      //       namePagado: "",
+      //       nameproveedor: element2.nombre_proveedor,
+      //       concepto: element2.concepto,
+      //       monto_pr: element2.monto_pr,
+      //       igv_pr: element2.igv_pr,
+      //       total_pr: element2.total_pr,
+      //       monto_op: element2.monto_op,
+      //       igv_op: element2.igv_op,
+      //       total_op: element2.total_op,
+      //     });
+      //     totalEgreso += parseFloat(element2.monto_pr);
+      //     totalIgvEgresos += parseFloat(element2.igv_pr);
+      //     totalTotalEgresos += parseFloat(element2.total_pr);
+      //     totalEgresoOp += parseFloat(element2.monto_op);
+      //     totalIgvEgresosOp += parseFloat(element2.igv_op);
+      //     totalTotalEgresosOp += parseFloat(element2.total_op);
+      //   });
+      // });
       // let data = {
       //   bultos: master.master_volumen,
       //   peso: master.master_peso,
@@ -475,11 +507,20 @@ export default {
       // };
       var vm = this;
       // vm._calcularTotales();
-      vm.$swal({
-        icon: "info",
-        title: "Generando PDF...",
-        text: "Por favor espere",
-      });
+      if (!guardarEnCarpeta) {
+        vm.$swal({
+          icon: "info",
+          title: "Generando PDF...",
+          text: "Por favor espere",
+        });
+      } else {
+        vm.$swal({
+          icon: "warning",
+          title: "Moviendo",
+          text: "Se avisará cuando se haya guardado",
+          timer: 2000,
+        });
+      }
       var config = {
         method: "post",
         url: process.env.VUE_APP_URL_MAIN + "getPdfInstructivoDetallado",
@@ -487,20 +528,23 @@ export default {
           "auth-token": sessionStorage.getItem("auth-token"),
           "Content-Type": "application/json",
         },
-        data: this.$route.params,
+        data: { ...this.$route.params, guardarEnCarpeta: guardarEnCarpeta },
       };
       await axios(config)
         .then(function (response) {
           vm.$swal({
             icon: "success",
-            title: "PDF Generado",
-            text: "El PDF se descargará automaticamente",
+            title: guardarEnCarpeta ? "PDF Guardado" : "PDF Generado",
+            text: guardarEnCarpeta
+              ? "Se guardó en la carpeta el pdf."
+              : "El PDF se descargará automaticamente",
           });
-
-          window.open(
-            process.env.VUE_APP_URL_MAIN + response.data.path,
-            "_blank"
-          );
+          if (!guardarEnCarpeta) {
+            window.open(
+              process.env.VUE_APP_URL_MAIN + response.data.path,
+              "_blank",
+            );
+          }
         })
         .catch(function (error) {
           console.log(error);

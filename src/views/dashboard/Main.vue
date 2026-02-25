@@ -118,7 +118,7 @@
         "
         @click="editarCotizacion()"
       >
-        GUARDAR CAMBIOS
+        <v-icon small class="mx-1">mdi-content-save-all</v-icon> GUARDAR
       </v-btn>
       <!-- ver -->
       <label class="monto" v-if="getNameUrl() == 'verQuote'">
@@ -147,7 +147,7 @@
         @click="abrirCorreo()"
       >
         <v-icon class="mx-1" dense small>mdi-email-fast</v-icon>
-        ENVIAR MAIL
+        CORREO
       </v-btn>
 
       <v-btn
@@ -158,7 +158,20 @@
         @click="abrirCorreo()"
       >
         <v-icon class="mx-1" dense small>mdi-email-fast</v-icon>
-        ENVIAR MAIL
+        CORREO
+      </v-btn>
+
+      <v-btn
+        v-if="getNameUrl() == 'editQuote' || getNameUrl() == 'verQuote'"
+        class="mx-1"
+        color="#FFD600"
+        dark
+        @click="
+          abrirCarpeta($store.state.pricing.datosPrincipales.url_folderonedrive)
+        "
+      >
+        <v-icon class="mx-1" dense small>mdi-folder</v-icon>
+        ABRIR
       </v-btn>
 
       <v-btn
@@ -169,7 +182,7 @@
         @click="copiarCotizacion()"
       >
         <v-icon class="mx-1" dense small>mdi-content-copy</v-icon>
-        COPIAR COTIZACIÓN
+        COPIAR
       </v-btn>
 
       <!--MODULO CLIENTES-->
@@ -211,14 +224,15 @@
           )
         }}
       </label>
-      <v-spacer></v-spacer>
+
       <v-btn
         color="#009688"
         dark
         v-if="getNameUrl() == 'EditarAduana'"
         @click="editarCotizacionAduana()"
+        small
       >
-        GUARDAR CAMBIOS
+        <v-icon class="mx-1">mdi-save</v-icon> GUARDAR
       </v-btn>
 
       <v-btn
@@ -236,10 +250,19 @@
       <v-btn
         color="#009688"
         dark
-        @click="abrirModalPilotoAutomatico()"
-        v-if="getNameUrl() == 'editQuote' && $store.state.pricing.step == 2"
+        v-if="getNameUrl() == 'editControlGasto'"
+        @click="ira('listControlGastos', null)"
       >
-        COTIZAR PILOTO AUTOMATICO
+        <v-icon>mdi-format-list-bulleted</v-icon> IR AL LISTADO
+      </v-btn>
+
+      <v-btn
+        color="#009688"
+        dark
+        @click="abrirModalPilotoAutomatico()"
+        v-if="getNameUrl() == 'editQuote'"
+      >
+        <v-icon class="mx-1">mdi-send</v-icon>AUTOMATICO
       </v-btn>
       <v-spacer v-if="getNameUrl() == 'controlMasterEditar'"></v-spacer>
       <v-btn
@@ -390,7 +413,7 @@
           </v-btn>
         </v-card-title>
         <v-card-text>
-          <CotizacionPilotoAutomatico />
+          <CotizacionPilotoAutomatico @close="dialogPilotoAutomatico = false" />
         </v-card-text>
         <!-- <v-card-actions> </v-card-actions> -->
       </v-card>
@@ -412,9 +435,9 @@ import { io } from "socket.io-client";
 export default {
   created() {
     this.socket = io(process.env.VUE_APP_URL_MAIN);
-    this.socket.on("connect", () => {
-      console.log("Conectado al servidor Socket.IO:", this.socket.id);
-    });
+    // this.socket.on("connect", () => {
+    //   console.log("Conectado al servidor Socket.IO:", this.socket.id);
+    // });
     this.socket.on("connect_error", (err) => {
       console.error("Error al conectar con Socket.IO:", err);
     });
@@ -488,6 +511,21 @@ export default {
       "actualizarQuoteAduana",
       "_getRole",
     ]),
+    abrirCarpeta(url) {
+      if (!url) {
+        Swal.fire({
+          icon: "warning",
+          title: "Error",
+          text: "No existe carpeta asociada.",
+        });
+        return;
+      }
+      // console.log("item:", item);
+      // this.houseEditar = { ...item };
+      // this.url_folderonedrive = "";
+      // this.dialogUrl = true;
+      window.open(url, "_blank");
+    },
     async guardarCotizacion() {
       let validacion = this.validarRegistro();
       if (!!validacion) {
@@ -515,19 +553,24 @@ export default {
           .id_branch;
         let branchCreacion = [1, 2];
         if (branchCreacion.includes(id_branch)) {
-          await this.crearCarpetaOneDrive({
+          const urlGenerada = await this.crearCarpetaOneDrive({
             nro_quote: this.$store.state.pricing.nro_quote,
             nombre: this.$store.state.pricing.datosPrincipales.nombre,
-          }).catch((err) => {
-            console.log("crearCarpetaOneDrive", err);
           });
 
-          await this.actualizarURLEnElQuote({
-            id: this.$store.state.pricing.id,
-            url: this.$store.state.pricing.urlFolder,
-          }).catch((err) => {
-            console.log("actualizarURLEnElQuote", err);
-          });
+          console.log("URL capturada en generar():", urlGenerada);
+
+          if (urlGenerada) {
+            await this.actualizarURLEnElQuote({
+              id: this.$store.state.pricing.id,
+              url: urlGenerada,
+            });
+            console.log("Base de datos actualizada con URL de OneDrive");
+          } else {
+            console.warn(
+              "No se obtuvo URL de OneDrive, se saltó la actualización.",
+            );
+          }
         }
       }
     },
@@ -663,50 +706,156 @@ export default {
     //   window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
     // },
     async abrirCorreoSend() {
+      let valIncoterms = ["EXW", "FCA", "FOB"];
       const selected = this.lstDatosTarifa.filter((v) => v.selected);
       const to = selected
         .map((v) => v.email)
         .filter((e) => e)
-        .join(",");
+        .join(";");
 
-      const subject = "Cotizacion Nro: " + this.$store.state.pricing.nro_quote;
+      let incoterms = this.$store.state.pricing.listIncoterms.find(
+        (v) => v.id == this.$store.state.pricing.datosPrincipales.idincoterms,
+      );
+      let subject = ``;
 
-      // 1. Preparamos el HTML de la tabla
-      const tablaHtml = `
-    <div style="font-family: Arial, sans-serif;">
-      <p>Hola colega, me ayudas cotizando este embarque:</p>
-      <table border="1" style="border-collapse: collapse; width: 100%; max-width: 500px;">
-        <tr style="background-color: #eeeeee;">
-          <th style="padding: 8px; border: 1px solid #333;">CONCEPTO</th>
-          <th style="padding: 8px; border: 1px solid #333;">DETALLE</th>
-        </tr>
-        <tr><td style="padding: 8px; border: 1px solid #333;">INCOTERMS</td><td style="padding: 8px; border: 1px solid #333;">EXWORKS</td></tr>
-        <tr><td style="padding: 8px; border: 1px solid #333;">PESO</td><td style="padding: 8px; border: 1px solid #333;">${
+      let miEmail = sessionStorage.getItem("dataUser")
+        ? JSON.parse(sessionStorage.getItem("dataUser"))[0].correoemail
+        : "";
+
+      let origen = this.$store.state.pricing.listPortBegin.find(
+        (v) => v.id_port == this.$store.state.pricing.datosPrincipales.idorigen,
+      );
+
+      let destino = this.$store.state.pricing.listPortEnd.find(
+        (v) =>
+          v.id_port == this.$store.state.pricing.datosPrincipales.iddestino,
+      );
+      let tablaHtml = "";
+
+      if (!valIncoterms.includes(incoterms.name)) {
+        Swal.fire({
+          title: "ADVERTENCIA",
+          icon: "error",
+          text: "El INCOTERMS seleccionado no es compatible con el formato de correo automático. Por favor, seleccione EXW, FCA o FOB para usar esta función.",
+        });
+        return;
+      }
+      if (incoterms.name == "EXW") {
+        subject = `QUOTE${this.$store.state.pricing.nro_quote} ${
+          incoterms ? incoterms.name : ""
+        } ${origen ? origen.name : ""} - ${destino ? destino.name : ""}  ${
           this.$store.state.pricing.datosPrincipales.peso || ""
-        }</td></tr>
-        <tr><td style="padding: 8px; border: 1px solid #333;">M3</td><td style="padding: 8px; border: 1px solid #333;">${
-          this.$store.state.pricing.datosPrincipales.volumen || ""
-        }</td></tr>
-      </table>
-      <p>Saludos.</p>
-    </div>
-  `;
+        }KGS / ${this.$store.state.pricing.datosPrincipales.volumen || ""}M3 ${
+          this.$store.state.pricing.datosPrincipales.nombre
+        }`;
+        /* CREAR EL BOBY */
+        tablaHtml = `
+        <div style="font-family: Arial, sans-serif;">
+          <p>Hola colega, me ayudas cotizando este embarque:</p>
+          <table border="1" style="border-collapse: collapse; width: 100%; max-width: 800px;">
+            <tr style="background-color: #eeeeee;">
+              <th style="padding: 8px; border: 1px solid #333;"> CONCEPTO</th>
+              <th style="padding: 8px; border: 1px solid #333;"> DETALLE</th>
+            </tr>
+            <tr><td style="padding: 8px; border: 1px solid #333;">INCOTERMS</td><td style="padding: 8px; border: 1px solid #333;">${
+              incoterms ? incoterms.name : ""
+            }</td></tr>
+            <tr>
+              <td> DIRECCIÓN:</td>
+              <td> ${this.$store.state.pricing.datosPrincipales.direccionproveedor||""}</td>
+              </tr>
+            <tr>
+              <td> PUERTO SALIDA:</td>
+              <td> ${origen ? origen.name : ""}</td>
+              </tr>
+            <tr>
+              <td> PUERTO LLEGADAA:</td>
+              <td> ${destino ? destino.name : ""}</td>
+              </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #333;"> PESO(Kgs)</td>
+              <td style="padding: 8px; border: 1px solid #333;"> ${this.$store.state.pricing.datosPrincipales.peso || ""}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #333;">M3</td><td style="padding: 8px; border: 1px solid #333;"> 
+                ${this.$store.state.pricing.datosPrincipales.volumen || ""}</td>
+            </tr>
+            <tr>
+              <td> DESCRIPCIÓN DE LA MERCANCÍA:</td>
+              <td> 
+                ${this.$store.state.pricing.datosPrincipales.descripcioncarga ||""}
+              </td>
+            <tr>
+          </table>
+          <p>Saludos.</p>
+        </div>
+      `;
+      }
+      if (incoterms.name == "FCA" || incoterms.name == "FOB") {
+        subject = `QUOTE${this.$store.state.pricing.nro_quote} ${
+          incoterms ? incoterms.name : ""
+        } ${origen ? origen.name : ""} - ${destino ? destino.name : ""}  ${
+          this.$store.state.pricing.datosPrincipales.peso || ""
+        }KGS / ${this.$store.state.pricing.datosPrincipales.volumen || ""}M3`;
+        /* CREAR EL BOBY */
+        tablaHtml = `
+        <div style="font-family: Arial, sans-serif;">
+          <p>Hola colega, me ayudas cotizando este embarque:</p>
+          <table border="1" style="border-collapse: collapse; width: 100%; max-width: 800px;">
+            <tr style="background-color: #eeeeee;">
+              <th style="padding: 8px; border: 1px solid #333;"> CONCEPTO</th>
+              <th style="padding: 8px; border: 1px solid #333;"> DETALLE</th>
+            </tr>
+            <tr>
+                <td style="padding: 8px; border: 1px solid #333;"> INCOTERMS</td>
+                <td style="padding: 8px; border: 1px solid #333;">${
+                  incoterms ? incoterms.name : ""
+                }</td>
+            </tr>
+
+            <tr>
+              <td> PUERTO SALIDA:</td>
+              <td>${origen ? origen.name : ""}</td>
+              </tr>
+            <tr>
+              <td> PUERTO LLEGADAA:</td>
+              <td> ${destino ? destino.name : ""}</td>
+              </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #333;"> PESO</td>
+              <td style="padding: 8px; border: 1px solid #333;"> ${
+                this.$store.state.pricing.datosPrincipales.peso || ""
+              }
+              </td>
+            </tr>
+            <tr><td style="padding: 8px; border: 1px solid #333;">M3</td><td style="padding: 8px; border: 1px solid #333;"> ${
+              this.$store.state.pricing.datosPrincipales.volumen || ""
+            }</td>
+            </tr>
+            <tr>
+              <td> DESCRIPCIÓN DE LA MERCANCÍA:</td>
+              <td> ${
+                this.$store.state.pricing.datosPrincipales.descripcioncarga ||
+                ""
+              }</td>
+            <tr>
+          </table>
+          <p>Saludos.</p>
+        </div>
+      `;
+      }
 
       try {
-        // 2. Ejecutamos la copia al portapapeles primero
         const blob = new Blob([tablaHtml], { type: "text/html" });
         const data = [new ClipboardItem({ ["text/html"]: blob })];
         await navigator.clipboard.write(data);
 
-        // 3. EL ALERT: Detiene la ejecución hasta que el usuario dé clic
-        // Esto asegura que el usuario sepa que ya se copió
         alert(
           "Información de cotización copiada. Al aceptar, se abrirá Outlook. (Luego presiona Ctrl+V)",
         );
 
-        // 4. ABRIR EL MAIL: Solo ocurre DESPUÉS de cerrar el alert
-        const body = encodeURIComponent("Hola colega, (PEGA LA TABLA AQUÍ)");
-        window.location.href = `mailto:${to}?subject=${encodeURIComponent(
+        const body = encodeURIComponent("Hola colega, (PEGA LA TABLA AQUI)");
+        window.location.href = `mailto:${miEmail}?bcc=${to}&subject=${encodeURIComponent(
           subject,
         )}&body=${body}`;
       } catch (err) {
@@ -1555,7 +1704,7 @@ export default {
       await axios(config).then((res) => {
         let data = res.data;
         this.lstDatosTarifa = data.data.datos.map((v) => {
-          return { ...v, selected: true };
+          return { ...v, selected: v.proveedorprincipalflag };
         });
       });
     },

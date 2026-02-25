@@ -113,13 +113,27 @@
 
     <v-row dense class="mt-0">
       <v-col cols="12" md="4">
-        <v-text-field type="number" v-model="$store.state.house_bultos" label="Bultos"></v-text-field>
+        <v-text-field
+          type="number"
+          v-model="$store.state.house_bultos"
+          label="Bultos"
+        ></v-text-field>
       </v-col>
       <v-col cols="12" md="4">
-        <v-text-field type="number" suffix="kg" v-model="$store.state.house_peso" label="Peso"></v-text-field>
+        <v-text-field
+          type="number"
+          suffix="kg"
+          v-model="$store.state.house_peso"
+          label="Peso"
+        ></v-text-field>
       </v-col>
       <v-col cols="12" md="4">
-        <v-text-field type="number" suffix="m3" v-model="$store.state.house_volumen" label="Volumen"></v-text-field>
+        <v-text-field
+          type="number"
+          suffix="m3"
+          v-model="$store.state.house_volumen"
+          label="Volumen"
+        ></v-text-field>
       </v-col>
     </v-row>
 
@@ -285,6 +299,7 @@
 <script>
 import { mapState, mapActions } from "vuex";
 import axios from "axios";
+import Swal from "sweetalert2";
 export default {
   name: "dataGen",
   data() {
@@ -333,7 +348,6 @@ export default {
       this._getBegEndList(),
       this._getHouseContainers({ id: this.$route.params.id }),
     ]);
-    console.log("house_cotizacion", this.$store.state.house_cotizacion);
     if (
       this.$store.state.house_cotizacion ||
       this.$store.state.house_cotizacionaduana
@@ -345,7 +359,7 @@ export default {
     }
 
     this.$store.state.house_id_coins = this.$store.state.itemsCoinsList.filter(
-      (v) => v.symbol === "USD"
+      (v) => v.symbol === "USD",
     )[0].id;
 
     this.$store.state.spiner = false;
@@ -449,23 +463,23 @@ export default {
     },
     async asignarDatos() {
       this.dataAprobar = this.$store.state.pricing.listQuotes.filter(
-        (v) => v.id == this.$store.state.house_cotizacion
+        (v) => v.id == this.$store.state.house_cotizacion,
       )[0];
       this.dialogCostos = true;
     },
     async asignarDatosAduana() {
       this.dataAprobar = this.$store.state.aduana.listQuotes2.filter(
-        (v) => v.id == this.$store.state.house_cotizacionaduana
+        (v) => v.id == this.$store.state.house_cotizacionaduana,
       )[0];
       console.log(this.dataAprobar);
       this.dialogCostosAduana = true;
     },
     async asociarCotizacionP() {
       let valor = this.dataAprobar.listIngresosInstructivo.filter(
-        (v) => v.descripcion === "TOTAL"
+        (v) => v.descripcion === "TOTAL",
       )[0].valor;
       let igv = this.dataAprobar.listIngresosInstructivo.filter(
-        (v) => v.descripcion === "TOTAL"
+        (v) => v.descripcion === "TOTAL",
       )[0].igv;
       await this.aprobarCotizacion({
         id_quote: this.$store.state.house_cotizacion, //
@@ -484,10 +498,10 @@ export default {
 
     async asociarCotizacionA() {
       let valor = this.dataAprobar.listIngresosInstructivo.filter(
-        (v) => v.descripcion === "TOTAL"
+        (v) => v.descripcion === "TOTAL",
       )[0].valor;
       let igv = this.dataAprobar.listIngresosInstructivo.filter(
-        (v) => v.descripcion === "TOTAL"
+        (v) => v.descripcion === "TOTAL",
       )[0].igv;
       await this.aprobarCotizacionAduana({
         id_quote: this.$store.state.house_cotizacionaduana, //
@@ -525,6 +539,21 @@ export default {
         await axios(config)
           .then(async function (response) {
             // console.log(response)
+            if (!response.data.data[0].id_consigner) {
+              Swal.fire({
+                title: "Aviso Importante",
+                text: "Por favor, asigne un cliente para poder continuar con el proceso.",
+                icon: "info",
+                timer: 5000,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                timerProgressBar: true,
+                // didOpen: (modalElement) => {
+                //   Swal.showLoading();
+                // },
+              });
+            }
 
             sessionStorage.setItem("auth-token", response.data.token);
 
@@ -580,6 +609,7 @@ export default {
             vm.$store.state.house_id_coins = response.data.data[0].id_moneda;
             vm.$store.state.house_monto = response.data.data[0].monto;
             vm.$store.state.house_id = response.data.data[0].id;
+            vm.$store.state.url_onedrive = response.data.data[0].url_onedrive;
             vm.$store.state.house_id_consigner_real =
               response.data.data[0].id_consigner_real;
             vm.$store.state.itemsHouseContainers =
@@ -631,7 +661,7 @@ export default {
       if (vm.$refs.formNewService.validate()) {
         const dataBegend =
           vm.$store.state.itemsBegEndList.find(
-            (v) => v.id === vm.house_service_id_begend
+            (v) => v.id === vm.house_service_id_begend,
           ) || {};
         const dataService = {
           id_begend: vm.house_service_id_begend,
@@ -643,7 +673,7 @@ export default {
 
         let value_itemImpuestos = null;
         let index_itemImpuestos = vm.$store.state.itemsHouseServices.findIndex(
-          (item) => item.nameservice.toUpperCase() == "IMPUESTOS"
+          (item) => item.nameservice.toUpperCase() == "IMPUESTOS",
         );
         if (index_itemImpuestos !== -1) {
           value_itemImpuestos =
