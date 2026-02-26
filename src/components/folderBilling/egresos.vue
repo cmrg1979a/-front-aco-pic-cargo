@@ -1908,7 +1908,7 @@ export default {
 
       await axios(config)
         .then(async function (response) {
-          // console.log(response);
+          
           sessionStorage.setItem("auth-token", response.data.token);
 
           vm.itemsInvoice = response.data.data;
@@ -1943,7 +1943,7 @@ export default {
 
       await axios(config)
         .then(function (response) {
-          // console.log(response);
+          
           sessionStorage.setItem("auth-token", response.data.token);
 
           vm.itemsInvoice = response.data.data;
@@ -2002,7 +2002,7 @@ export default {
 
       await axios(config)
         .then(function (response) {
-          // console.log(response);
+          
           vm.$store.state.itemsDataAccountsNumberList =
             response.data.data || [];
         })
@@ -2414,7 +2414,7 @@ export default {
 
       await axios(config)
         .then(function (response) {
-          // console.log(response);
+          
           sessionStorage.setItem("auth-token", response.data.token);
 
           let res = response.data;
@@ -2503,7 +2503,7 @@ export default {
 
       await axios(config)
         .then(function (response) {
-          // console.log(response);
+          
 
           var data = {
             nameProveedor: vm.nameproveedor,
@@ -2647,7 +2647,7 @@ export default {
 
       await axios(config)
         .then(function (response) {
-          // console.log(response);
+          
           sessionStorage.setItem("auth-token", response.data.token);
 
           vm.dialogListInvoice = true;
@@ -2689,7 +2689,7 @@ export default {
 
         await axios(config)
           .then(function (response) {
-            // console.log(response);
+            
             vm.boolFile = true;
             vm.payPath = JSON.stringify(response.data.data[0].insertid);
             vm.msgFile = "Archivo Cargado.";
@@ -2756,7 +2756,7 @@ export default {
             };
 
             await axios(config).then(async function (response) {
-              // console.log(response);
+              
               sessionStorage.setItem("auth-token", response.data.token);
 
               if (response.data.estadoflag) {

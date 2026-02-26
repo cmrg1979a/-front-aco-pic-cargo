@@ -404,9 +404,6 @@ export default {
       console.log("modalEntitie", this.$store.state.modalEntitie);
       console.log("val", val);
     },
-    modalEntitie() {
-      console.log("modalEntitie", this.modalEntitie);
-    },
     "$store.state.houses.house": function (val) {
       if (val && (val.nro_hbl || val.consigner)) {
         const actionLabel =
@@ -1274,7 +1271,7 @@ export default {
       await axios(config)
         .then(function (response) {
           sessionStorage.setItem("auth-token", response.data.token);
-          // console.log(response);
+          
 
           vm.$store.state.copy_house =
             response.data.data && response.data.data[0];

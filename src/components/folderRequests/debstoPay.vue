@@ -915,7 +915,7 @@ export default {
       };
       await axios(config)
         .then(function (response) {
-          // console.log(response);
+          
           vm.itemsCpp = response.data.data;
           vm.dataList = true;
           vm.calcularTotalOperativo({ data: response.data.data });
@@ -949,7 +949,7 @@ export default {
       };
       await axios(config)
         .then(function (response) {
-          // console.log(response);
+          
           vm.itemsCppa = response.data.data;
           vm.$store.state.drawer = false;
           setTimeout(() => {
@@ -1353,7 +1353,7 @@ export default {
       };
 
       await axios(config).then(function (response) {
-        // console.log(response);
+        
         sessionStorage.setItem("auth-token", response.data.token);
 
         if (response.data.status == "401") {
@@ -1406,7 +1406,7 @@ export default {
         };
 
         await axios(config).then(async function (response) {
-          // console.log(response);
+          
           sessionStorage.setItem("auth-token", response.data.token);
 
           if (response.data.estadoflag) {

@@ -386,7 +386,7 @@ const actions = {
 
     await axios(config)
       .then(function (response) {
-        // console.log(response);
+        
         let data = response.data;
         sessionStorage.setItem("auth-token", data.token);
         if (!!data.estadoflag) {
@@ -502,7 +502,7 @@ const actions = {
 
     await axios(config)
       .then(function (response) {
-        // console.log(response);
+        
         let data = response.data;
         res = response.data;
         console.log(res);
@@ -584,7 +584,7 @@ const actions = {
 
     await axios(config)
       .then(function (response) {
-        // console.log(response);
+        
         let data = response.data;
         sessionStorage.setItem("auth-token", data.token);
 
@@ -765,7 +765,7 @@ const actions = {
 
     await axios(config)
       .then(function (response) {
-        // console.log(response);
+        
         let { data } = response;
         sessionStorage.setItem("auth-token", data.token);
         if (data.estadoflag == true) {
@@ -801,7 +801,7 @@ const actions = {
 
     await axios(config)
       .then(function (response) {
-        // console.log(response);
+        
         let { data } = response;
         sessionStorage.setItem("auth-token", data.token);
         if (data.estadoflag == true) {
@@ -997,7 +997,7 @@ const actions = {
     };
     await axios(config)
       .then(function (response) {
-        // console.log(response);
+        
         let data = response.data;
         sessionStorage.setItem("auth-token", data.token);
         if (!!data.estadoflag) {
@@ -1232,7 +1232,7 @@ const actions = {
 
     await axios(config)
       .then(function (response) {
-        // console.log(response);
+        
         let { data } = response;
         sessionStorage.setItem("auth-token", data.token);
         if (data.estadoflag == true) {
@@ -1266,7 +1266,7 @@ const actions = {
 
     await axios(config)
       .then(function (response) {
-        // console.log(response);
+        
         let { data } = response;
         sessionStorage.setItem("auth-token", data.token);
         if (data.estadoflag == true) {
@@ -1292,7 +1292,7 @@ const actions = {
 
     await axios(config)
       .then(function (response) {
-        // console.log(response);
+        
         let { data } = response;
         sessionStorage.setItem("auth-token", data.token);
         if (data.estadoflag == true) {

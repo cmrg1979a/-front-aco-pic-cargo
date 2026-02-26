@@ -11,43 +11,45 @@
         @click="modificarCliente"
       >
         <v-icon left small>mdi-account-edit</v-icon>
-        {{ isFormReadonly ? 'EDITAR CLIENTE' : 'GUARDAR CAMBIOS' }}
+        {{ isFormReadonly ? "EDITAR CLIENTE" : "GUARDAR CAMBIOS" }}
       </v-btn>
     </v-card-title>
     <v-card-text>
       <div class="container-narrow">
-      <v-form ref="formDatosCliente" :readonly="isFormReadonly">
-        <v-row>
-          <v-col cols="12">
-            <v-subheader class="px-0 font-weight-bold">Identificación del Cliente</v-subheader>
-            <v-row>
-              <v-col cols="12" md="6">
-                <v-autocomplete
-                  dense
-                  outlined
-                  :items="$store.state.masterusuarios.lstTipoPersona"
-                  item-text="descripcion"
-                  item-value="id"
-                  label="Persona Natural / Empresa"
-                  :rules="[(v) => !!v || 'Dato Requerido']"
-                  v-model="$store.state.entities.cliente.id_tipopersona"
-                  @change="toggleNombre"
-                ></v-autocomplete>
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-autocomplete
-                  dense
-                  outlined
-                  :items="$store.state.masterusuarios.lstTipoTransaccion"
-                  item-text="descripcion"
-                  item-value="id"
-                  label="Nacional / Extranjero"
-                  :rules="[(v) => !!v || 'Dato Requerido']"
-                  v-model="$store.state.entities.cliente.id_tipotransaccion"
-                ></v-autocomplete>
-              </v-col>
-            </v-row>
-            <!--<v-row v-if="showNombreCompleto">
+        <v-form ref="formDatosCliente" :readonly="isFormReadonly">
+          <v-row>
+            <v-col cols="12">
+              <v-subheader class="px-0 font-weight-bold"
+                >Identificación del Cliente</v-subheader
+              >
+              <v-row>
+                <v-col cols="12" md="6">
+                  <v-autocomplete
+                    dense
+                    outlined
+                    :items="$store.state.masterusuarios.lstTipoPersona"
+                    item-text="descripcion"
+                    item-value="id"
+                    label="Persona Natural / Empresa"
+                    :rules="[(v) => !!v || 'Dato Requerido']"
+                    v-model="$store.state.entities.cliente.id_tipopersona"
+                    @change="toggleNombre"
+                  ></v-autocomplete>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-autocomplete
+                    dense
+                    outlined
+                    :items="$store.state.masterusuarios.lstTipoTransaccion"
+                    item-text="descripcion"
+                    item-value="id"
+                    label="Nacional / Extranjero"
+                    :rules="[(v) => !!v || 'Dato Requerido']"
+                    v-model="$store.state.entities.cliente.id_tipotransaccion"
+                  ></v-autocomplete>
+                </v-col>
+              </v-row>
+              <!--<v-row v-if="showNombreCompleto">
               <v-col cols="12">
                 <v-text-field dense label="Nombre Completo" :rules="[(v) => !!v || 'Dato Requerido']"
                   v-model="$store.state.entities.cliente.nombrecompleto" @blur="handleNombre"></v-text-field>                      
@@ -59,260 +61,279 @@
                   v-model="$store.state.entities.cliente.nombrecompleto" @blur="handleNombre"></v-text-field>
               </v-col>
             </v-row>-->
-            <v-row v-if="showNombreFiscal">
-              <v-col cols="12">
-                <v-text-field dense label="Nombre Fiscal" :rules="[(v) => !!v || 'Dato Requerido']"
-                  v-model="$store.state.entities.cliente.nombrecompleto" @blur="handleNombre"></v-text-field>
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col cols="12">
-                <CustomAutocomplete
-                  :items="$store.state.entities.lstProveedores_x_nombre"
-                  :label="
-                    showNombreCompleto ? 'Nombre Completo' : 'Nombre Fiscal'
-                  "
-                  :value="$store.state.entities.cliente.nombrecompleto"
-                  v-on:search="handleNombre"
-                  v-on:id="handleEditarCliente"
-                  :loading="isNombreLoading"
-                  :rules="[(v) => !!v || 'Dato Requerido']"
-                  :disabled="false"
-                />
-              </v-col>
-            </v-row>
-            <v-subheader class="px-0 font-weight-bold mt-2">Documento Fiscal</v-subheader>
-            <v-row>
-              <v-col cols="12" md="6">
-                <v-autocomplete
-                  dense
-                  outlined
-                  :items="filteredDocumentsPais"
-                  item-text="description"
-                  item-value="id"
-                  label="Tipo de Documento Fiscal"
-                  v-model="$store.state.entities.cliente.id_tipodocumento"
-                ></v-autocomplete>
-              </v-col>
-              <v-col cols="12" md="6">
-                <!--<v-text-field 
+              <v-row v-if="showNombreFiscal">
+                <v-col cols="12">
+                  <v-text-field
+                    dense
+                    label="Nombre Fiscal"
+                    :rules="[(v) => !!v || 'Dato Requerido']"
+                    v-model="$store.state.entities.cliente.nombrecompleto"
+                    @blur="handleNombre"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="12">
+                  <CustomAutocomplete
+                    :items="$store.state.entities.lstProveedores_x_nombre"
+                    :label="
+                      showNombreCompleto ? 'Nombre Completo' : 'Nombre Fiscal'
+                    "
+                    :value="$store.state.entities.cliente.nombrecompleto"
+                    v-on:search="handleNombre"
+                    v-on:id="handleEditarCliente"
+                    :loading="isNombreLoading"
+                    :rules="[(v) => !!v || 'Dato Requerido']"
+                    :disabled="false"
+                  />
+                </v-col>
+              </v-row>
+              <v-subheader class="px-0 font-weight-bold mt-2"
+                >Documento Fiscal</v-subheader
+              >
+              <v-row>
+                <v-col cols="12" md="6">
+                  <v-autocomplete
+                    dense
+                    outlined
+                    :items="filteredDocumentsPais"
+                    item-text="description"
+                    item-value="id"
+                    label="Tipo de Documento Fiscal"
+                    v-model="$store.state.entities.cliente.id_tipodocumento"
+                  ></v-autocomplete>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <!--<v-text-field 
                   dense 
                   label="Nro De Documento" 
                   v-model="$store.state.entities.cliente.nro_documento"
                   :disabled="isNroDocumentoDisabled"
                 ></v-text-field>-->
-                <CustomAutocomplete
-                  :items="$store.state.entities.lstProveedores_x_documento"
-                  label="Nro De Documento"
-                  :value="$store.state.entities.cliente.nro_documento"
-                  v-on:search="handleDocumento"
-                  v-on:id="handleEditarCliente"
-                  :loading="isDocumentoLoading"
-                  :disabled="isNroDocumentoDisabled"
-                />
-              </v-col>
-            </v-row>
-            <v-subheader class="px-0 font-weight-bold mt-2">Ubicación y Contacto</v-subheader>
-            <v-row>
-              <v-col cols="12" md="6">
-                <v-autocomplete
-                  dense
-                  outlined
-                  item-text="name"
-                  item-value="id"
-                  :items="$store.state.itemsPais"
-                  label="País"
-                  @change="_getState($store.state.entities.cliente.id_pais)"
-                  :rules="[(v) => !!v || 'Dato Requerido']"
-                  v-model="$store.state.entities.cliente.id_pais"
-                ></v-autocomplete>
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-autocomplete
-                  dense
-                  outlined
-                  :items="$store.state.itemsState"
-                  item-text="name"
-                  item-value="id"
-                  label="Región / Estado"
-                  v-model="$store.state.entities.cliente.id_ciudad"
-                ></v-autocomplete>
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col cols="12" md="6">
-                <v-text-field
-                  dense
-                  outlined
-                  label="Dirección"
-                  v-model="$store.state.entities.cliente.direccion"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-text-field
-                  dense
-                  outlined
-                  label="Correo Electrónico"
-                  v-model="$store.state.entities.cliente.emailaddress"
-                  :rules="[(v) => validarCorreoElectronico(v)]"
-                  :error-messages="correoErrors"
-                ></v-text-field>
-              </v-col>
-            </v-row>
-            <!--CONVENIO ACTUAL-->
-            <v-subheader class="px-0 font-weight-bold mt-2">
-              Convenio Actual
-              <v-spacer></v-spacer>
-              <v-file-input
-                v-if="showFormActions"
-                accept=".xlsx,.xls,.doc,.docx,.ppt,.pptx,.txt,.pdf,.gif,.jpg,.jpeg,.png"
-                label="Adjuntar Archivo"
-                hide-input
-                class="customFile"
-                v-model="fileinput"
-                @change="subirArchivoConvenio"
-              ></v-file-input>
-            </v-subheader>
-            <v-row>
-             <v-col cols="12" md="4">
-                <v-text-field
-                  dense
-                  outlined
-                  type="number"
-                  suffix="días"
-                  v-model="
-                    $store.state.entities.cliente.convenioActual.dias_credito
-                  "
-                  label="Días de Crédito para el Pago"
-                  :rules="[
-                    (v) =>
-                      v >= 0 ||
-                      'Es necesario que ponga un número entero positivo',
-                  ]"
-                  @change="validarConvenioActual"
-                ></v-text-field>
-              </v-col>
-             <v-col cols="12" md="4">
-                <v-text-field
-                  dense
-                  outlined
-                  type="date"
-                  v-model="$store.state.entities.cliente.convenioActual.fecha"
-                  label="Fecha Convenio"
-                  @change="validarConvenioActual"
-                ></v-text-field>
-              </v-col>
-             <v-col cols="12" md="4">
-                <v-text-field
-                  dense
-                  outlined
-                  v-model="
-                    $store.state.entities.cliente.convenioActual.email_soporte
-                  "
-                  label="Email Soporte"
-                  :rules="[(v) => validarCorreoElectronico(v)]"
-                  :error-messages="correoConvenioActualErrors"
-                  @change="validarConvenioActual"
-                ></v-text-field>
-              </v-col>
-            </v-row>
-            <!--TELÉFONO ACTUAL-->
-            <v-subheader class="px-0 font-weight-bold mt-2">Teléfono Principal</v-subheader>
-            <v-row>
-              <v-col cols="12" md="6">
-                <v-autocomplete
-                  dense
-                  outlined
-                  :items="$store.state.masterusuarios.lstTipoTelefono"
-                  item-text="descripcion"
-                  item-value="id"
-                  label="Tipo de Teléfono"
-                  v-model="
-                    $store.state.entities.cliente.telefonoActual.id_tipotelefono
-                  "
-                  @change="validarTelefonoActual"
-                  :error-messages="
-                    !$store.state.entities.cliente.telefonoActual
-                      .id_tipotelefono
-                      ? 'Dato Requerido'
-                      : ''
-                  "
-                ></v-autocomplete>
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-text-field
-                  dense
-                  outlined
-                  label="Teléfono"
-                  v-model="
-                    $store.state.entities.cliente.telefonoActual.telefono
-                  "
-                  @change="validarTelefonoActual"
-                  :error-messages="
-                    !$store.state.entities.cliente.telefonoActual.telefono
-                      ? 'Dato Requerido'
-                      : ''
-                  "
-                ></v-text-field>
-              </v-col>
-            </v-row>
-            <!--CONTACTO ACTUAL-->
-            <v-subheader class="px-0 font-weight-bold mt-2">Teléfono Adicional</v-subheader>
-            <v-row>
-             <v-col cols="12" md="4">
-                <v-text-field
-                  dense
-                  outlined
-                  label="Nombre"
-                  v-model="$store.state.entities.cliente.contactoActual.nombre"
-                  :rules="[(v) => !!v || 'Dato Requerido']"
-                  @change="validarContactoActual"
-                ></v-text-field>
-              </v-col>
-             <v-col cols="12" md="4">
-                <v-autocomplete
-                  dense
-                  outlined
-                  :items="$store.state.masterusuarios.lstTipoTelefono"
-                  item-text="descripcion"
-                  item-value="id"
-                  label="Tipo de Teléfono"
-                  v-model="
-                    $store.state.entities.cliente.contactoActual.id_tipotelefono
-                  "
-                  :rules="[(v) => !!v || 'Dato Requerido']"
-                  @change="validarContactoActual"
-                ></v-autocomplete>
-              </v-col>
-             <v-col cols="12" md="4">
-                <v-text-field
-                  dense
-                  outlined
-                  label="Teléfono"
-                  v-model="
-                    $store.state.entities.cliente.contactoActual.telefono
-                  "
-                  :rules="[(v) => !!v || 'Dato Requerido']"
-                  @change="validarContactoActual"
-                ></v-text-field>
-              </v-col>
-            </v-row>
-            <!--NOTAS-->
-            <v-subheader class="px-0 font-weight-bold mt-2">Notas</v-subheader>
-            <v-row>
-              <v-col cols="12">
-                <v-textarea
-                  dense
-                  outlined
-                  rows="3"
-                  label="Comentarios / Notas Importantes"
-                  v-model="$store.state.entities.cliente.notas"
-                ></v-textarea>
-              </v-col>
-            </v-row>
-          </v-col>
-        </v-row>
-      </v-form>
+                  <CustomAutocomplete
+                    :items="$store.state.entities.lstProveedores_x_documento"
+                    label="Nro De Documento"
+                    :value="$store.state.entities.cliente.nro_documento"
+                    v-on:search="handleDocumento"
+                    v-on:id="handleEditarCliente"
+                    :loading="isDocumentoLoading"
+                    :disabled="isNroDocumentoDisabled"
+                  />
+                </v-col>
+              </v-row>
+              <v-subheader class="px-0 font-weight-bold mt-2"
+                >Ubicación y Contacto</v-subheader
+              >
+              <v-row>
+                <v-col cols="12" md="6">
+                  <v-autocomplete
+                    dense
+                    outlined
+                    item-text="name"
+                    item-value="id"
+                    :items="$store.state.itemsPais"
+                    label="País"
+                    @change="_getState($store.state.entities.cliente.id_pais)"
+                    :rules="[(v) => !!v || 'Dato Requerido']"
+                    v-model="$store.state.entities.cliente.id_pais"
+                  ></v-autocomplete>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-autocomplete
+                    dense
+                    outlined
+                    :items="$store.state.itemsState"
+                    item-text="name"
+                    item-value="id"
+                    label="Región / Estado"
+                    v-model="$store.state.entities.cliente.id_ciudad"
+                  ></v-autocomplete>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    dense
+                    outlined
+                    label="Dirección"
+                    v-model="$store.state.entities.cliente.direccion"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    dense
+                    outlined
+                    label="Correo Electrónico"
+                    v-model="$store.state.entities.cliente.emailaddress"
+                    :rules="[(v) => validarCorreoElectronico(v)]"
+                    :error-messages="correoErrors"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <!--CONVENIO ACTUAL-->
+              <v-subheader class="px-0 font-weight-bold mt-2">
+                Convenio Actual
+                <v-spacer></v-spacer>
+                <v-file-input
+                  v-if="showFormActions"
+                  accept=".xlsx,.xls,.doc,.docx,.ppt,.pptx,.txt,.pdf,.gif,.jpg,.jpeg,.png"
+                  label="Adjuntar Archivo"
+                  hide-input
+                  class="customFile"
+                  v-model="fileinput"
+                  @change="subirArchivoConvenio"
+                ></v-file-input>
+              </v-subheader>
+              <v-row>
+                <v-col cols="12" md="4">
+                  <v-text-field
+                    dense
+                    outlined
+                    type="number"
+                    suffix="días"
+                    v-model="
+                      $store.state.entities.cliente.convenioActual.dias_credito
+                    "
+                    label="Días de Crédito para el Pago"
+                    :rules="[
+                      (v) =>
+                        v >= 0 ||
+                        'Es necesario que ponga un número entero positivo',
+                    ]"
+                    @change="validarConvenioActual"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" md="4">
+                  <v-text-field
+                    dense
+                    outlined
+                    type="date"
+                    v-model="$store.state.entities.cliente.convenioActual.fecha"
+                    label="Fecha Convenio"
+                    @change="validarConvenioActual"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" md="4">
+                  <v-text-field
+                    dense
+                    outlined
+                    v-model="
+                      $store.state.entities.cliente.convenioActual.email_soporte
+                    "
+                    label="Email Soporte"
+                    :rules="[(v) => validarCorreoElectronico(v)]"
+                    :error-messages="correoConvenioActualErrors"
+                    @change="validarConvenioActual"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <!--TELÉFONO ACTUAL-->
+              <v-subheader class="px-0 font-weight-bold mt-2"
+                >Teléfono Principal</v-subheader
+              >
+              <v-row>
+                <v-col cols="12" md="6">
+                  <v-autocomplete
+                    dense
+                    outlined
+                    :items="$store.state.masterusuarios.lstTipoTelefono"
+                    item-text="descripcion"
+                    item-value="id"
+                    label="Tipo de Teléfono"
+                    v-model="
+                      $store.state.entities.cliente.telefonoActual
+                        .id_tipotelefono
+                    "
+                    @change="validarTelefonoActual"
+                    :error-messages="
+                      !$store.state.entities.cliente.telefonoActual
+                        .id_tipotelefono
+                        ? 'Dato Requerido'
+                        : ''
+                    "
+                  ></v-autocomplete>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    dense
+                    outlined
+                    label="Teléfono"
+                    v-model="
+                      $store.state.entities.cliente.telefonoActual.telefono
+                    "
+                    @change="validarTelefonoActual"
+                    :error-messages="
+                      !$store.state.entities.cliente.telefonoActual.telefono
+                        ? 'Dato Requerido'
+                        : ''
+                    "
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <!--CONTACTO ACTUAL-->
+              <v-subheader class="px-0 font-weight-bold mt-2"
+                >Teléfono Adicional</v-subheader
+              >
+              <v-row>
+                <v-col cols="12" md="4">
+                  <v-text-field
+                    dense
+                    outlined
+                    label="Nombre"
+                    v-model="
+                      $store.state.entities.cliente.contactoActual.nombre
+                    "
+                    :rules="[(v) => !!v || 'Dato Requerido']"
+                    @change="validarContactoActual"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" md="4">
+                  <v-autocomplete
+                    dense
+                    outlined
+                    :items="$store.state.masterusuarios.lstTipoTelefono"
+                    item-text="descripcion"
+                    item-value="id"
+                    label="Tipo de Teléfono"
+                    v-model="
+                      $store.state.entities.cliente.contactoActual
+                        .id_tipotelefono
+                    "
+                    :rules="[(v) => !!v || 'Dato Requerido']"
+                    @change="validarContactoActual"
+                  ></v-autocomplete>
+                </v-col>
+                <v-col cols="12" md="4">
+                  <v-text-field
+                    dense
+                    outlined
+                    label="Teléfono"
+                    v-model="
+                      $store.state.entities.cliente.contactoActual.telefono
+                    "
+                    :rules="[(v) => !!v || 'Dato Requerido']"
+                    @change="validarContactoActual"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <!--NOTAS-->
+              <v-subheader class="px-0 font-weight-bold mt-2"
+                >Notas</v-subheader
+              >
+              <v-row>
+                <v-col cols="12">
+                  <v-textarea
+                    dense
+                    outlined
+                    rows="3"
+                    label="Comentarios / Notas Importantes"
+                    v-model="$store.state.entities.cliente.notas"
+                  ></v-textarea>
+                </v-col>
+              </v-row>
+            </v-col>
+          </v-row>
+        </v-form>
       </div>
     </v-card-text>
     <v-card-actions v-if="!showNavigationButtons" class="px-2 container-narrow">
@@ -325,7 +346,7 @@
         @click="modificarCliente"
       >
         <v-icon left small>mdi-account-edit</v-icon>
-        {{ isFormReadonly ? 'EDITAR CLIENTE' : 'GUARDAR CAMBIOS' }}
+        {{ isFormReadonly ? "EDITAR CLIENTE" : "GUARDAR CAMBIOS" }}
       </v-btn>
     </v-card-actions>
     <v-card-actions v-if="showNavigationButtons">
@@ -333,7 +354,6 @@
         >Agregar Más</v-btn
       >
     </v-card-actions>
-  
   </v-card>
 </template>
 
@@ -383,16 +403,12 @@ export default {
     filteredDocumentsPais() {
       const all = this.$store.state.itemsDocumentsPais || [];
       const tipoPersona = this.$store.state.masterusuarios.lstTipoPersona.find(
-        (v) => v.id == this.$store.state.entities.cliente.id_tipopersona
+        (v) => v.id == this.$store.state.entities.cliente.id_tipopersona,
       );
 
       if (!tipoPersona) return all;
 
-      const norm = (s) =>
-        (s || "")
-          .toString()
-          .trim()
-          .toUpperCase();
+      const norm = (s) => (s || "").toString().trim().toUpperCase();
 
       const isNatural = tipoPersona.descripcion === "Persona Natural";
       const isEmpresa = tipoPersona.descripcion === "Empresa";
@@ -411,11 +427,13 @@ export default {
           "CARNET DIPLOMÁTICO",
         ]);
         return all.filter(
-          (it) => naturalAllowed.has(norm(it.name)) || naturalAllowed.has(norm(it.description))
+          (it) =>
+            naturalAllowed.has(norm(it.name)) ||
+            naturalAllowed.has(norm(it.description)),
         );
       }
 
-      if (isEmpresa) { 
+      if (isEmpresa) {
         const isCombined = (it) => {
           const d = norm(it.description);
           const n = norm(it.name);
@@ -430,7 +448,12 @@ export default {
         const telefonoMatch = (it) => {
           const d = norm(it.description);
           const n = norm(it.name);
-          return n === "TELEFONO" || n === "TELÉFONO" || d === "TELEFONO" || d === "TELÉFONO";
+          return (
+            n === "TELEFONO" ||
+            n === "TELÉFONO" ||
+            d === "TELEFONO" ||
+            d === "TELÉFONO"
+          );
         };
 
         const combinedItems = all.filter(isCombined);
@@ -439,8 +462,11 @@ export default {
             .filter((it) => isCombined(it) || telefonoMatch(it))
             .map((it) =>
               isCombined(it)
-                ? { ...it, description: "REGISTRO ÚNICO DE CONTRIBUYENTE (RUC/RIF)" }
-                : it
+                ? {
+                    ...it,
+                    description: "REGISTRO ÚNICO DE CONTRIBUYENTE (RUC/RIF)",
+                  }
+                : it,
             );
         }
 
@@ -454,8 +480,11 @@ export default {
           .filter((it) => isRucOrRif(it) || telefonoMatch(it))
           .map((it) =>
             isRucOrRif(it)
-              ? { ...it, description: "REGISTRO ÚNICO DE CONTRIBUYENTE (RUC/RIF)" }
-              : it
+              ? {
+                  ...it,
+                  description: "REGISTRO ÚNICO DE CONTRIBUYENTE (RUC/RIF)",
+                }
+              : it,
           );
       }
 
@@ -484,7 +513,7 @@ export default {
       var id = null;
 
       const tipoDocumentoData = vm.$store.state.itemsDocumentsPais.find(
-        (v) => v.name.toUpperCase() == criterio.toUpperCase()
+        (v) => v.name.toUpperCase() == criterio.toUpperCase(),
       );
       if (tipoDocumentoData) {
         id = tipoDocumentoData.id;
@@ -497,7 +526,7 @@ export default {
 
       const tipoPersonaData =
         vm.$store.state.masterusuarios.lstTipoPersona.find(
-          (v) => v.id == vm.$store.state.entities.cliente.id_tipopersona
+          (v) => v.id == vm.$store.state.entities.cliente.id_tipopersona,
         );
       if (tipoPersonaData) {
         if (tipoPersonaData.descripcion == "Persona Natural") {
@@ -565,7 +594,7 @@ export default {
             if (result.isConfirmed) {
               let item =
                 this.$store.state.entities.lstProveedores_x_nombre.filter(
-                  (v) => v.id == val
+                  (v) => v.id == val,
                 )[0];
               this.$store.state.pricing.datosPrincipales.id_entitie = item.id;
               this.$store.state.pricing.datosPrincipales.nombre =
@@ -585,7 +614,7 @@ export default {
       if (
         v &&
         !/^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-          v
+          v,
         )
       ) {
         return "Debe ingresar un correo electrónico válido";
@@ -618,7 +647,7 @@ export default {
         const index = vm.$store.state.entities.lstTelefonos.findIndex(
           (v) =>
             v.id_tipotelefono == telefonoActual.id_tipotelefono &&
-            v.telefono == telefonoActual.telefono
+            v.telefono == telefonoActual.telefono,
         );
         if (index === -1) {
           vm.$store.state.entities.lstTelefonos.push(telefonoActual);
@@ -637,7 +666,7 @@ export default {
           (v) =>
             v.nombre == contactoActual.nombre &&
             v.id_tipotelefono == contactoActual.id_tipotelefono &&
-            v.telefono == contactoActual.telefono
+            v.telefono == contactoActual.telefono,
         );
         if (index === -1) {
           vm.$store.state.entities.lstContactos.push(contactoActual);
@@ -684,12 +713,14 @@ export default {
       }
     },
     isClienteInternacional() {
-      let val = this.$store.state.masterusuarios.lstTipoTransaccion.some((v) => {
-        return (
-          v.codigo == "02" &&
-          v.id == this.$store.state.entities.cliente.id_tipotransaccion
-        );
-      });
+      let val = this.$store.state.masterusuarios.lstTipoTransaccion.some(
+        (v) => {
+          return (
+            v.codigo == "02" &&
+            v.id == this.$store.state.entities.cliente.id_tipotransaccion
+          );
+        },
+      );
       return val;
     },
     async modificarCliente() {
@@ -730,7 +761,7 @@ export default {
         if (
           vm.$store.state.entities.cliente.emailaddress &&
           !/^(([^<>()\[\]\\.,;:\s@']+(\.[^<>()\\\[\\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-            vm.$store.state.entities.cliente.emailaddress
+            vm.$store.state.entities.cliente.emailaddress,
           )
         ) {
           okStep1 = false;
@@ -776,7 +807,7 @@ export default {
           if (
             v.email_soporte &&
             !/^(([^<>()\[\]\\.,;:\s@']+(\.[^<>()\\\[\\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-              v.email_soporte
+              v.email_soporte,
             )
           ) {
             okStep3_1 = false;
@@ -796,7 +827,7 @@ export default {
           if (
             v.email_soporte &&
             !/^(([^<>()\[\]\\.,;:\s@']+(\.[^<>()\\\[\\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-              v.email_soporte
+              v.email_soporte,
             )
           ) {
             okStep3_2 = false;
@@ -852,6 +883,9 @@ export default {
         vm.$store.state.spiner = true;
         await vm.actualizarCliente();
         vm.$store.state.spiner = false;
+        vm.$store.state.recargarClienteFlag =
+          !vm.$store.state.recargarClienteFlag;
+        vm.$store.state.modalEntitie = false;
 
         // Volver a modo solo lectura después de guardar correctamente
         vm.$store.state.entities.isReadonly = true;

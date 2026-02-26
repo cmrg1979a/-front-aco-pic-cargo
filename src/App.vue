@@ -853,6 +853,8 @@ export default {
       vm.$store.state.spiner = true;
       await vm.actualizarCliente();
       vm.$store.state.modalEntitie = false;
+      vm.$store.state.recargarClienteFlag =
+        !vm.$store.state.recargarClienteFlag;
       vm.$store.state.spiner = false;
     },
     closeWelcome() {

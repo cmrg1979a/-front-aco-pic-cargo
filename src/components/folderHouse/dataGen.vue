@@ -377,7 +377,7 @@ export default {
       "itemsBitacoraList",
       "drawer",
       "dataHouse_transporte",
-      "modalEntitie",
+      "recargarClienteFlag",
     ]),
     esAereo() {
       const v = this.$store.state.house_id_trasnport;
@@ -542,7 +542,7 @@ export default {
             // console.log(response)
             if (
               !response.data.data[0].id_consigner ||
-              !response.data.data[0].house_id_agente
+              !response.data.data[0].id_proveedor
             ) {
               Swal.fire({
                 title: "Aviso Importante",
@@ -703,8 +703,32 @@ export default {
     },
   },
   watch: {
-    modalEntitie() {
-      if (!this.modalEntitie) this._validaData();
+    async recargarClienteFlag() {
+      var vm = this;
+      var config = {
+        method: "get",
+        url:
+          process.env.VUE_APP_URL_MAIN +
+          `ver_proveedor?id=${vm.$store.state.house_id_consigner}`,
+        headers: {
+          "auth-token": sessionStorage.getItem("auth-token"),
+          "Content-Type": "application/json",
+        },
+      };
+
+      await axios(config)
+        .then(function (response) {
+          let res = response.data;
+          if (res.estadoflag) {
+            let proveedor = res.data[0];
+            vm.$store.state.copy_house.emailaddress_clientefinal =
+              proveedor.emailaddress;
+            console.log(vm.$store.state.copy_house.emailaddress_clientefinal);
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
     },
   },
 };

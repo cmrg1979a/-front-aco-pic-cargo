@@ -970,7 +970,7 @@ export default {
       await axios(config)
         .then(function (response) {
           sessionStorage.setItem("auth-token", response.data.token);
-          // console.log(response);
+          
 
           vm.$store.state.houses.house =
             response.data.data && response.data.data[0];

@@ -70,6 +70,7 @@ Vue.use(VueSweetalert2);
 
 export default new Vuex.Store({
   state: {
+    recargarClienteFlag:false,
     dialogProcessing: false,
     lstMenu: [],
     namecampaign: "",

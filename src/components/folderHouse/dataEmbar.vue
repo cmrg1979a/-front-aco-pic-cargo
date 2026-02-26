@@ -40,7 +40,7 @@
           >
             mdi-plus
           </v-icon>
-          <!-- <v-icon
+          <v-icon
             @click.native="abrirEditarClinte(11)"
             slot="prepend"
             class="btn__add"
@@ -49,7 +49,7 @@
             :disabled="isFormActionsDisabled"
           >
             mdi-pencil
-          </v-icon> -->
+          </v-icon>
         </v-autocomplete>
       </v-col>
       <v-col cols="12" md="6">

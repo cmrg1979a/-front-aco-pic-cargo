@@ -408,7 +408,7 @@ export default {
 
       await axios(config)
         .then(async function (response) {
-          // console.log(response);
+          
           sessionStorage.setItem("auth-token", response.data.token);
           if (response.data.status == 200) {
             await vm._getHouseBitacora();
@@ -590,7 +590,7 @@ export default {
 
       await axios(config)
         .then(function (response) {
-          // console.log(response);
+          
           sessionStorage.setItem("auth-token", response.data.token);
 
           if (response.data.estadoflag) {

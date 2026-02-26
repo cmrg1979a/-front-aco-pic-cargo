@@ -11,197 +11,199 @@
         @click="modificarCliente"
       >
         <v-icon left small>mdi-account-edit</v-icon>
-        {{ isFormReadonly ? 'EDITAR CLIENTE' : 'GUARDAR CAMBIOS' }}
+        {{ isFormReadonly ? "EDITAR CLIENTE" : "GUARDAR CAMBIOS" }}
       </v-btn>
     </v-card-title>
     <v-card-text class="px-2">
       <div class="container-narrow">
-      <!-- ===== TELÉFONOS PROVEEDOR ===== -->
-      <v-subheader class="px-0">
-        <b>Teléfono Principal</b>
+        <!-- ===== TELÉFONOS PROVEEDOR ===== -->
+        <v-subheader class="px-0">
+          <b>Teléfono Principal</b>
 
-        <template v-if="showFormActions">
-          <v-btn
-            color="primary"
-            rounded
-            small
-            class="ml-auto"
-            @click="agregarTelefono()"
-            >Agregar Teléfono</v-btn
-          >
-        </template>
-      </v-subheader>
-      <v-row>
-        <v-col cols="12">
-          <v-form ref="formTelefonos" :readonly="isFormReadonly">
-            <v-data-table
-              :headers="headersTelefonos"
-              :items="$store.state.entities.lstTelefonos"
-              item-key="index"
-              class="elevation-5"
-              disable-sort
+          <template v-if="showFormActions">
+            <v-btn
+              color="primary"
+              rounded
+              small
+              class="ml-auto"
+              @click="agregarTelefono()"
+              >Agregar Teléfono</v-btn
             >
-              <template v-slot:[`item.id_tipotelefono`]="{ item }">
-                <v-autocomplete
-                  :items="$store.state.masterusuarios.lstTipoTelefono"
-                  item-text="descripcion"
-                  item-value="id"
-                  v-model="item.id_tipotelefono"
-                  :rules="[(v) => !!v || 'Dato Requerido']"
-                >
-                </v-autocomplete>
-              </template>
-              <template v-slot:[`item.nro_telefono`]="{ item }">
-                <v-text-field
-                  v-model="item.telefono"
-                  prefix="+"
-                  :rules="[
-                    (v) => !!v || 'Dato Requerido',
-                    (v) => /^\d+$/.test(v) || 'Formato de teléfono incorrecto',
-                  ]"
-                ></v-text-field>
-              </template>
-              <template
-                v-slot:[`item.action`]="{ item, index }"
-                v-if="showFormActions"
+          </template>
+        </v-subheader>
+        <v-row>
+          <v-col cols="12">
+            <v-form ref="formTelefonos" :readonly="isFormReadonly">
+              <v-data-table
+                :headers="headersTelefonos"
+                :items="$store.state.entities.lstTelefonos"
+                item-key="index"
+                class="elevation-5"
+                disable-sort
               >
-                <v-btn icon color="red" @click="eliminarTelefono(index)">
-                  <v-icon>mdi-delete</v-icon>
-                </v-btn>
-              </template>
-            </v-data-table>
-          </v-form>
-        </v-col>
-      </v-row>
-
-      <br />
-
-      <!-- ===== CONTACTOS ===== -->
-      <v-subheader class="px-0">
-        <b>Contactos</b>
-
-        <template v-if="showFormActions">
-          <v-btn
-            color="primary"
-            rounded
-            small
-            class="ml-auto"
-            @click="agregarContacto()"
-            >Agregar Contacto</v-btn
-          >
-        </template>
-      </v-subheader>
-      <v-row>
-        <v-col cols="12">
-          <v-form ref="formContactos" :readonly="isFormReadonly">
-            <v-data-table
-              :headers="headersContactos"
-              :items="$store.state.entities.lstContactos"
-              item-key="index"
-              class="elevation-5"
-            >
-              <template v-slot:[`item.nombre`]="{ item }">
-                <v-text-field
-                  v-model="item.nombre"
-                  :rules="[(v) => !!v || 'Dato Requerido']"
-                  :error-messages="item.errornombre"
-                ></v-text-field>
-              </template>
-              <template v-slot:[`item.id_tipotelefono`]="{ item }">
-                <v-autocomplete
-                  :items="$store.state.masterusuarios.lstTipoTelefono"
-                  item-text="descripcion"
-                  item-value="id"
-                  v-model="item.id_tipotelefono"
-                  :rules="[(v) => !!v || 'Dato Requerido']"
-                  :error-messages="item.errorTipoTelf"
-                >
-                </v-autocomplete>
-              </template>
-              <template v-slot:[`item.nro_telefono`]="{ item }">
-                <v-text-field
-                  v-model="item.telefono"
-                  prefix="+"
-                  :rules="[
-                    (v) => !!v || 'Dato Requerido',
-                    (v) => /^\d+$/.test(v) || 'Formato de teléfono incorrecto',
-                  ]"
-                  :error-messages="item.errorTelefono"
-                ></v-text-field>
-              </template>
-              <template
-                v-slot:[`item.action`]="{ item, index }"
-                v-if="showFormActions"
-              >
-                <v-btn icon color="red" @click="eliminarContacto(index)">
-                  <v-icon>mdi-delete</v-icon>
-                </v-btn>
-              </template>
-            </v-data-table>
-          </v-form>
-
-          <v-subheader class="px-0">
-            <b>Emails</b>
-            <template v-if="showFormActions">
-              <v-btn
-                color="primary"
-                rounded
-                small
-                class="ml-auto"
-                @click="agregarEmail()"
-                >Agregar Email</v-btn
-              >
-            </template>
-          </v-subheader>
-
-          <v-row>
-            <v-col cols="12">
-              <v-form ref="formProv_email" :readonly="isFormReadonly">
-                <v-data-table
-                  :headers="headersEmails"
-                  :items="
-                    $store.state.entities.lstEmails.filter(
-                      (v) => !!v && v.estado
-                    )
-                  "
-                  item-key="index"
-                  class="elevation-5"
-                >
-                  <template v-slot:[`item.description`]="{ item }">
-                    <v-text-field
-                      v-model="item.description"
-                      :rules="[(v) => !!v || 'Dato Requerido']"
-                      :error-messages="item.errornombre"
-                    ></v-text-field>
-                  </template>
-                  <template v-slot:[`item.email`]="{ item }">
-                    <v-text-field
-                      v-model="item.email"
-                      :rules="[
-                        (v) => !!v || 'Dato Requerido',
-                        (v) =>
-                          /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(
-                            v
-                          ) || 'Email no válido',
-                      ]"
-                      :error-messages="item.errornombre"
-                    ></v-text-field>
-                  </template>
-
-                  <template
-                    v-slot:[`item.action`]="{ item, index }"
-                    v-if="showFormActions"
+                <template v-slot:[`item.id_tipotelefono`]="{ item }">
+                  <v-autocomplete
+                    :items="$store.state.masterusuarios.lstTipoTelefono"
+                    item-text="descripcion"
+                    item-value="id"
+                    v-model="item.id_tipotelefono"
+                    :rules="[(v) => !!v || 'Dato Requerido']"
                   >
-                    <v-btn icon color="red" @click="eliminarEmail(item)">
-                      <v-icon>mdi-delete</v-icon>
-                    </v-btn>
-                  </template>
-                </v-data-table>
-              </v-form>
-            </v-col>
-          </v-row>
-        </v-col>
-      </v-row>
+                  </v-autocomplete>
+                </template>
+                <template v-slot:[`item.nro_telefono`]="{ item }">
+                  <v-text-field
+                    v-model="item.telefono"
+                    prefix="+"
+                    :rules="[
+                      (v) => !!v || 'Dato Requerido',
+                      (v) =>
+                        /^\d+$/.test(v) || 'Formato de teléfono incorrecto',
+                    ]"
+                  ></v-text-field>
+                </template>
+                <template
+                  v-slot:[`item.action`]="{ item, index }"
+                  v-if="showFormActions"
+                >
+                  <v-btn icon color="red" @click="eliminarTelefono(index)">
+                    <v-icon>mdi-delete</v-icon>
+                  </v-btn>
+                </template>
+              </v-data-table>
+            </v-form>
+          </v-col>
+        </v-row>
+
+        <br />
+
+        <!-- ===== CONTACTOS ===== -->
+        <v-subheader class="px-0">
+          <b>Contactos</b>
+
+          <template v-if="showFormActions">
+            <v-btn
+              color="primary"
+              rounded
+              small
+              class="ml-auto"
+              @click="agregarContacto()"
+              >Agregar Contacto</v-btn
+            >
+          </template>
+        </v-subheader>
+        <v-row>
+          <v-col cols="12">
+            <v-form ref="formContactos" :readonly="isFormReadonly">
+              <v-data-table
+                :headers="headersContactos"
+                :items="$store.state.entities.lstContactos"
+                item-key="index"
+                class="elevation-5"
+              >
+                <template v-slot:[`item.nombre`]="{ item }">
+                  <v-text-field
+                    v-model="item.nombre"
+                    :rules="[(v) => !!v || 'Dato Requerido']"
+                    :error-messages="item.errornombre"
+                  ></v-text-field>
+                </template>
+                <template v-slot:[`item.id_tipotelefono`]="{ item }">
+                  <v-autocomplete
+                    :items="$store.state.masterusuarios.lstTipoTelefono"
+                    item-text="descripcion"
+                    item-value="id"
+                    v-model="item.id_tipotelefono"
+                    :rules="[(v) => !!v || 'Dato Requerido']"
+                    :error-messages="item.errorTipoTelf"
+                  >
+                  </v-autocomplete>
+                </template>
+                <template v-slot:[`item.nro_telefono`]="{ item }">
+                  <v-text-field
+                    v-model="item.telefono"
+                    prefix="+"
+                    :rules="[
+                      (v) => !!v || 'Dato Requerido',
+                      (v) =>
+                        /^\d+$/.test(v) || 'Formato de teléfono incorrecto',
+                    ]"
+                    :error-messages="item.errorTelefono"
+                  ></v-text-field>
+                </template>
+                <template
+                  v-slot:[`item.action`]="{ item, index }"
+                  v-if="showFormActions"
+                >
+                  <v-btn icon color="red" @click="eliminarContacto(index)">
+                    <v-icon>mdi-delete</v-icon>
+                  </v-btn>
+                </template>
+              </v-data-table>
+            </v-form>
+
+            <v-subheader class="px-0">
+              <b>Emails</b>
+              <template v-if="showFormActions">
+                <v-btn
+                  color="primary"
+                  rounded
+                  small
+                  class="ml-auto"
+                  @click="agregarEmail()"
+                  >Agregar Email</v-btn
+                >
+              </template>
+            </v-subheader>
+
+            <v-row>
+              <v-col cols="12">
+                <v-form ref="formProv_email" :readonly="isFormReadonly">
+                  <v-data-table
+                    :headers="headersEmails"
+                    :items="
+                      $store.state.entities.lstEmails.filter(
+                        (v) => !!v && v.estado,
+                      )
+                    "
+                    item-key="index"
+                    class="elevation-5"
+                  >
+                    <template v-slot:[`item.description`]="{ item }">
+                      <v-text-field
+                        v-model="item.description"
+                        :rules="[(v) => !!v || 'Dato Requerido']"
+                        :error-messages="item.errornombre"
+                      ></v-text-field>
+                    </template>
+                    <template v-slot:[`item.email`]="{ item }">
+                      <v-text-field
+                        v-model="item.email"
+                        :rules="[
+                          (v) => !!v || 'Dato Requerido',
+                          (v) =>
+                            /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(
+                              v,
+                            ) || 'Email no válido',
+                        ]"
+                        :error-messages="item.errornombre"
+                      ></v-text-field>
+                    </template>
+
+                    <template
+                      v-slot:[`item.action`]="{ item, index }"
+                      v-if="showFormActions"
+                    >
+                      <v-btn icon color="red" @click="eliminarEmail(item)">
+                        <v-icon>mdi-delete</v-icon>
+                      </v-btn>
+                    </template>
+                  </v-data-table>
+                </v-form>
+              </v-col>
+            </v-row>
+          </v-col>
+        </v-row>
       </div>
     </v-card-text>
     <v-card-actions v-if="showNavigationButtons">
@@ -360,6 +362,9 @@ export default {
         vm.$store.state.spiner = true;
         await vm.actualizarCliente();
         vm.$store.state.spiner = false;
+        vm.$store.state.recargarClienteFlag =
+          !vm.$store.state.recargarClienteFlag;
+        vm.$store.state.modalEntitie = false;
 
         // Volver a modo solo lectura después de guardar correctamente
         vm.$store.state.entities.isReadonly = true;
