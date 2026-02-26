@@ -984,12 +984,12 @@ const actions = {
         console.log(error);
       });
   },
-  async verCliente({ commit }) {
+  async verCliente({ commit }, id = null) {
     var config = {
       method: "get",
       url:
         process.env.VUE_APP_URL_MAIN +
-        `ver_cliente?id=${router.currentRoute.params.id}`,
+        `ver_cliente?id=${id ? id : router.currentRoute.params.id}`,
       headers: {
         "auth-token": sessionStorage.getItem("auth-token"),
         "Content-Type": "application/json",
@@ -1135,14 +1135,14 @@ const actions = {
             title: "Aviso",
             text: data.mensaje,
             allowOutsideClick: false,
-            confirmButtonText: "Ir al listado",
+            // confirmButtonText: "Ir al listado",
           }).then((res) => {
-            if (res.isConfirmed) {
-              state.lstProveedor = [];
-              router.push({
-                name: "listClientes",
-              });
-            }
+            // if (res.isConfirmed) {
+            //   state.lstProveedor = [];
+            //   router.push({
+            //     name: "listClientes",
+            //   });
+            // }
           });
         }
       })

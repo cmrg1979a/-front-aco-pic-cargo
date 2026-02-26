@@ -377,6 +377,7 @@ export default {
       "itemsBitacoraList",
       "drawer",
       "dataHouse_transporte",
+      "modalEntitie",
     ]),
     esAereo() {
       const v = this.$store.state.house_id_trasnport;
@@ -539,10 +540,13 @@ export default {
         await axios(config)
           .then(async function (response) {
             // console.log(response)
-            if (!response.data.data[0].id_consigner) {
+            if (
+              !response.data.data[0].id_consigner ||
+              !response.data.data[0].house_id_agente
+            ) {
               Swal.fire({
                 title: "Aviso Importante",
-                text: "Por favor, asigne un cliente para poder continuar con el proceso.",
+                text: "Por favor, asigne un Cliente y Proveedor para poder continuar con el proceso.",
                 icon: "info",
                 timer: 5000,
                 allowOutsideClick: false,
@@ -696,6 +700,11 @@ export default {
       this.$refs.formNewService.reset();
       this.$store.state.modalServices_manualMode =
         !this.$store.state.modalServices_manualMode;
+    },
+  },
+  watch: {
+    modalEntitie() {
+      if (!this.modalEntitie) this._validaData();
     },
   },
 };

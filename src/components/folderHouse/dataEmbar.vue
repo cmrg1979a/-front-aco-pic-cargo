@@ -23,7 +23,7 @@
           </v-icon>
         </v-autocomplete>
       </v-col>
-      <v-col cols="12" md="6">
+      <v-col cols="12" md="12">
         <v-autocomplete
           :items="$store.state.clientes"
           item-text="namelong"
@@ -40,15 +40,16 @@
           >
             mdi-plus
           </v-icon>
-          <v-icon
-            @click.native="_callModalEntitie(11)"
-            slot="prefix"
+          <!-- <v-icon
+            @click.native="abrirEditarClinte(11)"
+            slot="prepend"
             class="btn__add"
             color="primary"
+            v-if="$store.state.house_id_consigner"
             :disabled="isFormActionsDisabled"
           >
-            mdi-plus
-          </v-icon>
+            mdi-pencil
+          </v-icon> -->
         </v-autocomplete>
       </v-col>
       <v-col cols="12" md="6">
@@ -451,6 +452,9 @@ export default {
       }
     },
 
+    abrirEditarClinte(id_role) {
+      this._callModalEntitie(id_role);
+    },
     _setDataContainers(id, name, cantidad) {
       this.$store.state.master_itemsContainers.push({
         id: id,

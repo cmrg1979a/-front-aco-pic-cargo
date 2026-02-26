@@ -90,6 +90,12 @@ import SeccionInformacionBancaria from "./seccionInformacionBancaria.vue";
 import SeccionShippers from "./seccionShippers.vue";
 import SeccionInformacionEntrega from "./seccionInformacionEntrega.vue";
 export default {
+  props: {
+    house_id_consigner: {
+      type: Number,
+      default: null,
+    },
+  },
   components: {
     SeccionCliente,
     SeccionTelefonos,
@@ -137,24 +143,28 @@ export default {
   async mounted() {
     this.$store.state.spiner = true;
     //this.$refs.formProveedor.reset();
-    await this._getDocumentsPais();
-    await this.cargarMasterDetalleTipoProveedor();
-    await this._getPais();
-    await this.cargarMasterDetalleTipoTransaccion();
-    await this.cargarTipoTelefono();
-    await this._getRole();
-    await this.getCoinsListCargar();
-    await this.getBanksListCargar();
-    await this._getSex();
-    await this.cargarTipoPersona();
-    await this._getProveedorRolShipper();
-    await this.verCliente();
+    await Promise.all([
+      this._getDocumentsPais(),
+      this.cargarMasterDetalleTipoProveedor(),
+      this._getPais(),
+      this.cargarMasterDetalleTipoTransaccion(),
+      this.cargarTipoTelefono(),
+      this._getRole(),
+      this.getCoinsListCargar(),
+      this.getBanksListCargar(),
+      this._getSex(),
+      this.cargarTipoPersona(),
+      this._getProveedorRolShipper(),
+      this.house_id_consigner
+        ? this.verCliente(this.house_id_consigner)
+        : this.verCliente(),
+    ]);
     await this._getState(this.$store.state.entities.cliente.id_pais);
     await this._getCity(
-      this.$store.state.entities.informacionEntrega.id_departamento
+      this.$store.state.entities.informacionEntrega.id_departamento,
     );
     await this._getTown(
-      this.$store.state.entities.informacionEntrega.id_provincia
+      this.$store.state.entities.informacionEntrega.id_provincia,
     );
     this.$store.state.spiner = false;
 

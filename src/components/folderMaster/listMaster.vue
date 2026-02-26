@@ -215,10 +215,88 @@
             item.code_master
           }}</label>
         </template>
-        <!-- <template v-slot:[`item.nameagent`]="{ item }">
-          {{ obtenerAgente(item) }}
-        </template> -->
         <template v-slot:[`item.actions`]="{ item }">
+          <v-menu top :close-on-click="true">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn icon color="#212121" v-bind="attrs" v-on="on">
+                <v-icon>mdi-menu</v-icon>
+              </v-btn>
+            </template>
+
+            <v-list>
+              <v-list-item class="itemMenu">
+                <v-list-item-title
+                  v-if="!item.statuslock && item.status == 1"
+                  color="#212121"
+                  small
+                  @click="editMaster(item.id)"
+                  icon
+                  fab
+                >
+                  <v-icon>mdi-pencil</v-icon> Editar Master
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item class="itemMenu">
+                <v-list-item-title
+                  icon
+                  fab
+                  v-if="item.status == 1"
+                  color="#212121"
+                  small
+                  @click="irControlGastos(item.id)"
+                >
+                  <v-icon>mdi-truck-cargo-container</v-icon> Ir Control Gastos
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item class="itemMenu">
+                <v-list-item-title
+                  icon
+                  fab
+                  color="#212121"
+                  small
+                  v-if="!item.statuslock && item.status == 1"
+                  @click="_lockMaster(item.id)"
+                >
+                  <v-icon>mdi-lock</v-icon> Cerrar Expediente Operativo
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item class="itemMenu">
+                <v-list-item-title
+                  icon
+                  fab
+                  v-if="!item.statuslockadm && item.status == 1"
+                  @click="_lockMasterAdm(item.id)"
+                  small
+                >
+                  <v-icon>mdi-lock</v-icon>Cerrar Expediente Administrativo
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item class="itemMenu">
+                <v-list-item-title
+                  icon
+                  fab
+                  v-if="item.status == 1"
+                  color="#212121"
+                  small
+                  @click="abrirCaperta(item)"
+                >
+                  <v-icon>mdi-folder</v-icon>Abrir Carpeta
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item class="itemMenu">
+                <v-list-item-title
+                  icon
+                  fab
+                  v-if="item.status == 1"
+                  color="#212121"
+                  small
+                  @click="deleteMaster(item.id)"
+                >
+                  <v-icon>mdi-trash-can</v-icon> Editar Master
+                </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
           <label
             v-if="item.status == 0"
             style="color: red; font-weight: 700 !important"
@@ -243,7 +321,7 @@
             </template>
             <span>Editar Fechas</span>
           </v-tooltip>
-          <v-tooltip top>
+          <!-- <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
               <v-btn
                 v-if="!item.statuslock && item.status == 1"
@@ -259,8 +337,8 @@
               </v-btn>
             </template>
             <span>Editar Master</span>
-          </v-tooltip>
-          <v-tooltip top>
+          </v-tooltip> -->
+          <!-- <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
               <v-btn
                 icon
@@ -276,8 +354,8 @@
               </v-btn>
             </template>
             <span>Ver Master</span>
-          </v-tooltip>
-          <v-tooltip top>
+          </v-tooltip> -->
+          <!-- <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
               <v-btn
                 icon
@@ -290,13 +368,11 @@
                 @click="irControlGastos(item.id)"
               >
                 <v-icon>mdi-truck-cargo-container</v-icon>
-
-                <!-- <v-btn-title>Ir Control Gastos</v-btn-title> -->
               </v-btn>
             </template>
             <span>Ir Control Gastos</span>
-          </v-tooltip>
-          <v-tooltip top>
+          </v-tooltip> -->
+          <!-- <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
               <v-btn
                 icon
@@ -309,25 +385,12 @@
                 small
               >
                 <v-icon>mdi-lock</v-icon>
-
-                <!-- <v-btn-title>Cerrar Expediente Operativo</v-btn-title> -->
               </v-btn>
             </template>
             <span>Cerrar Expediente Operativo</span>
-          </v-tooltip>
-          <v-tooltip top>
+          </v-tooltip> -->
+          <!-- <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
-              <!--
-          <v-btn
-            icon
-            v-if="item.statuslock && item.status == 1"
-            color="#212121" small
-          >
-            <v-icon>mdi-lock-open</v-icon>
-
-             <v-btn-title>Abrir Expediente Operativo</v-btn-title> 
-          </v-btn>
-          -->
               <v-btn
                 icon
                 fab
@@ -340,24 +403,13 @@
               >
                 <v-icon>mdi-lock</v-icon>
 
-                <!-- <v-btn-title>Cerrar Expediente Administrativo</v-btn-title> -->
+               
               </v-btn>
             </template>
             <span>Cerrar Expediente Administrativo</span>
-          </v-tooltip>
+          </v-tooltip> -->
           <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
-              <!-- 
-          <v-btn
-            icon
-            v-if="item.statuslockadm && item.status == 1"
-            color="#212121" small
-          >
-            <v-icon>mdi-lock-open</v-icon>
-
-          <v-btn-title>Abrir Expediente Administrativo</v-btn-title> 
-          </v-btn>
--->
               <v-btn
                 v-if="item.status == 1"
                 icon
@@ -369,15 +421,13 @@
                 small
               >
                 <v-icon>mdi-folder</v-icon>
-
-                <!-- <v-btn-title>Abrir Carpeta </v-btn-title> -->
               </v-btn>
             </template>
             <span>Abrir Carpeta</span>
           </v-tooltip>
-          <v-tooltip top>
+          <!-- <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
-              <!-- ------------------- -->
+              
               <v-btn
                 icon
                 fab
@@ -390,12 +440,12 @@
               >
                 <v-icon>mdi-comment-alert-outline</v-icon>
 
-                <!-- <v-btn-title>Añadir Estado/ Comentario </v-btn-title> -->
+              
               </v-btn>
             </template>
             <span>Añadir Estado/ Comentario</span>
-          </v-tooltip>
-          <v-tooltip top>
+          </v-tooltip> -->
+          <!-- <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
               <v-btn
                 @click="_nullMaster(item.id)"
@@ -408,13 +458,11 @@
                 small
               >
                 <v-icon>mdi-cancel</v-icon>
-
-                <!-- <v-btn-title>Anular</v-btn-title> -->
               </v-btn>
             </template>
             <span>Anular</span>
-          </v-tooltip>
-          <v-tooltip top>
+          </v-tooltip> -->
+          <!-- <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
               <v-btn
                 @click="deleteMaster(item.id)"
@@ -428,11 +476,10 @@
               >
                 <v-icon>mdi-trash-can</v-icon>
 
-                <!-- <v-btn-title>Eliminar</v-btn-title> -->
               </v-btn>
             </template>
             <span>Editar Master</span>
-          </v-tooltip>
+          </v-tooltip> -->
         </template>
       </v-data-table>
     </v-card>
@@ -1042,7 +1089,14 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+.itemMenu {
+  cursor: pointer;
+}
+.itemMenu:hover {
+  background: #eeeeee;
+}
+
 .rowRed {
   background: #e2e8ec;
   color: #000000;

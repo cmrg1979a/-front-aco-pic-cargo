@@ -400,6 +400,13 @@ export default {
     services,
   },
   watch: {
+    "$store.state.modalEntitie ": function (val) {
+      console.log("modalEntitie", this.$store.state.modalEntitie);
+      console.log("val", val);
+    },
+    modalEntitie() {
+      console.log("modalEntitie", this.modalEntitie);
+    },
     "$store.state.houses.house": function (val) {
       if (val && (val.nro_hbl || val.consigner)) {
         const actionLabel =
@@ -583,7 +590,7 @@ export default {
     ]);
   },
   computed: {
-    ...mapState(["itemsModality", "itemsShipment"]),
+    ...mapState(["itemsModality", "itemsShipment", "modalEntitie"]),
     isBotonTrackingDisabled() {
       return this.$store.state.house_enlace_tracking !== "" &&
         this.$store.state.house_enlace_tracking !== null
@@ -810,11 +817,14 @@ export default {
     async _setHouseEdit() {
       var vm = this;
 
-      if (!vm.$store.state.house_id_consigner) {
+      if (
+        !vm.$store.state.house_id_consigner ||
+        !vm.$store.state.itemsProveedorRolShipper
+      ) {
         vm.$swal({
           icon: "error",
           title: "Lo sentimos",
-          text: "Por favor, asigne un cliente para poder continuar con el proceso.",
+          text: "Por favor, asigne un Cliente y Proveedor para poder continuar con el proceso.",
         });
         return;
       }
