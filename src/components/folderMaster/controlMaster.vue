@@ -108,7 +108,7 @@ import dataGen from "./dataGen.vue";
 import houselist from "./houselist.vue";
 import dataEmbar from "./dataEmbar.vue";
 import dataFechas from "./fechas.vue";
-import { mapActions } from "vuex";
+import { mapActions, mapState } from "vuex";
 import Swal from "sweetalert2";
 import axios from "axios";
 export default {
@@ -135,6 +135,21 @@ export default {
       left: false,
       transition: "slide-y-reverse-transition",
     };
+  },
+
+  computed: {
+    ...mapState([
+      "itemsOperadorList",
+    ]),
+    operadorNombre() {
+      if (!this.$store.state.master_id_operador || !this.itemsOperadorList) {
+        return "";
+      }
+      const operador = this.itemsOperadorList.find(
+        op => op.id == this.$store.state.master_id_operador
+      );
+      return operador ? operador.namelong : "";
+    },
   },
 
   async mounted() {

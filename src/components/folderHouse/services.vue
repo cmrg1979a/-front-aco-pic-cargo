@@ -36,7 +36,37 @@
             :key="item.id"
           >
             <!-- <td>{{ item.namebegend }}</td> -->
-            <td>{{ formatFecha(item.updated_at) }}</td>
+            <td>
+              <v-menu
+                ref="menu"
+                v-model="item.showDatePicker"
+                :close-on-content-click="false"
+                transition="scale-transition"
+                offset-y
+                min-width="auto"
+                :disabled="isFormActionsDisabled"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-text-field
+                    :value="formatFecha(item.date_service || item.updated_at)"
+                    prepend-icon="mdi-calendar"
+                    readonly
+                    v-bind="attrs"
+                    v-on="on"
+                    dense
+                    :disabled="isFormActionsDisabled"
+                    hide-details
+                    style="max-width: 140px;"
+                  ></v-text-field>
+                </template>
+                <v-date-picker
+                  :value="getDateForPicker(item.date_service || item.updated_at)"
+                  @input="updateServiceDate(item, $event)"
+                  locale="es"
+                  :first-day-of-week="1"
+                ></v-date-picker>
+              </v-menu>
+            </td>
             <td>{{ item.nameservice }}</td>
 
             <td>
@@ -154,6 +184,24 @@ watch: {
       } catch (e) {
         return String(val);
       }
+    },
+    getDateForPicker(val) {
+      if (!val) return null;
+      try {
+        const d = moment(val);
+        if (!d.isValid()) return null;
+        return d.format("YYYY-MM-DD");
+      } catch (e) {
+        return null;
+      }
+    },
+    async updateServiceDate(item, newDate) {
+      if (!newDate) return;
+
+       item.showDatePicker = false;
+
+       const formattedDate = moment(newDate).format("YYYY-MM-DD");
+      this.$set(item, "date_service", formattedDate);
     },
     send() {
       alert("Jpla");

@@ -244,6 +244,15 @@ export default {
     obtenerInputTypeBLMaster() {
       return this.isAereo() ? "number" : "text";
     },
+    operadorNombre() {
+      if (!this.$store.state.master_id_operador || !this.itemsOperadorList) {
+        return "";
+      }
+      const operador = this.itemsOperadorList.find(
+        op => op.id == this.$store.state.master_id_operador
+      );
+      return operador ? operador.namelong : "";
+    },
   },
   methods: {
     ...mapActions([

@@ -20,7 +20,17 @@
             :key="item.id"
             :style="`background:${item.color}`"
           >
-            <td>{{ formatFecha(item.updated_at) }}</td>
+            <td>
+              <v-text-field
+                :value="formatFecha(item.date_service || item.updated_at)"
+                prepend-icon="mdi-calendar"
+                readonly
+                dense
+                disabled
+                hide-details
+                style="max-width: 140px;"
+              ></v-text-field>
+            </td>
             <td>{{ item.nameservice }}</td>
 
             <td>
