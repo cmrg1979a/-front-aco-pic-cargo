@@ -90,7 +90,7 @@
           <v-row>
             <v-col cols="3">
               <v-text-field
-                style="font-size: 20pt, color:'green'"
+                style="font-size: 20pt; color: green"
                 label="Monto en que va a salir del banco"
                 v-model="montoMonExt"
                 readonly
@@ -488,6 +488,24 @@ export default {
       }
 
       this.$store.state.spiner = false;
+    },
+    moverSeleccionadoAlInicio() {
+      if (this.selected.length > 0) {
+        // Obtener el último elemento seleccionado
+        const ultimoSeleccionado = this.selected[this.selected.length - 1];
+        
+        // Buscar el índice del elemento en listProgramacionxProveedor
+        const listaProgramacion = this.$store.state.programaciones.listProgramacionxProveedor;
+        const indice = listaProgramacion.findIndex(
+          (item) => item.id === ultimoSeleccionado.id
+        );
+        
+        // Si el elemento no está al inicio, moverlo
+        if (indice > 0) {
+          const elemento = listaProgramacion.splice(indice, 1)[0];
+          listaProgramacion.unshift(elemento);
+        }
+      }
     },
     getAcronym() {
       this.acronym = this.$store.state.itemsCoinsList.filter(
@@ -957,6 +975,7 @@ export default {
   watch: {
     selected() {
       this.calcularTotales();
+      this.moverSeleccionadoAlInicio();
     },
   },
 };

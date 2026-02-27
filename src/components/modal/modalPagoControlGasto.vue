@@ -741,6 +741,23 @@ export default {
 
       this.$store.state.spiner = false;
     },
+    moverSeleccionadoAlInicio() {
+      if (this.selected.length > 0) {
+        // Obtener el último elemento seleccionado
+        const ultimoSeleccionado = this.selected[this.selected.length - 1];
+        
+        // Buscar el índice del elemento en lstPagos
+        const indice = this.lstPagos.findIndex(
+          (item) => item.index === ultimoSeleccionado.index
+        );
+        
+        // Si el elemento no está al inicio, moverlo
+        if (indice > 0) {
+          const elemento = this.lstPagos.splice(indice, 1)[0];
+          this.lstPagos.unshift(elemento);
+        }
+      }
+    },
   },
   computed: {
     ...mapState(["provedores", "limpiar"]),
@@ -753,6 +770,7 @@ export default {
 
     selected() {
       this.calcularTotales();
+      this.moverSeleccionadoAlInicio();
     },
   },
 };
