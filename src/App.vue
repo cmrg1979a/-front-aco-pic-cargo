@@ -128,16 +128,15 @@
           </v-btn>
         </v-card-title>
         <v-card-text>
-          <NuevoCliente
-            @btnGuardar="guardarClienteFlag = $event"
-            :isPricing="isPricing"
-            v-if="!$store.state.house_id_consigner"
-          />
           <EditarCliente
-            v-else
+            v-if="$store.state.house_id_consigner"
             @btnGuardar="guardarClienteFlag = $event"
             :isPricing="isPricing"
             :house_id_consigner="$store.state.house_id_consigner"
+          />
+          <NuevoCliente
+            @btnGuardar="guardarClienteFlag = $event"
+            :isPricing="isPricing"
           />
         </v-card-text>
         <v-card-actions>
@@ -1102,7 +1101,7 @@ export default {
       if (!this.$store.state.entities.cliente.telefonoActual.telefono) {
         return false;
       }
-      if (!this.$store.state.entities.house_id_consigner) {
+      if (this.$store.state.entities.house_id_consigner) {
         return false;
       }
       return true;

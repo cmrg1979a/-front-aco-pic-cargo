@@ -298,17 +298,17 @@ export default {
       date: "",
       dataList: false,
       cabPagos: [
-        {
-          text: "Expediente",
-          value: "nro_master",
-          shortable: false,
-        },
-
         // {
-        //   text: "Master",
-        //   value: "code_master",
+        //   text: "Expediente",
+        //   value: "nro_master",
         //   shortable: false,
         // },
+
+        {
+          text: "Master",
+          value: "code_master",
+          shortable: false,
+        },
         { text: "Factura/ Proforma", value: "expedientes" },
         {
           text: "Procedencia",
