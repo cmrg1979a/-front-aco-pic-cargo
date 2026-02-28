@@ -182,14 +182,14 @@
                       color="primary"
                       @click="redirectHouseVer(i.id_house)"
                     >
-                      <v-icon>mdi-eye</v-icon>
+                      <v-icon class="mx-1">mdi-eye</v-icon>
                     </v-btn>
                     <v-btn
                       icon
                       color="#FFD600"
                       @click="redirectHouse(i.id_house)"
                     >
-                      <v-icon>mdi-pencil</v-icon>
+                      <v-icon class="mx-1">mdi-pencil</v-icon>
                     </v-btn>
                   </td>
                   <td>{{ i.code_house }}</td>
@@ -216,83 +216,86 @@
           }}</label>
         </template>
         <template v-slot:[`item.actions`]="{ item }">
-          <v-menu top :close-on-click="true">
+          <v-menu top :close-on-click="true" v-if="item.status == 1">
             <template v-slot:activator="{ on, attrs }">
               <v-btn icon color="#212121" v-bind="attrs" v-on="on">
-                <v-icon>mdi-menu</v-icon>
+                <v-icon class="mx-1">mdi-menu</v-icon>
               </v-btn>
             </template>
 
             <v-list>
-              <v-list-item class="itemMenu">
-                <v-list-item-title
-                  v-if="!item.statuslock && item.status == 1"
-                  color="#212121"
-                  small
-                  @click="editMaster(item.id)"
-                  icon
-                  fab
-                >
-                  <v-icon>mdi-pencil</v-icon> Editar Master
+              <v-list-item
+                class="itemMenu"
+                v-if="!item.statuslock && item.status == 1"
+              >
+                <v-list-item-title small @click="editMaster(item.id)" icon fab>
+                  <v-icon class="mx-1" color="#FFD600">mdi-pencil</v-icon>
+                  Editar Master
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item class="itemMenu">
+              <v-list-item class="itemMenu" v-if="item.status == 1">
                 <v-list-item-title
                   icon
                   fab
-                  v-if="item.status == 1"
-                  color="#212121"
                   small
                   @click="irControlGastos(item.id)"
                 >
-                  <v-icon>mdi-truck-cargo-container</v-icon> Ir Control Gastos
+                  <v-icon class="mx-1" color="#01579B"
+                    >mdi-truck-cargo-container</v-icon
+                  >
+                  Ir Control Gastos
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item class="itemMenu">
+              <v-list-item
+                class="itemMenu"
+                v-if="!item.statuslock && item.status == 1"
+              >
+                <v-list-item-title icon fab small @click="_lockMaster(item.id)">
+                  <v-icon class="mx-1" color="#E65100">mdi-lock</v-icon> Cerrar
+                  Expediente Operativo
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item
+                class="itemMenu"
+                v-if="!item.statuslockadm && item.status == 1"
+              >
                 <v-list-item-title
                   icon
                   fab
-                  color="#212121"
-                  small
-                  v-if="!item.statuslock && item.status == 1"
-                  @click="_lockMaster(item.id)"
-                >
-                  <v-icon>mdi-lock</v-icon> Cerrar Expediente Operativo
-                </v-list-item-title>
-              </v-list-item>
-              <v-list-item class="itemMenu">
-                <v-list-item-title
-                  icon
-                  fab
-                  v-if="!item.statuslockadm && item.status == 1"
                   @click="_lockMasterAdm(item.id)"
                   small
                 >
-                  <v-icon>mdi-lock</v-icon>Cerrar Expediente Administrativo
+                  <v-icon class="mx-1" color="#E65100">mdi-lock</v-icon>Cerrar
+                  Expediente Administrativo
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item class="itemMenu">
+              <v-list-item class="itemMenu" v-if="item.status == 1">
+                <v-list-item-title icon fab small @click="abrirCaperta(item)">
+                  <v-icon class="mx-1" color="#FFD600">mdi-folder</v-icon>Abrir
+                  Carpeta
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item class="itemMenu" v-if="item.status == 1">
                 <v-list-item-title
                   icon
-                  fab
-                  v-if="item.status == 1"
-                  color="#212121"
+                  fab|
                   small
-                  @click="abrirCaperta(item)"
+                  @click="_nullMaster(item.id)"
                 >
-                  <v-icon>mdi-folder</v-icon>Abrir Carpeta
+                  <v-icon class="mx-1" color="#D50000">mdi-cancel</v-icon>
+                  Anular
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item class="itemMenu">
+
+              <v-list-item class="itemMenu" v-if="item.status == 1">
                 <v-list-item-title
                   icon
-                  fab
-                  v-if="item.status == 1"
-                  color="#212121"
+                  fab|
                   small
                   @click="deleteMaster(item.id)"
                 >
-                  <v-icon>mdi-trash-can</v-icon> Editar Master
+                  <v-icon class="mx-1" color="#D50000">mdi-trash-can</v-icon>
+                  Eliminar Master
                 </v-list-item-title>
               </v-list-item>
             </v-list>
@@ -316,7 +319,7 @@
                 v-bind="attrs"
                 @click="editFechas(item)"
               >
-                <v-icon>mdi-calendar-edit</v-icon>
+                <v-icon class="mx-1">mdi-calendar-edit</v-icon>
               </v-btn>
             </template>
             <span>Editar Fechas</span>
@@ -333,7 +336,7 @@
                 v-on="on"
                 v-bind="attrs"
               >
-                <v-icon>mdi-pencil</v-icon>
+                <v-icon class="mx-1">mdi-pencil</v-icon>
               </v-btn>
             </template>
             <span>Editar Master</span>
@@ -350,7 +353,7 @@
                 small
                 @click="viewMaster(item.id)"
               >
-                <v-icon>mdi-eye</v-icon>
+                <v-icon class="mx-1">mdi-eye</v-icon>
               </v-btn>
             </template>
             <span>Ver Master</span>
@@ -367,7 +370,7 @@
                 small
                 @click="irControlGastos(item.id)"
               >
-                <v-icon>mdi-truck-cargo-container</v-icon>
+                <v-icon class="mx-1">mdi-truck-cargo-container</v-icon>
               </v-btn>
             </template>
             <span>Ir Control Gastos</span>
@@ -384,7 +387,7 @@
                 color="#212121"
                 small
               >
-                <v-icon>mdi-lock</v-icon>
+                <v-icon class="mx-1">mdi-lock</v-icon>
               </v-btn>
             </template>
             <span>Cerrar Expediente Operativo</span>
@@ -401,7 +404,7 @@
                 color="#212121"
                 small
               >
-                <v-icon>mdi-lock</v-icon>
+                <v-icon class="mx-1">mdi-lock</v-icon>
 
                
               </v-btn>
@@ -420,7 +423,7 @@
                 color="#212121"
                 small
               >
-                <v-icon>mdi-folder</v-icon>
+                <v-icon class="mx-1">mdi-folder</v-icon>
               </v-btn>
             </template>
             <span>Abrir Carpeta</span>
@@ -438,7 +441,7 @@
                 color="#212121"
                 small
               >
-                <v-icon>mdi-comment-alert-outline</v-icon>
+                <v-icon class="mx-1">mdi-comment-alert-outline</v-icon>
 
               
               </v-btn>
@@ -457,7 +460,7 @@
                 color="#212121"
                 small
               >
-                <v-icon>mdi-cancel</v-icon>
+                <v-icon class="mx-1">mdi-cancel</v-icon>
               </v-btn>
             </template>
             <span>Anular</span>
@@ -474,7 +477,7 @@
                 color="#212121"
                 small
               >
-                <v-icon>mdi-trash-can</v-icon>
+                <v-icon class="mx-1">mdi-trash-can</v-icon>
 
               </v-btn>
             </template>
@@ -489,7 +492,7 @@
           Registro de Estado/ Comentario - {{ master.code_master }}
           <v-spacer></v-spacer>
           <v-btn icon color="default" @click="dialog = !dialog">
-            <v-icon>mdi-close</v-icon>
+            <v-icon class="mx-1">mdi-close</v-icon>
           </v-btn>
         </v-card-title>
         <v-card-text>

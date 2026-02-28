@@ -335,11 +335,11 @@
 
             <v-divider class="my-4"></v-divider>
 
-            <!-- <v-switch
+            <v-switch
               v-model="cambiarStatus"
               label="¿Desea cambiar el estatus de la cotización?"
               inset
-            ></v-switch> -->
+            ></v-switch>
 
             <v-slide-y-transition>
               <div v-if="cambiarStatus">
