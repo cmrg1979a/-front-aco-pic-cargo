@@ -18,7 +18,7 @@
         <v-icon>mdi-plus</v-icon>
       </v-btn>
     </v-fab-transition>
-    <v-simple-table fixed-header height="605px" dense>
+    <v-simple-table dense>
       <template v-slot:default>
         <thead>
           <tr>
@@ -127,6 +127,43 @@
         </tbody>
       </template>
     </v-simple-table>
+
+    <!-- Campos de Aduana -->
+    <v-card class="mt-4" outlined>
+      <v-card-title class="py-2">
+        <v-icon left color="indigo">mdi-ferry</v-icon>
+        Datos de Aduana
+        <v-spacer></v-spacer>
+        <span class="caption grey--text text--darken-1">Información SUNAT</span>
+      </v-card-title>
+      <v-card-text class="pt-0">
+        <v-row dense>
+          <v-col cols="12" md="6">
+            <v-text-field
+              v-model="$store.state.house_nro_declaracion_aduana"
+              label="N° Declaración de Aduana"
+              prepend-icon="mdi-file-document-outline"
+              :disabled="isFormActionsDisabled"
+              outlined
+              dense
+              hide-details="auto"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12" md="6">
+            <v-text-field
+              v-model="$store.state.house_canal_aduana"
+              label="Canal de Aduana"
+              prepend-icon="mdi-traffic-light"
+              :disabled="isFormActionsDisabled"
+              outlined
+              dense
+              hide-details="auto"
+            ></v-text-field>
+          </v-col>
+        </v-row>
+      </v-card-text>
+    </v-card>
+
     <!-- Botón "Imprimir Formato" movido a sección de Acciones en controlHouse.vue -->
   </div>
 </template>
