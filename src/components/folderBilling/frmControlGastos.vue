@@ -215,6 +215,7 @@
           :egreso_op="egreso_op"
           v-on:recalcularProfit="calcularProfit()"
           @statusBtn="statusBtn = $event"
+           @recargarDatos="recargarDatos()"
         />
       </v-col>
     </v-row>

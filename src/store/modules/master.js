@@ -104,6 +104,20 @@ const actions = {
       return response.data.data;
     });
   },
+  async moverCostos(__, data) {
+    let config = {
+      method: "put",
+      url: process.env.VUE_APP_URL_MAIN + `mover_cgegresos`,
+      headers: {
+        "auth-token": sessionStorage.getItem("auth-token"),
+        "Content-Type": "application/json",
+      },
+      data: data,
+    };
+    await axios(config).then(async (response) => {
+      return response.data.data;
+    });
+  },
 };
 
 export default {

@@ -128,6 +128,12 @@
           </v-btn>
         </v-card-title>
         <v-card-text>
+          <EditarCliente
+            v-if="$store.state.house_id_consigner"
+            @btnGuardar="guardarClienteFlag = $event"
+            :isPricing="isPricing"
+            :house_id_consigner="$store.state.house_id_consigner"
+          />
           <NuevoCliente
             @btnGuardar="guardarClienteFlag = $event"
             :isPricing="isPricing"
@@ -139,6 +145,14 @@
             v-if="mostrarBtnGuardar()"
             color="success"
             @click="registrarCliente"
+            class="px-10"
+          >
+            Guardar
+          </v-btn>
+          <v-btn
+            v-if="$store.state.house_id_consigner"
+            color="success"
+            @click="modificarCliente"
             class="px-10"
           >
             Guardar
@@ -220,7 +234,7 @@
                         $store.state.master_id_containers.name,
                         $store.state.master_nro_containers,
                         $store.state.master_nro_precinto,
-                        $store.state.master_cantidad
+                        $store.state.master_cantidad,
                       )
                     "
                     block
@@ -780,7 +794,7 @@ export default {
 
     // Desactivado: comprobación de versión y diálogo de actualización
     // await this._validaVersion();
-     await this._getVersion();
+    await this._getVersion();
 
     var vm = this;
     vm.$store.state.drawer = false;
@@ -815,7 +829,7 @@ export default {
       "_getBanksList",
       "_getCoinsList",
       "GetTotalCotizacion",
-
+      "actualizarCliente",
       "guardarCliente",
     ]),
     actualizar() {
@@ -831,6 +845,15 @@ export default {
 
       vm.$store.state.spiner = true;
       await vm.guardarCliente();
+      vm.$store.state.spiner = false;
+    },
+    async modificarCliente() {
+      var vm = this;
+      vm.$store.state.spiner = true;
+      await vm.actualizarCliente();
+      vm.$store.state.modalEntitie = false;
+      vm.$store.state.recargarClienteFlag =
+        !vm.$store.state.recargarClienteFlag;
       vm.$store.state.spiner = false;
     },
     closeWelcome() {
@@ -866,7 +889,7 @@ export default {
     async _validaVersion() {
       var vm = this;
       setInterval(async () => {
-       await vm._getVersion();
+        await vm._getVersion();
         // await vm.validateTotal();
       }, 30000);
     },
@@ -1025,14 +1048,14 @@ export default {
     async validateTotal() {
       if (JSON.parse(sessionStorage.getItem("totalCotizacion"))) {
         let totalCotizacion = JSON.parse(
-          sessionStorage.getItem("totalCotizacion")
+          sessionStorage.getItem("totalCotizacion"),
         );
         await this.GetTotalCotizacion();
         let val = true;
         totalCotizacion.forEach((element) => {
           let validate =
             this.$store.state.calculadoras.listTotalCotizacion.filter(
-              (v) => v.rtype == element.rtype && v.total == element.total
+              (v) => v.rtype == element.rtype && v.total == element.total,
             ).length;
           val = validate == 0 ? false : val;
         });
@@ -1048,8 +1071,8 @@ export default {
               sessionStorage.setItem(
                 "totalCotizacion",
                 JSON.stringify(
-                  this.$store.state.calculadoras.listTotalCotizacion
-                )
+                  this.$store.state.calculadoras.listTotalCotizacion,
+                ),
               );
             }
           });
@@ -1058,7 +1081,7 @@ export default {
         await this.GetTotalCotizacion();
         sessionStorage.setItem(
           "totalCotizacion",
-          JSON.stringify(this.$store.state.calculadoras.listTotalCotizacion)
+          JSON.stringify(this.$store.state.calculadoras.listTotalCotizacion),
         );
       }
     },
@@ -1078,6 +1101,9 @@ export default {
       if (!this.$store.state.entities.cliente.telefonoActual.telefono) {
         return false;
       }
+      if (this.$store.state.entities.house_id_consigner) {
+        return false;
+      }
       return true;
     },
   },
@@ -1087,6 +1113,8 @@ export default {
     listEntitie: () => import("@/components/folderEntities/listEntities"),
     NuevoCliente: () =>
       import("@/components/folderEntities/Cliente/NuevoClienteComponent.vue"),
+    EditarCliente: () =>
+      import("@/components/folderEntities/Cliente/EditarClienteComponent.vue"),
   },
 };
 </script>

@@ -12,50 +12,50 @@
           @click="modificarCliente"
         >
           <v-icon left small>mdi-account-edit</v-icon>
-          {{ isFormReadonly ? 'EDITAR CLIENTE' : 'GUARDAR CAMBIOS' }}
+          {{ isFormReadonly ? "EDITAR CLIENTE" : "GUARDAR CAMBIOS" }}
         </v-btn>
       </v-card-title>
       <v-card-text class="px-2">
         <div class="container-narrow">
-        <v-subheader class="px-0">
-          <b>Shippers</b>
+          <v-subheader class="px-0">
+            <b>Shippers</b>
 
-          <template v-if="showFormActions">
-            <v-btn
-              color="primary"
-              rounded
-              small
-              class="ml-auto"
-              @click="mostrarDialogShippers"
-              >AGREGAR SHIPPER</v-btn
-            >
-          </template>
-        </v-subheader>
-        <v-row>
-          <v-col cols="12">
-            <v-form ref="formShippers" :readonly="isFormReadonly">
-              <v-data-table
-                :headers="headersShippers"
-                :items="$store.state.entities.lstShippers"
-                class="elevation-5"
-                item-key="index"
-                disable-sort
+            <template v-if="showFormActions">
+              <v-btn
+                color="primary"
+                rounded
+                small
+                class="ml-auto"
+                @click="mostrarDialogShippers"
+                >AGREGAR SHIPPER</v-btn
               >
-                <template v-slot:[`item.correlativo`]="{ item, index }">
-                  PR-{{ item.correlativo }}
-                </template>
-                <template
-                  v-slot:[`item.action`]="{ item, index }"
-                  v-if="showFormActions"
+            </template>
+          </v-subheader>
+          <v-row>
+            <v-col cols="12">
+              <v-form ref="formShippers" :readonly="isFormReadonly">
+                <v-data-table
+                  :headers="headersShippers"
+                  :items="$store.state.entities.lstShippers"
+                  class="elevation-5"
+                  item-key="index"
+                  disable-sort
                 >
-                  <v-btn icon color="red" @click="eliminarShipper(index)">
-                    <v-icon>mdi-delete</v-icon>
-                  </v-btn>
-                </template>
-              </v-data-table>
-            </v-form>
-          </v-col>
-        </v-row>
+                  <template v-slot:[`item.correlativo`]="{ item, index }">
+                    PR-{{ item.correlativo }}
+                  </template>
+                  <template
+                    v-slot:[`item.action`]="{ item, index }"
+                    v-if="showFormActions"
+                  >
+                    <v-btn icon color="red" @click="eliminarShipper(index)">
+                      <v-icon>mdi-delete</v-icon>
+                    </v-btn>
+                  </template>
+                </v-data-table>
+              </v-form>
+            </v-col>
+          </v-row>
         </div>
       </v-card-text>
       <v-card-actions v-if="showNavigationButtons">
@@ -162,7 +162,7 @@ export default {
       } else {
         row.select(false);
         vm.lstSelectedShippers = vm.lstSelectedShippers.filter(
-          (v) => v.id != item.id
+          (v) => v.id != item.id,
         );
       }
     },
@@ -175,7 +175,7 @@ export default {
         vm.lstSelectedShippers.map((item) => {
           if (
             !vm.$store.state.entities.lstShippers.filter(
-              (v) => v.id_shipper == item.id
+              (v) => v.id_shipper == item.id,
             ).length
           ) {
             vm.$store.state.entities.lstShippers.push({
@@ -224,6 +224,9 @@ export default {
       vm.$store.state.spiner = true;
       await vm.actualizarCliente();
       vm.$store.state.spiner = false;
+      vm.$store.state.recargarClienteFlag =
+        !vm.$store.state.recargarClienteFlag;
+      vm.$store.state.modalEntitie = false;
 
       vm.$store.state.entities.isReadonly = true;
       vm.$store.state.entities.isEdit = false;

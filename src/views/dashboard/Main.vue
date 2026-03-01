@@ -88,6 +88,7 @@
       </b>
       <!-- QUOTE -->
       <v-spacer></v-spacer>
+
       <!-- nuevo -->
       <label class="monto" v-if="getNameUrl() == 'newQuote'">
         Profit / Ganancia
@@ -97,6 +98,7 @@
           )
         }}
       </label>
+
       <v-spacer
         v-if="getNameUrl() == 'newQuote' && !!$store.state.pricing.btnRegistrar"
       ></v-spacer>
@@ -262,28 +264,20 @@
       <v-btn
         color="#009688"
         dark
-        v-if="getNameUrl() == 'editControlGasto'"
-        @click="ira('listControlGastos', null)"
-      >
-        <v-icon>mdi-format-list-bulleted</v-icon> IR AL LISTADO
-      </v-btn>
-
-      <v-btn
-        color="#009688"
-        dark
         @click="abrirModalPilotoAutomatico()"
         v-if="getNameUrl() == 'editQuote'"
       >
         <v-icon class="mx-1">mdi-send</v-icon>AUTOMATICO
       </v-btn>
-      <v-spacer v-if="getNameUrl() == 'controlMasterEditar'"></v-spacer>
+
       <v-btn
-        color="#009688"
+        color="info"
         dark
-        v-if="getNameUrl() == 'controlMasterEditar'"
-        @click="ira('listMaster', null)"
+        class="mx-1"
+        v-if="routeVerEditarParaVolverListado.includes(getNameUrl())"
+        @click="iraListado()"
       >
-        VOLVER AL LISTADO
+        <v-icon>mdi-format-list-bulleted</v-icon> IR AL LISTADO
       </v-btn>
     </v-app-bar>
 
@@ -470,6 +464,15 @@ export default {
       dialogPilotoAutomatico: false,
       idRole: [],
       lstDatosTarifa: [],
+      routeVerEditarParaVolverListado: [
+        "editControlGasto",
+        "verQuote",
+        "editQuote",
+        "controlHouseEditar",
+        "controlHouseVer",
+        "controlMasterEditar",
+        "controlMasterVer",
+      ],
     };
   },
   components: {
@@ -557,6 +560,36 @@ export default {
       "actualizarQuoteAduana",
       "_getRole",
     ]),
+    iraListado() {
+      const route = this.$route.name;
+
+      let nombreRutaIr = "";
+      if (!this.routeVerEditarParaVolverListado.includes(route)) {
+        return;
+      }
+      switch (route) {
+        case "editControlGasto":
+          nombreRutaIr = "listControlGastos";
+          break;
+        case "verQuote":
+        case "editQuote":
+          nombreRutaIr = "lstQuote";
+          break;
+        case "controlHouseEditar":
+        case "controlHouseVer":
+          nombreRutaIr = "listHouse";
+          break;
+        case "controlMasterEditar":
+        case "controlMasterVer":
+          nombreRutaIr = "listMaster";
+          break;
+      }
+      if (nombreRutaIr) {
+        this.$router.push({ name: nombreRutaIr });
+      } else {
+        console.warn("No se encontró una ruta de destino para:", route);
+      }
+    },
     abrirCarpeta(url) {
       if (!url) {
         Swal.fire({
@@ -808,7 +841,10 @@ export default {
             }</td></tr>
             <tr>
               <td> DIRECCIÓN:</td>
-              <td> ${this.$store.state.pricing.datosPrincipales.direccionproveedor||""}</td>
+              <td> ${
+                this.$store.state.pricing.datosPrincipales.direccionproveedor ||
+                ""
+              }</td>
               </tr>
             <tr>
               <td> PUERTO SALIDA:</td>
@@ -820,16 +856,21 @@ export default {
               </tr>
             <tr>
               <td style="padding: 8px; border: 1px solid #333;"> PESO(Kgs)</td>
-              <td style="padding: 8px; border: 1px solid #333;"> ${this.$store.state.pricing.datosPrincipales.peso || ""}</td>
+              <td style="padding: 8px; border: 1px solid #333;"> ${
+                this.$store.state.pricing.datosPrincipales.peso || ""
+              }</td>
             </tr>
             <tr>
-              <td style="padding: 8px; border: 1px solid #333;">M3</td><td style="padding: 8px; border: 1px solid #333;"> 
+              <td style="padding: 8px; border: 1px solid #333;">M3</td><td style="padding: 8px; border: 1px solid #333;">
                 ${this.$store.state.pricing.datosPrincipales.volumen || ""}</td>
             </tr>
             <tr>
               <td> DESCRIPCIÓN DE LA MERCANCÍA:</td>
-              <td> 
-                ${this.$store.state.pricing.datosPrincipales.descripcioncarga ||""}
+              <td>
+                ${
+                  this.$store.state.pricing.datosPrincipales.descripcioncarga ||
+                  ""
+                }
               </td>
             <tr>
           </table>
@@ -1744,6 +1785,8 @@ export default {
         params: {
           id_modality: this.$store.state.pricing.datosPrincipales.idsentido,
           id_roles: this.idRole.join(","),
+          id_branch: JSON.parse(sessionStorage.getItem("dataUser"))[0]
+            .id_branch,
         },
       };
 

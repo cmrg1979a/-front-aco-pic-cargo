@@ -386,7 +386,7 @@ const actions = {
 
     await axios(config)
       .then(function (response) {
-        // console.log(response);
+        
         let data = response.data;
         sessionStorage.setItem("auth-token", data.token);
         if (!!data.estadoflag) {
@@ -502,7 +502,7 @@ const actions = {
 
     await axios(config)
       .then(function (response) {
-        // console.log(response);
+        
         let data = response.data;
         res = response.data;
         console.log(res);
@@ -584,7 +584,7 @@ const actions = {
 
     await axios(config)
       .then(function (response) {
-        // console.log(response);
+        
         let data = response.data;
         sessionStorage.setItem("auth-token", data.token);
 
@@ -765,7 +765,7 @@ const actions = {
 
     await axios(config)
       .then(function (response) {
-        // console.log(response);
+        
         let { data } = response;
         sessionStorage.setItem("auth-token", data.token);
         if (data.estadoflag == true) {
@@ -801,7 +801,7 @@ const actions = {
 
     await axios(config)
       .then(function (response) {
-        // console.log(response);
+        
         let { data } = response;
         sessionStorage.setItem("auth-token", data.token);
         if (data.estadoflag == true) {
@@ -984,12 +984,12 @@ const actions = {
         console.log(error);
       });
   },
-  async verCliente({ commit }) {
+  async verCliente({ commit }, id = null) {
     var config = {
       method: "get",
       url:
         process.env.VUE_APP_URL_MAIN +
-        `ver_cliente?id=${router.currentRoute.params.id}`,
+        `ver_cliente?id=${id ? id : router.currentRoute.params.id}`,
       headers: {
         "auth-token": sessionStorage.getItem("auth-token"),
         "Content-Type": "application/json",
@@ -997,7 +997,7 @@ const actions = {
     };
     await axios(config)
       .then(function (response) {
-        // console.log(response);
+        
         let data = response.data;
         sessionStorage.setItem("auth-token", data.token);
         if (!!data.estadoflag) {
@@ -1135,14 +1135,14 @@ const actions = {
             title: "Aviso",
             text: data.mensaje,
             allowOutsideClick: false,
-            confirmButtonText: "Ir al listado",
+            // confirmButtonText: "Ir al listado",
           }).then((res) => {
-            if (res.isConfirmed) {
-              state.lstProveedor = [];
-              router.push({
-                name: "listClientes",
-              });
-            }
+            // if (res.isConfirmed) {
+            //   state.lstProveedor = [];
+            //   router.push({
+            //     name: "listClientes",
+            //   });
+            // }
           });
         }
       })
@@ -1232,7 +1232,7 @@ const actions = {
 
     await axios(config)
       .then(function (response) {
-        // console.log(response);
+        
         let { data } = response;
         sessionStorage.setItem("auth-token", data.token);
         if (data.estadoflag == true) {
@@ -1266,7 +1266,7 @@ const actions = {
 
     await axios(config)
       .then(function (response) {
-        // console.log(response);
+        
         let { data } = response;
         sessionStorage.setItem("auth-token", data.token);
         if (data.estadoflag == true) {
@@ -1292,7 +1292,7 @@ const actions = {
 
     await axios(config)
       .then(function (response) {
-        // console.log(response);
+        
         let { data } = response;
         sessionStorage.setItem("auth-token", data.token);
         if (data.estadoflag == true) {

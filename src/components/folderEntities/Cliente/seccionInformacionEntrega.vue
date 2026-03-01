@@ -12,119 +12,125 @@
         @click="modificarCliente"
       >
         <v-icon left small>mdi-account-edit</v-icon>
-        {{ isFormReadonly ? 'EDITAR CLIENTE' : 'GUARDAR CAMBIOS' }}
+        {{ isFormReadonly ? "EDITAR CLIENTE" : "GUARDAR CAMBIOS" }}
       </v-btn>
     </v-card-title>
     <v-card-text>
       <div class="container-narrow">
-      <v-form ref="formInformacionEntrega" :readonly="isFormReadonly">
-        <v-row>
-          <v-col cols="12" md="6">
-            <v-text-field
-              dense
-              label="Destinatario"
-              v-model="$store.state.entities.informacionEntrega.destinatario"
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12" md="6">
-            <v-text-field
-              dense
-              label="DNI O RUC"
-              v-model="
-                $store.state.entities.informacionEntrega.dni_destinatario
-              "
-            ></v-text-field>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="12" md="6">
-            <v-text-field
-              dense
-              label="Persona que recoge"
-              v-model="$store.state.entities.informacionEntrega.receptor"
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12" md="6">
-            <v-text-field
-              dense
-              label="DNI"
-              v-model="$store.state.entities.informacionEntrega.dni_receptor"
-            ></v-text-field>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="12" md="6">
-            <v-autocomplete
-              dense
-              :items="$store.state.itemsState"
-              item-text="name"
-              item-value="id"
-              label="Departamento"
-              v-model="$store.state.entities.informacionEntrega.id_departamento"
-              @change="
-                _getCity(
+        <v-form ref="formInformacionEntrega" :readonly="isFormReadonly">
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-text-field
+                dense
+                label="Destinatario"
+                v-model="$store.state.entities.informacionEntrega.destinatario"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-text-field
+                dense
+                label="DNI O RUC"
+                v-model="
+                  $store.state.entities.informacionEntrega.dni_destinatario
+                "
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-text-field
+                dense
+                label="Persona que recoge"
+                v-model="$store.state.entities.informacionEntrega.receptor"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-text-field
+                dense
+                label="DNI"
+                v-model="$store.state.entities.informacionEntrega.dni_receptor"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-autocomplete
+                dense
+                :items="$store.state.itemsState"
+                item-text="name"
+                item-value="id"
+                label="Departamento"
+                v-model="
                   $store.state.entities.informacionEntrega.id_departamento
-                )
-              "
-            ></v-autocomplete>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="12" md="6">
-            <v-autocomplete
-              dense
-              :items="$store.state.itemsCity"
-              item-text="name"
-              item-value="id"
-              label="Provincia"
-              v-model="$store.state.entities.informacionEntrega.id_provincia"
-              @change="
-                _getTown($store.state.entities.informacionEntrega.id_provincia)
-              "
-            ></v-autocomplete>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="12" md="6">
-            <v-autocomplete
-              dense
-              :items="$store.state.itemsTown"
-              item-text="name"
-              item-value="id"
-              label="Distrito"
-              v-model="$store.state.entities.informacionEntrega.id_distrito"
-            ></v-autocomplete>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="12" md="6">
-            <v-text-field
-              dense
-              label="Agencia"
-              v-model="$store.state.entities.informacionEntrega.agencia"
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12" md="6">
-            <v-text-field
-              dense
-              label="Celular"
-              v-model="$store.state.entities.informacionEntrega.celular_agencia"
-              :rules="[(v) => validarTelefono(v)]"
-            ></v-text-field>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="12" md="6">
-            <v-text-field
-              dense
-              label="Cliente"
-              v-model="$store.state.entities.cliente.nombrecompleto"
-              readonly
-            ></v-text-field>
-          </v-col>
-        </v-row>
+                "
+                @change="
+                  _getCity(
+                    $store.state.entities.informacionEntrega.id_departamento,
+                  )
+                "
+              ></v-autocomplete>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-autocomplete
+                dense
+                :items="$store.state.itemsCity"
+                item-text="name"
+                item-value="id"
+                label="Provincia"
+                v-model="$store.state.entities.informacionEntrega.id_provincia"
+                @change="
+                  _getTown(
+                    $store.state.entities.informacionEntrega.id_provincia,
+                  )
+                "
+              ></v-autocomplete>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-autocomplete
+                dense
+                :items="$store.state.itemsTown"
+                item-text="name"
+                item-value="id"
+                label="Distrito"
+                v-model="$store.state.entities.informacionEntrega.id_distrito"
+              ></v-autocomplete>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-text-field
+                dense
+                label="Agencia"
+                v-model="$store.state.entities.informacionEntrega.agencia"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-text-field
+                dense
+                label="Celular"
+                v-model="
+                  $store.state.entities.informacionEntrega.celular_agencia
+                "
+                :rules="[(v) => validarTelefono(v)]"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-text-field
+                dense
+                label="Cliente"
+                v-model="$store.state.entities.cliente.nombrecompleto"
+                readonly
+              ></v-text-field>
+            </v-col>
+          </v-row>
 
-        <!--<v-row>
+          <!--<v-row>
                   <v-col cols="12" md="6">
                     <div class="d-flex align-center">
                       Estado
@@ -136,7 +142,7 @@
                     </div>
                   </v-col>
                 </v-row>-->
-      </v-form>
+        </v-form>
       </div>
     </v-card-text>
     <v-card-actions v-if="showNavigationButtons">
@@ -192,6 +198,9 @@ export default {
       vm.$store.state.spiner = true;
       await vm.actualizarCliente();
       vm.$store.state.spiner = false;
+      vm.$store.state.recargarClienteFlag =
+        !vm.$store.state.recargarClienteFlag;
+      vm.$store.state.modalEntitie = false;
 
       vm.$store.state.entities.isReadonly = true;
       vm.$store.state.entities.isEdit = false;

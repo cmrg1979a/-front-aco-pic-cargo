@@ -690,7 +690,7 @@ export default {
 
           await axios(config)
             .then(function (response) {
-              // console.log(response);
+              
 
               const url = window.URL.createObjectURL(new Blob([response.data]));
               const link = document.createElement("a");
@@ -1114,7 +1114,7 @@ export default {
       };
 
       await axios(config).then(function (response) {
-        // console.log(response);
+        
         sessionStorage.setItem("auth-token", response.data.token);
 
         if (response.data.status == "401") {
@@ -1167,7 +1167,7 @@ export default {
         };
 
         await axios(config).then(async function (response) {
-          // console.log(response);
+          
           sessionStorage.setItem("auth-token", response.data.token);
 
           if (response.data.estadoflag) {

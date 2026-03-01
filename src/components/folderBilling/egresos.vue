@@ -39,6 +39,7 @@
                 <th width="12%" class="text-left">
                   Solicitar a Administración
                 </th>
+                <th width="12%" class="text-left">Más Acciones</th>
                 <!-- <th width="10%">Acciones</th> -->
                 <!-- <th width="10%">Acciones</th> -->
               </tr>
@@ -134,6 +135,14 @@
                   >
                     <v-icon :color="'blue'">mdi-email-send</v-icon>
                   </v-btn>
+                </td>
+                <td>
+                  <v-btn
+                    color="success"
+                    small
+                    @click="abrirModalCambiarExp(egreso)"
+                    >CAMBIAR EXPEDIENTE</v-btn
+                  >
                 </td>
               </tr>
             </tbody>
@@ -1242,6 +1251,37 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="dialogCambiarExp" persistent max-width="500px">
+      <v-card>
+        <v-card-title>
+          Mover {{ egreso.nombre_proveedor ? egreso.nombre_proveedor : null }}
+        </v-card-title>
+        <v-card-text>
+          <v-form ref="frmMoverCosto">
+            <v-autocomplete
+              v-model="id_masterdestino"
+              :rules="[(v) => !!v || 'Dato Requerido']"
+              :items="
+                $store.state.itemsMasterList.filter(
+                  (v) => v.id != egreso.id_master,
+                )
+              "
+              item-value="id"
+              item-text="code_master"
+            />
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn :loading="loading" color="success" @click="functionMoverCostos"
+            >Mover Costo</v-btn
+          >
+          <v-btn :loading="loading" color="error" @click="dialogCambiarExp = false"
+            >Cancelar</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -1275,6 +1315,9 @@ export default {
   },
   data: () => {
     return {
+      dialogCambiarExp: false,
+      egreso: {},
+      id_masterdestino: null,
       dialogCopiar: false,
       loadingPorcentaje: false,
       loading: false,
@@ -1453,10 +1496,13 @@ export default {
     };
   },
   async mounted() {
-    await this.getBanksListCargar();
-    await this.getCoinsListCargar();
-    await this.cargarMasterDetalleTipoTransaccion();
-    await this._getProveedor();
+    await Promise.all([
+      this.getBanksListCargar(),
+      this.getCoinsListCargar(),
+      this.cargarMasterDetalleTipoTransaccion(),
+      this._getProveedor(),
+      this._getMasterList(),
+    ]);
 
     this.headers[2].text =
       this.$store.state.enterprises.impuesto.nombre_impuesto;
@@ -1464,6 +1510,32 @@ export default {
       this.$store.state.enterprises.impuesto.mostrarimpuesto;
   },
   methods: {
+    abrirModalCambiarExp(item) {
+      this.egreso = item;
+      this.dialogCambiarExp = true;
+      this.$nextTick(() => {
+        this.$refs.frmMoverCosto.reset();
+      });
+      console.log(item);
+    },
+    async functionMoverCostos() {
+      if (this.$refs.frmMoverCosto.validate()) {
+        let data = {
+          id_masterorigen: this.egreso.id_master,
+          id_proveedor: this.egreso.id_proveedor,
+          id_masterdestino: this.id_masterdestino,
+          id_correlativo: this.egreso.id_correlativo,
+        };
+        this.loading = true;
+        await this.moverCostos(data);
+        this.loading = false;
+        console.log("llegp 2");
+        this.dialogCambiarExp = false;
+        console.log("llegp 3");
+        this.$emit("recargarDatos");
+        console.log("llegp 4");
+      }
+    },
     clienteKey(egreso, grupo) {
       const base = egreso.id_proveedor || egreso.id_master || "";
       const id_house = grupo.id_house || "";
@@ -1908,7 +1980,6 @@ export default {
 
       await axios(config)
         .then(async function (response) {
-          // console.log(response);
           sessionStorage.setItem("auth-token", response.data.token);
 
           vm.itemsInvoice = response.data.data;
@@ -1943,7 +2014,6 @@ export default {
 
       await axios(config)
         .then(function (response) {
-          // console.log(response);
           sessionStorage.setItem("auth-token", response.data.token);
 
           vm.itemsInvoice = response.data.data;
@@ -2002,7 +2072,6 @@ export default {
 
       await axios(config)
         .then(function (response) {
-          // console.log(response);
           vm.$store.state.itemsDataAccountsNumberList =
             response.data.data || [];
         })
@@ -2414,7 +2483,6 @@ export default {
 
       await axios(config)
         .then(function (response) {
-          // console.log(response);
           sessionStorage.setItem("auth-token", response.data.token);
 
           let res = response.data;
@@ -2503,8 +2571,6 @@ export default {
 
       await axios(config)
         .then(function (response) {
-          // console.log(response);
-
           var data = {
             nameProveedor: vm.nameproveedor,
             nameConsignatario: clientes,
@@ -2647,7 +2713,6 @@ export default {
 
       await axios(config)
         .then(function (response) {
-          // console.log(response);
           sessionStorage.setItem("auth-token", response.data.token);
 
           vm.dialogListInvoice = true;
@@ -2689,7 +2754,6 @@ export default {
 
         await axios(config)
           .then(function (response) {
-            // console.log(response);
             vm.boolFile = true;
             vm.payPath = JSON.stringify(response.data.data[0].insertid);
             vm.msgFile = "Archivo Cargado.";
@@ -2756,7 +2820,6 @@ export default {
             };
 
             await axios(config).then(async function (response) {
-              // console.log(response);
               sessionStorage.setItem("auth-token", response.data.token);
 
               if (response.data.estadoflag) {
@@ -2878,6 +2941,8 @@ export default {
       "_getProveedor",
       "cargarMasterDetalleTipoTransaccion",
       "copiarCGEgresos",
+      "_getMasterList",
+      "moverCostos",
     ]),
     bloquearCopiarMontos(detalle) {
       return detalle.some((v) => v.pagado == 1 || v.statusadmin == 1);

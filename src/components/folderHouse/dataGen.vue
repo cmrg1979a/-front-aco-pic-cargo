@@ -377,6 +377,7 @@ export default {
       "itemsBitacoraList",
       "drawer",
       "dataHouse_transporte",
+      "recargarClienteFlag",
     ]),
     esAereo() {
       const v = this.$store.state.house_id_trasnport;
@@ -539,10 +540,13 @@ export default {
         await axios(config)
           .then(async function (response) {
             // console.log(response)
-            if (!response.data.data[0].id_consigner) {
+            if (
+              !response.data.data[0].id_consigner ||
+              !response.data.data[0].id_proveedor
+            ) {
               Swal.fire({
                 title: "Aviso Importante",
-                text: "Por favor, asigne un cliente para poder continuar con el proceso.",
+                text: "Por favor, asigne un Cliente y Proveedor para poder continuar con el proceso.",
                 icon: "info",
                 timer: 5000,
                 allowOutsideClick: false,
@@ -696,6 +700,35 @@ export default {
       this.$refs.formNewService.reset();
       this.$store.state.modalServices_manualMode =
         !this.$store.state.modalServices_manualMode;
+    },
+  },
+  watch: {
+    async recargarClienteFlag() {
+      var vm = this;
+      var config = {
+        method: "get",
+        url:
+          process.env.VUE_APP_URL_MAIN +
+          `ver_proveedor?id=${vm.$store.state.house_id_consigner}`,
+        headers: {
+          "auth-token": sessionStorage.getItem("auth-token"),
+          "Content-Type": "application/json",
+        },
+      };
+
+      await axios(config)
+        .then(function (response) {
+          let res = response.data;
+          if (res.estadoflag) {
+            let proveedor = res.data[0];
+            vm.$store.state.copy_house.emailaddress_clientefinal =
+              proveedor.emailaddress;
+            console.log(vm.$store.state.copy_house.emailaddress_clientefinal);
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
     },
   },
 };

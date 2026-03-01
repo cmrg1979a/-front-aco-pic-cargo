@@ -19,7 +19,7 @@
       ><v-row>
         <v-col cols="3">
           <v-text-field
-            style="font-size: 20pt, color:'green'"
+            style="font-size: 20pt; color: green"
             label="Monto en que va a salir del bancoss"
             v-model="montoMonExt"
             readonly
@@ -285,7 +285,7 @@ export default {
   },
   async mounted() {
     let vm = this;
-    
+
     await this.cargarProveedores();
     await this.getListBanksDetailsCargar();
     await this._getCoinsList();
@@ -311,7 +311,8 @@ export default {
         method: "get",
         url: process.env.VUE_APP_URL_MAIN + "getListBanksDetailsCargar",
         params: {
-          id_branch: JSON.parse(sessionStorage.getItem("dataUser"))[0].id_branch,
+          id_branch: JSON.parse(sessionStorage.getItem("dataUser"))[0]
+            .id_branch,
         },
         headers: {
           "auth-token": sessionStorage.getItem("auth-token"),

@@ -172,7 +172,7 @@ watch: {
       return !!this.isFormActionsDisabled;
     },
     logNameService(value) {
-      console.log("nameservice:", value);
+      
       return value;
     },
     formatFecha(val) {

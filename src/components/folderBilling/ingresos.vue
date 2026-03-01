@@ -1931,7 +1931,7 @@ export default {
       };
 
       await axios(config).then(async function (response) {
-        // console.log(response);
+        
         sessionStorage.setItem("auth-token", response.data.token);
 
         if (response.data.estadoflag) {
@@ -1978,7 +1978,7 @@ export default {
 
       await axios(config)
         .then(function (response) {
-          // console.log(response);
+          
           sessionStorage.setItem("auth-token", response.data.token);
 
           if (!!response.data.data[0].estadoflag) {
@@ -2005,7 +2005,7 @@ export default {
 
       await axios(config)
         .then(async function (response) {
-          // console.log(response);
+          
           sessionStorage.setItem("auth-token", response.data.token);
 
           if (response.data.estadoflag) {

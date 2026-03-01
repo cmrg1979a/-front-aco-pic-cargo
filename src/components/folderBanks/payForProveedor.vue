@@ -613,6 +613,24 @@ export default {
 
       this.$store.state.spiner = false;
     },
+    moverSeleccionadoAlInicio() {
+      if (this.selected.length > 0) {
+        // Obtener el último elemento seleccionado
+        const ultimoSeleccionado = this.selected[this.selected.length - 1];
+        
+        // Buscar el índice del elemento en listPagosXProveedorCxP
+        const listaPagos = this.$store.state.listPagosXProveedorCxP;
+        const indice = listaPagos.findIndex(
+          (item) => item.id === ultimoSeleccionado.id
+        );
+        
+        // Si el elemento no está al inicio, moverlo
+        if (indice > 0) {
+          const elemento = listaPagos.splice(indice, 1)[0];
+          listaPagos.unshift(elemento);
+        }
+      }
+    },
   },
   computed: {
     ...mapState(["itemsProveedorList", "listPagosXProveedorCxP", "provedores"]),
@@ -630,6 +648,7 @@ export default {
   watch: {
     selected() {
       this.calcularTotales();
+      this.moverSeleccionadoAlInicio();
     },
   },
 };

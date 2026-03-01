@@ -185,7 +185,7 @@ export default {
       };
     },
        logNameService(value) {
-    console.log("nameservice:", value); 
+
      return value;
   },
     recargarCostos() {
