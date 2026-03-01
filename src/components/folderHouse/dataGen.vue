@@ -618,6 +618,10 @@ export default {
               response.data.data[0].id_consigner_real;
             vm.$store.state.itemsHouseContainers =
               response.data.data[0].itemshousecontainers;
+            vm.$store.state.house_nro_declaracion_aduana =
+              response.data.data[0].nro_declaracion_aduana || "";
+            vm.$store.state.house_canal_aduana =
+              response.data.data[0].canal_aduana || "";
             const id_cot = response.data.data[0].id_cot;
             const id_quote = response.data.data[0].id_quoteaduana;
             vm.bloquearQuote = !!(id_cot || id_quote);

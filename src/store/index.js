@@ -368,6 +368,9 @@ export default new Vuex.Store({
     house_master_expediente: "",
     house_nro_expediente: "",
 
+    house_nro_declaracion_aduana: "",
+    house_canal_aduana: "",
+
     totalItemsHouseListAll: 0,
     house_filtrarData: false,
     house_filtro: {},

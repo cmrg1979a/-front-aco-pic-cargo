@@ -904,6 +904,8 @@ export default {
           : "",
         lstservices,
         id: vm.$store.state.house_id,
+        nro_declaracion_aduana: vm.$store.state.house_nro_declaracion_aduana || "",
+        canal_aduana: vm.$store.state.house_canal_aduana || "",
       });
 
       var config = {

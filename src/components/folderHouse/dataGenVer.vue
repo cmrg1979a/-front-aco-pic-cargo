@@ -528,6 +528,10 @@ export default {
             vm.$store.state.house_id = response.data.data[0].id;
             vm.$store.state.house_id_consigner_real =
               response.data.data[0].id_consigner_real;
+            vm.$store.state.house_nro_declaracion_aduana =
+              response.data.data[0].nro_declaracion_aduana || "";
+            vm.$store.state.house_canal_aduana =
+              response.data.data[0].canal_aduana || "";
             await vm._getServicesBegin();
             // await vm._getBitacoraLineal();
             vm.$store.state.house_enlace_tracking = response.data.data[0]
