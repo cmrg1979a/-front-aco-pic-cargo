@@ -529,17 +529,16 @@ export default {
             .id_branch,
         };
         var config = {
-          method: "get",
-          url: process.env.VUE_APP_URL_MAIN + "house_ver",
+          method: "post",
+          url: process.env.VUE_APP_URL_MAIN + "getHouseListId/",
           headers: {
             "auth-token": sessionStorage.getItem("auth-token"),
             "Content-Type": "application/json",
           },
-          params: data,
+          data: data,
         };
         await axios(config)
           .then(async function (response) {
-            // console.log(response)
             if (
               !response.data.data[0].id_consigner ||
               !response.data.data[0].id_proveedor

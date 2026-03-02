@@ -465,18 +465,16 @@ export default {
             .id_branch,
         };
         var config = {
-          method: "get",
-          url: process.env.VUE_APP_URL_MAIN + "house_ver",
+          method: "post",
+          url: process.env.VUE_APP_URL_MAIN + "getHouseListId/",
           headers: {
             "auth-token": sessionStorage.getItem("auth-token"),
             "Content-Type": "application/json",
           },
-          params: data,
+          data: data,
         };
         await axios(config)
           .then(async function (response) {
-            // console.log(response)
-
             sessionStorage.setItem("auth-token", response.data.token);
 
             vm.$store.state.copy_house = response.data.data[0];
