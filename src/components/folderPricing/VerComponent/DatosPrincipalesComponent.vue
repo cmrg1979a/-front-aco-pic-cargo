@@ -170,7 +170,9 @@ export default {
   },
   name: "DatosPrincipalesComponent",
   //  itemsEntities
-  mounted() {},
+  mounted() {
+    this._getProveedor();
+  },
   methods: {
     ...mapActions([
       "getMarketingList",
@@ -184,7 +186,7 @@ export default {
       "getModuleRole",
       "_getRole",
       "getCargarMasterDetalleNotasCotizacion",
-      "_getEntities",
+      "_getEntities","_getProveedor"
     ]),
     async changeShipment() {
       if (this.$store.state.pricing.datosPrincipales.idtipocarga) {
@@ -212,7 +214,7 @@ export default {
       let exw = this.$store.state.pricing.listIncoterms.filter(
         (v) =>
           v.id == this.$store.state.pricing.datosPrincipales.idincoterms &&
-          v.name == "EXW"
+          v.name == "EXW",
       );
 
       return exw.length > 0 ? true : false;
@@ -223,8 +225,8 @@ export default {
     estadoCotizacionItems() {
       const list = this.$store.state.pricing.listQuoteStatus || [];
       const idStatus = this.$store.state.pricing.datosPrincipales.id_status;
-      const nameStatus = this.$store.state.pricing.datosPrincipales
-        .nameStatusQuote;
+      const nameStatus =
+        this.$store.state.pricing.datosPrincipales.nameStatusQuote;
 
       const exists = list.some((v) => v.id == idStatus);
       if (exists || !idStatus || !nameStatus) {
@@ -248,7 +250,7 @@ export default {
       this.$store.state.spiner = false;
       if (!!this.$store.state.entities.id) {
         let cliente = this.$store.state.itemsEntities.filter(
-          (v) => v.id == this.$store.state.entities.id
+          (v) => v.id == this.$store.state.entities.id,
         )[0];
 
         this.$store.state.pricing.datosPrincipales.id_entitie = cliente.id;

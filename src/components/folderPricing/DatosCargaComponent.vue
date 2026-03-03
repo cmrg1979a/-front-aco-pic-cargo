@@ -5,6 +5,19 @@
       <v-card-text>
         <v-form ref="frmPuerto">
           <v-row>
+            <v-col cols="12">
+              <v-autocomplete
+                label="Proveedor"
+                outlined
+                dense
+                class="my-1"
+                :items="$store.state.itemsProveedorList"
+                item-text="namelong"
+                item-value="id"
+                v-model="$store.state.pricing.datosPrincipales.id_proveedor"
+               
+              ></v-autocomplete>
+            </v-col>
             <v-col cols="12" lg="6" xl="6" class="py-1">
               <v-autocomplete
                 label="Puerto Origen"

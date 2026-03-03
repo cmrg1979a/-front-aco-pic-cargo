@@ -1153,4 +1153,13 @@ export default {
     align-items: center;
   }
 }
+
+.drop-area {
+  width: 100%;
+  height: 150px;
+  border: 2px dashed #ccc;
+  text-align: center;
+  line-height: 150px;
+  cursor: pointer;
+}
 </style>

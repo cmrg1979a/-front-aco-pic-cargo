@@ -122,6 +122,7 @@
                 <v-file-input
                   label="Cargar Archivo"
                   v-model="payfile"
+                  ref="fileInput"
                   @change="uploadFile()"
                   :success-messages="msgfile"
                   :error-messages="errfile"
@@ -181,6 +182,9 @@
                   placeholder="Comentarios......"
                 ></v-text-field
               ></v-col>
+              <v-col md="12" cols="12">
+                <ArrastraYSolarComponent @idArchivoCargado="recibirId" />
+              </v-col>
               <v-col md="12" cols="12" v-if="tipo == 'nuevo'">
                 <v-flex text-right>
                   <v-btn
@@ -204,10 +208,15 @@
 import axios from "axios";
 import Swal from "sweetalert2";
 import { mapActions, mapState } from "vuex";
+import ArrastraYSolarComponent from "../comun/ArrastraYSolarComponent.vue";
 export default {
+  components: {
+    ArrastraYSolarComponent,
+  },
   props: ["tipo"],
   data() {
     return {
+      loading: false,
       loading: false,
       successMessages: "",
       search: "",
@@ -367,7 +376,7 @@ export default {
     setearMonto(details) {
       if (details.pagar) {
         this.listPagosXProveedorCxP.filter(
-          (v) => v.id == details.id
+          (v) => v.id == details.id,
         )[0].cktotal = true;
       }
     },
@@ -404,7 +413,7 @@ export default {
 
       if (
         this.listPagosXProveedorCxP.filter(
-          (v) => parseFloat(v.monto_deuda) < parseFloat(v.max_pagar)
+          (v) => parseFloat(v.monto_deuda) < parseFloat(v.max_pagar),
         ).length > 0
       ) {
         validacion = false;
@@ -421,6 +430,7 @@ export default {
       return validacion;
     },
     async _putPayForProveedor() {
+    
       if (
         this.$store.state.files.payPath == 0 ||
         !this.$store.state.files.payPath
@@ -500,7 +510,7 @@ export default {
           const condicion =
             parseFloat(v.monto_deuda) <
             parseFloat(
-              parseFloat(v.monto_mon_ext) / parseFloat(this.tipocambio)
+              parseFloat(v.monto_mon_ext) / parseFloat(this.tipocambio),
             ).toFixed(2);
 
           return condicion;
@@ -526,7 +536,7 @@ export default {
         if (moneda.acronym != "USD") {
           this.selected.forEach((element) => {
             element.monto_mon_ext = parseFloat(
-              this.tipocambio * element.monto_deuda
+              this.tipocambio * element.monto_deuda,
             ).toFixed(4);
             monex += parseFloat(element.monto_mon_ext);
           });
@@ -536,7 +546,7 @@ export default {
           this.selected.forEach((element) => {
             console.log(element);
             element.monto_mon_ext = parseFloat(
-              element.monto_deuda / this.tipocambio
+              element.monto_deuda / this.tipocambio,
             ).toFixed(4);
             monex += parseFloat(element.monto_mon_ext).toFixed(2);
           });
@@ -617,13 +627,13 @@ export default {
       if (this.selected.length > 0) {
         // Obtener el último elemento seleccionado
         const ultimoSeleccionado = this.selected[this.selected.length - 1];
-        
+
         // Buscar el índice del elemento en listPagosXProveedorCxP
         const listaPagos = this.$store.state.listPagosXProveedorCxP;
         const indice = listaPagos.findIndex(
-          (item) => item.id === ultimoSeleccionado.id
+          (item) => item.id === ultimoSeleccionado.id,
         );
-        
+
         // Si el elemento no está al inicio, moverlo
         if (indice > 0) {
           const elemento = listaPagos.splice(indice, 1)[0];
@@ -631,13 +641,21 @@ export default {
         }
       }
     },
+    recibirId(file) {
+      
+      this.payPath = file.inserid;
+      this.payfile = file.archivo;
+      
+      this.msgfile = "Archivo procesado y vinculado correctamente.";
+      this.errfile = "";
+    },
   },
   computed: {
     ...mapState(["itemsProveedorList", "listPagosXProveedorCxP", "provedores"]),
     symbol() {
       let symbol = "";
       const coin = this.$store.state.itemsCoinsList.find(
-        (v) => v.id == this.id_coins
+        (v) => v.id == this.id_coins,
       );
       if (coin) {
         symbol = coin.symbol;

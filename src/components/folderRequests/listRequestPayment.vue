@@ -348,6 +348,7 @@
       <ModalPagoControlGastoComponent
         :limpar="true"
         @cerrarModal="onCerrarModal"
+        @cancelar="dialogPagoControlGasto=false"
       />
     </v-dialog>
   </div>

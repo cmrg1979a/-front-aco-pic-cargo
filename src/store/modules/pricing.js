@@ -84,6 +84,7 @@ const state = {
     id_percepcionaduana: "",
     id_marketing: "",
     id_status: "",
+    id_proveedor: "",
     id_vendedor: JSON.parse(sessionStorage.getItem("dataUser"))
       ? JSON.parse(sessionStorage.getItem("dataUser"))[0].id
       : "",
@@ -1397,6 +1398,7 @@ const actions = {
       id_marketing: state.datosPrincipales.id_marketing,
       statusquote: state.datosPrincipales.id_status,
       idVendedor: state.datosPrincipales.id_vendedor,
+      id_proveedor: state.datosPrincipales.id_proveedor,
       idPricing: state.datosPrincipales.id_pricing,
       id_entitie: state.datosPrincipales.id_entitie,
       idsentido: state.datosPrincipales.idsentido,
@@ -1532,6 +1534,7 @@ const actions = {
       state.datosPrincipales.id_pricing = res.id_pricing;
       state.datosPrincipales.nombre = res.nombre;
       state.datosPrincipales.id_entitie = res.id_entitie;
+      state.datosPrincipales.id_proveedor = res.id_proveedor;
       state.datosPrincipales.telefono = res.telefono;
       state.datosPrincipales.idsentido = res.idsentido;
       state.datosPrincipales.idtipocarga = res.idtipocarga;
@@ -3992,6 +3995,7 @@ const actions = {
       fullflag: true,
       id_marketing: state.datosPrincipales.id_marketing,
       statusquote: state.datosPrincipales.id_status,
+      id_proveedor: state.datosPrincipales.id_proveedor,
       idVendedor: state.datosPrincipales.id_vendedor,
       idPricing: state.datosPrincipales.id_pricing,
       id_entitie: state.datosPrincipales.id_entitie,

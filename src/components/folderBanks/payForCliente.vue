@@ -121,7 +121,7 @@
                   show-size
                   truncate-length="50"
                   hide-details
-                  @change="_uploadFile()"
+                  @change="uploadFile()"
                 >
                 </v-file-input>
               </v-flex>
@@ -198,7 +198,9 @@
                 item-value="id"
               ></v-select>
             </v-col>
-
+            <v-col md="12" cols="12">
+              <ArrastraYSolarComponent @idArchivoCargado="recibirId" />
+            </v-col>
             <v-col md="12" cols="12" v-if="tipo == 'nuevo'">
               <v-flex text-right>
                 <v-btn
@@ -224,7 +226,11 @@
 import axios from "axios";
 import Swal from "sweetalert2";
 import { mapActions, mapState } from "vuex";
+import ArrastraYSolarComponent from "../comun/ArrastraYSolarComponent.vue";
 export default {
+  components: {
+    ArrastraYSolarComponent,
+  },
   props: ["tipo"],
   data() {
     return {
@@ -384,7 +390,7 @@ export default {
           console.log(element);
           this.id_coins = element.id_coins;
           this.symbol = this.$store.state.itemsCoinsList.filter(
-            (v) => v.id == this.selected[0].id_coins
+            (v) => v.id == this.selected[0].id_coins,
           )[0].symbol;
           element.montopagar = parseFloat(element.monto_deuda).toFixed(2);
           element.montopagar > element.max_pagar
@@ -401,32 +407,19 @@ export default {
       });
       this.total = parseFloat(sum).toFixed(2);
     },
-    _uploadFile() {
-      var FormData = require("form-data");
-      var fs = require("fs");
-      var data = new FormData();
-      var vm = this;
-      data.append("name", "Prueba");
-      data.append("file", vm.payfile);
-
-      var config = {
-        method: "post",
-        url: process.env.VUE_APP_URL_MAIN + "uploadAllPath",
-        headers: {
-          "auth-token": sessionStorage.getItem("auth-token"),
-          "Content-Type": "application/json",
-        },
-        data: data,
-      };
-
-      axios(config)
-        .then(function (response) {
-          vm.boolFile = true;
-          vm.payPath = JSON.stringify(response.data.data[0].insertid);
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
+    async uploadFile() {
+      this.msgfile = "";
+      this.errfile = "";
+      if (this.payfile) {
+        this.loadingFile = true;
+        await this._uploadFile(this.payfile);
+        this.loadingFile = false;
+        this.$store.state.files.payPath
+          ? (this.msgfile = "Archivo cargado")
+          : (this.errfile = "Comuniquese con el admistrador");
+      } else {
+        this.errfile = "Dato Requerido";
+      }
     },
     validar(registro = false) {
       let validacion = true;
@@ -464,7 +457,10 @@ export default {
       return validacion;
     },
     async _putPayForProveedor() {
-      if (this.payPath == 0 || !this.payPath) {
+      if (
+        this.$store.state.files.payPath == 0 ||
+        !this.$store.state.files.payPath
+      ) {
         Swal.fire({
           icon: "warning",
           title: "Soporte de Pago",
@@ -493,7 +489,7 @@ export default {
           vm.loading = true;
           var data = {
             id_proveedor: vm.id_proveedor.id,
-            id_path: vm.payPath,
+            id_path: vm.$store.state.files.payPath,
             details: vm.selected,
             id_cuenta: vm.id_cuenta.id,
             fecha: vm.date,
@@ -583,6 +579,13 @@ export default {
           });
       }
     },
+    recibirId(file) {
+      this.payPath = file.inserid;
+      this.payfile = file.archivo;
+
+      this.msgfile = "Archivo procesado y vinculado correctamente.";
+      this.errfile = "";
+    },
   },
   computed: {
     ...mapState(["itemsProveedorList", "listPagosXProveedorCxP", "clientes"]),
@@ -590,7 +593,7 @@ export default {
       let symbol = "";
       if (this.id_coins) {
         symbol = this.$store.state.itemsCoinsList.filter(
-          (v) => v.id == this.id_coins
+          (v) => v.id == this.id_coins,
         )[0].symbol;
       }
       return symbol;

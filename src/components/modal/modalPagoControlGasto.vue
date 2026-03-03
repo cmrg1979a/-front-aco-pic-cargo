@@ -144,6 +144,7 @@
                 <v-flex>
                   <v-file-input
                     v-model="payfile"
+                    ref="fileInput"
                     label="Soporte de Pago"
                     show-size
                     truncate-length="50"
@@ -202,20 +203,22 @@
                 ></v-text-field
               ></v-col>
               <v-col md="12" cols="12">
-                <v-flex text-right>
-                  <v-btn
-                    color="success"
-                    text
-                    @click="registrarPago()"
-                    :disabled="!id_cuenta"
-                    :loading="loadingPago"
-                  >
-                    PROCESAR PAGO
-                  </v-btn>
-                </v-flex>
+                <ArrastraYSolarComponent @idArchivoCargado="recibirId" />
               </v-col>
             </v-row>
           </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn
+              color="success"
+              @click="registrarPago()"
+              :disabled="!id_cuenta"
+              :loading="loadingPago"
+            >
+              PROCESAR PAGO
+            </v-btn>
+            <v-btn color="red" @click="$emit('cancelar')">Cancelar</v-btn>
+          </v-card-actions>
         </v-tab-item>
       </v-tabs>
     </v-card-text>
@@ -244,7 +247,7 @@
           <v-btn text color="green" @click="guardarMontoParciales()"
             >Aceptar</v-btn
           >
-          <v-btn text color="red" @click="dialog = !dialog">Cancelar</v-btn>
+          <v-btn color="red" @click="dialog = !dialog">Cancelar</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -256,15 +259,19 @@ import axios from "axios";
 import moment from "moment";
 import { mapActions, mapState } from "vuex";
 import Swal from "sweetalert2";
+import ArrastraYSolarComponent from "../comun/ArrastraYSolarComponent.vue";
 export default {
   props: { limpar: Boolean },
   async mounted() {
     await this.cargarProveedores();
     await this.getListBanksDetailsCargar();
   },
-
+  components: {
+    ArrastraYSolarComponent,
+  },
   data() {
     return {
+      loading: false,
       msgNroOperacion: "",
       comentarios: "",
       montoDolar: 0.0,
@@ -346,7 +353,7 @@ export default {
     ...mapActions([
       "cargarProveedores",
       "_getCoinsList",
-      "_uploadFile",
+      // "_uploadFile",
       "getValidaNroOp",
     ]),
 
@@ -368,7 +375,7 @@ export default {
             }
             this.id_coins = element2
               ? this.$store.state.itemsCoinsList.filter(
-                  (v) => v.acronym == element2.acronym
+                  (v) => v.acronym == element2.acronym,
                 )[0].id
               : 1;
           });
@@ -400,14 +407,14 @@ export default {
         }
 
         this.acronym = this.$store.state.itemsCoinsList.filter(
-          (v) => v.id == this.id_coins
+          (v) => v.id == this.id_coins,
         )[0].acronym;
       });
 
       this.montoMonExt = parseFloat(monex).toFixed(2);
       this.calcularTotalesInput();
       this.acronym = this.$store.state.itemsCoinsList.filter(
-        (v) => v.id == this.id_coins
+        (v) => v.id == this.id_coins,
       )[0].acronym;
     },
 
@@ -418,7 +425,7 @@ export default {
         if (
           parseFloat(element.monto_mon_ex) >
           parseFloat(
-            parseFloat(element.monto_banco) * parseFloat(element.tipocambio)
+            parseFloat(element.monto_banco) * parseFloat(element.tipocambio),
           )
         ) {
           element.errorEx =
@@ -521,7 +528,8 @@ export default {
         method: "get",
         url: process.env.VUE_APP_URL_MAIN + "getListBanksDetailsCargar",
         params: {
-          id_branch: JSON.parse(sessionStorage.getItem("dataUser"))[0].id_branch,
+          id_branch: JSON.parse(sessionStorage.getItem("dataUser"))[0]
+            .id_branch,
         },
         headers: {
           "auth-token": sessionStorage.getItem("auth-token"),
@@ -580,7 +588,10 @@ export default {
       }
     },
     async registrarPago() {
-      if (this.payPath == 0 || !this.payPath) {
+      if (
+        this.$store.state.files.payPath == 0 ||
+        !this.$store.state.files.payPath
+      ) {
         Swal.fire({
           icon: "warning",
           title: "Soporte de Pago",
@@ -642,7 +653,7 @@ export default {
         id: id,
         monto: monto,
         id_concepto: id_concepto,
-        id_path: vm.payPath,
+        id_path: vm.$store.state.files.payPath,
         id_cuenta: vm.id_cuenta.id,
         fecha: vm.date,
         nro_operacion: vm.nro_operacion,
@@ -745,18 +756,25 @@ export default {
       if (this.selected.length > 0) {
         // Obtener el último elemento seleccionado
         const ultimoSeleccionado = this.selected[this.selected.length - 1];
-        
+
         // Buscar el índice del elemento en lstPagos
         const indice = this.lstPagos.findIndex(
-          (item) => item.index === ultimoSeleccionado.index
+          (item) => item.index === ultimoSeleccionado.index,
         );
-        
+
         // Si el elemento no está al inicio, moverlo
         if (indice > 0) {
           const elemento = this.lstPagos.splice(indice, 1)[0];
           this.lstPagos.unshift(elemento);
         }
       }
+    },
+    recibirId(file) {
+      this.payPath = file.inserid;
+      this.payfile = file.archivo;
+
+      this.msgfile = "Archivo procesado y vinculado correctamente.";
+      this.errfile = "";
     },
   },
   computed: {
