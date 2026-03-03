@@ -284,6 +284,7 @@ export default {
   },
   async mounted() {
     this.$refs.frmDatosPrincipales.resetValidation();
+    this._getProveedor();
     // this.mostrar = true;
   },
   methods: {
@@ -295,6 +296,7 @@ export default {
       "getIncoterms",
       "_getEntitiesCliente",
       "getCargarEjecutivo",
+      "_getProveedor",
     ]),
     registrarNuevoCliente() {
       this.$store.state.modalEntitie = true;
