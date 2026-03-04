@@ -1,7 +1,14 @@
 <template>
   <v-card fluid class="pa-10 preview">
     <v-row>
-      <v-col cols="6"> [LOGO_EMPRESA] </v-col>
+      <v-col cols="6">
+        <v-img
+          width="240px"
+          alt="logo_empresa"
+          class="img-fluid"
+          :src="datosEmpresa.logo"
+        ></v-img>
+      </v-col>
       <v-col cols="6" class="align_right">
         <b>Fecha</b> {{ fechaHoy() }}
       </v-col>
@@ -10,15 +17,15 @@
           <tbody>
             <tr>
               <td>RUC:</td>
-              <td>[DOC_EMPRESA]</td>
+              <td>{{ datosEmpresa.document }}</td>
             </tr>
             <tr>
               <td>DIRECCIÓN:</td>
-              <td>[DIR_EMPRESA]</td>
+              <td>{{ datosEmpresa.address }}</td>
             </tr>
             <tr>
               <td>TELÉFONO:</td>
-              <td>[TEL_EMPRESA]</td>
+              <td>{{ datosEmpresa.phone }}</td>
             </tr>
           </tbody>
         </table>
@@ -28,15 +35,25 @@
           <tbody>
             <tr>
               <td style="font-size: 1.2rem; font-weight: bold">
-                COTIZACIÓN #####
+                COTIZACIÓN
+                {{
+                  $store.state.pricing.nro_quote
+                    ? $store.state.pricing.nro_quote
+                    : "#####"
+                }}
               </td>
             </tr>
             <tr>
               <td>CLIENTE: {{ data.cliente }}</td>
             </tr>
-            <tr v-if="data.OpcionesSelecciondas[index - 1] && data.OpcionesSelecciondas[index - 1].date_end">
+            <tr
+              v-if="
+                data.OpcionesSelecciondas[index - 1] &&
+                data.OpcionesSelecciondas[index - 1].date_end
+              "
+            >
               <td>
-                FECHA DE VIGENCIA:
+                Fecha Validez:
                 {{ formatDate(data.OpcionesSelecciondas[index - 1].date_end) }}
               </td>
             </tr>
@@ -101,11 +118,22 @@
               <td>{{ serv.name }}</td>
               <td>{{ serv.estado }}</td>
             </tr>
-            <tr v-if="data.OpcionesSelecciondas[index - 1] && data.OpcionesSelecciondas[index - 1].tiempo_transito">
+            <tr
+              v-if="
+                data.OpcionesSelecciondas[index - 1] &&
+                data.OpcionesSelecciondas[index - 1].tiempo_transito
+              "
+            >
               <td><b>TIEMPO DE TRÁNSITO</b></td>
               <td>
                 {{ data.OpcionesSelecciondas[index - 1].tiempo_transito }}
-                {{ Number(data.OpcionesSelecciondas[index - 1].tiempo_transito) === 1 ? 'día' : 'días' }}
+                {{
+                  Number(
+                    data.OpcionesSelecciondas[index - 1].tiempo_transito,
+                  ) === 1
+                    ? "día"
+                    : "días"
+                }}
               </td>
             </tr>
           </tbody>
@@ -136,8 +164,9 @@
           </thead>
           <tbody>
             <tr
-              v-for="(element, fleteIndex) in data.OpcionesSelecciondas[index - 1]
-                .datosFlete"
+              v-for="(element, fleteIndex) in data.OpcionesSelecciondas[
+                index - 1
+              ].datosFlete"
               :key="fleteIndex"
             >
               <td class="text-left" colspan="5">{{ element.name }}</td>
@@ -180,8 +209,9 @@
           </thead>
           <tbody>
             <tr
-              v-for="(element, elementIndex) in data.OpcionesSelecciondas[index - 1]
-                .datosOrigen"
+              v-for="(element, elementIndex) in data.OpcionesSelecciondas[
+                index - 1
+              ].datosOrigen"
               :key="elementIndex"
             >
               <td class="text-left" colspan="5">{{ element.name }}</td>
@@ -225,8 +255,9 @@
           </thead>
           <tbody>
             <tr
-              v-for="(element, elementIndex) in data.OpcionesSelecciondas[index - 1]
-                .datosLocales"
+              v-for="(element, elementIndex) in data.OpcionesSelecciondas[
+                index - 1
+              ].datosLocales"
               :key="elementIndex"
             >
               <td class="text-left" colspan="5">{{ element.name }}</td>
@@ -270,8 +301,9 @@
           </thead>
           <tbody>
             <tr
-              v-for="(element, elementIndex) in data.OpcionesSelecciondas[index - 1]
-                .datosAduanas"
+              v-for="(element, elementIndex) in data.OpcionesSelecciondas[
+                index - 1
+              ].datosAduanas"
               :key="elementIndex"
             >
               <td class="text-left" colspan="5">{{ element.name }}</td>
@@ -316,8 +348,9 @@
           </thead>
           <tbody>
             <tr
-              v-for="(element, elementIndex) in data.OpcionesSelecciondas[index - 1]
-                .datosFlete"
+              v-for="(element, elementIndex) in data.OpcionesSelecciondas[
+                index - 1
+              ].datosFlete"
               :key="elementIndex"
             >
               <td class="text-left" colspan="5">{{ element.name }}</td>
@@ -361,8 +394,9 @@
           </thead>
           <tbody>
             <tr
-              v-for="(element, elementIndex) in data.OpcionesSelecciondas[index - 1]
-                .datosAlmacenes"
+              v-for="(element, elementIndex) in data.OpcionesSelecciondas[
+                index - 1
+              ].datosAlmacenes"
               :key="elementIndex"
             >
               <td class="text-left" colspan="5">{{ element.name }}</td>
@@ -406,8 +440,9 @@
           </thead>
           <tbody>
             <tr
-              v-for="(element, elementIndex) in data.OpcionesSelecciondas[index - 1]
-                .datosGastosTercero"
+              v-for="(element, elementIndex) in data.OpcionesSelecciondas[
+                index - 1
+              ].datosGastosTercero"
               :key="elementIndex"
             >
               <td class="text-left" colspan="5">{{ element.name }}</td>
@@ -440,8 +475,9 @@
           </thead>
           <tbody>
             <tr
-              v-for="(concepto, conceptoIndex) in data.OpcionesSelecciondas[index - 1]
-                .conceptos"
+              v-for="(concepto, conceptoIndex) in data.OpcionesSelecciondas[
+                index - 1
+              ].conceptos"
               :key="conceptoIndex"
             >
               <td class="text-left" colspan="6">{{ concepto.name }}</td>
@@ -603,7 +639,10 @@
                   ESTA OFERTA NO INCLUYE
                 </td>
               </tr>
-              <tr v-for="(i, noincluyeIndex) in noincluye" :key="noincluyeIndex">
+              <tr
+                v-for="(i, noincluyeIndex) in noincluye"
+                :key="noincluyeIndex"
+              >
                 <td style="text-transform: uppercase">
                   <span style="color: green; font-size: 1em">&#10004;</span>
                   {{ i.name }}
@@ -652,6 +691,7 @@ export default {
       incluye: [],
       noincluye: [],
       notasPrincipales: [],
+      datosEmpresa: {},
     };
   },
   mounted() {
@@ -660,9 +700,10 @@ export default {
     this.lstServicesTwo = [];
     this.lstServicesTree = [];
     this.nameEmpresa = JSON.parse(
-      sessionStorage.getItem("dataBranch")
+      sessionStorage.getItem("dataBranch"),
     )[0].trade_name;
     this.generarData();
+    this.datosEmpresa = JSON.parse(sessionStorage.getItem("dataBranch"))[0];
   },
 
   beforeDestroy() {
@@ -679,7 +720,9 @@ export default {
     },
     formatDate(val) {
       if (!val) return "";
-      return moment(val).isValid() ? moment(val).format("DD/MM/YYYY") : String(val);
+      return moment(val).isValid()
+        ? moment(val).format("DD-MM-YYYY")
+        : String(val);
     },
     cerrar() {
       this.$emit("cerrar", false);
@@ -767,9 +810,9 @@ export default {
               name: element.service,
             });
           }
-        }
+        },
       );
-   
+
       vm.data.OpcionesSelecciondas[this.index - 1].listNotasQuote
         .filter((v) => v.estado == 1 && v.statusincluye == 1)
         .forEach((element) => {

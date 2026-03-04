@@ -294,6 +294,44 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="dialogCliente" max-width="30%" persistent>
+      <v-card>
+        <v-card-title>
+          Es Necesario que registre un cliente para continuar:
+        </v-card-title>
+        <v-card-text>
+          <v-autocomplete
+            :items="$store.state.clientes"
+            item-text="namelong"
+            item-value="id"
+            label="Cliente HBL"
+            v-model="$store.state.house_id_consigner"
+            :error-messages="error"
+          >
+            <v-icon
+              @click.native="_callModalEntitie(11)"
+              slot="append"
+              class="btn__add"
+              color="primary"
+            >
+              mdi-plus
+            </v-icon>
+          </v-autocomplete>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="success" @click="guardar" :loading="$store.state.spiner"
+            >Guardar</v-btn
+          >
+          <span style="color: red" class="mx-2">
+            {{
+              $store.state.spiner
+                ? "Se está terminando de cargar los datos. Un momento Por favor "
+                : ""
+            }}
+          </span>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 <script>
@@ -304,6 +342,8 @@ export default {
   name: "dataGen",
   data() {
     return {
+      error: "",
+      dialogCliente: false,
       searchHouseCotizacion: "",
       searchHouseCotizacionAduana: "",
       house_service_id_begend: "",
@@ -326,8 +366,17 @@ export default {
     };
   },
   async mounted() {
+    this.$store.state.spiner = false;
     this.$store.state.spiner = true;
+    this.reset();
+    // console.log(this.$route.params)
+    this.$nextTick(() => {
+      if (this.$route.params.activar == "1") {
+        this.dialogCliente = true;
+      }
+    });
     await Promise.all([
+      this._validaData(),
       this._getModality(),
       this._getShipment(),
       this._getIncoterms(),
@@ -343,7 +392,7 @@ export default {
       this._getContainers(),
       this._getFleteCon(),
       this._getCoinsList(),
-      this._validaData(),
+
       this._getProveedor(),
       this._getBegEndList(),
       this._getHouseContainers({ id: this.$route.params.id }),
@@ -431,12 +480,236 @@ export default {
       "ListarMontosFinalesAduanaMONGODB",
       "aprobarCotizacion",
       "aprobarCotizacionAduana",
+      "setHouseEdit",
+      "guardarCarpetaHouse",
     ]),
     isDisabled(item) {
       return !item.porasignar; // Deshabilita si el estado no es "activo"
     },
+    reset() {
+      let vm = this;
+      vm.$store.state.copy_house = null;
+      vm.$store.state.dataHouse_transporte = null;
+      vm.$store.state.house_origen = null;
+      vm.$store.state.house_destino = null;
+      vm.$store.state.house_sentido = null;
+      vm.$store.state.house_id_trasnport = null;
+      vm.$store.state.house_incoterms = null;
+      vm.$store.state.house_cotizacion = null;
+      vm.$store.state.house_cotizacionaduana = null;
+      vm.$store.state.house_origen = null;
+      vm.$store.state.house_destino = null;
+      vm.$store.state.house_expediente = null;
+      vm.$store.state.house_master = null;
+      vm.$store.state.house_master_expediente = null;
+      vm.$store.state.house_id_agente = null;
+      vm.$store.state.house_id_consigner = null;
+      vm.$store.state.house_id_notify = null;
+      vm.$store.state.house_id_airlines = null;
+      vm.$store.state.house_id_coloader = null;
+      vm.$store.state.house_id_naviera = null;
+      vm.$store.state.house_blmaster = null;
+      vm.$store.state.house_id_motonave = null;
+      vm.$store.state.house_viaje = null;
+      vm.$store.state.house_bultos = null;
+      vm.$store.state.house_peso = null;
+      vm.$store.state.house_volumen = null;
+      vm.$store.state.house_id_condicion = null;
+      vm.$store.state.house_id_coins = null;
+      vm.$store.state.house_monto = null;
+      vm.$store.state.house_id = null;
+      vm.$store.state.url_onedrive = null;
+      vm.$store.state.house_id_consigner_real = null;
+      vm.$store.state.itemsHouseContainers = null;
+      vm.$store.state.house_nro_declaracion_aduana = null;
+      vm.$store.state.house_canal_aduana = null;
+      vm.$store.state.house_enlace_tracking = null;
+    },
+    _callModalEntitie(id_role) {
+      this.$store.state.id_role_actual = id_role;
+      if (id_role == 1) {
+        this.$store.state.modalAgente = !this.$store.state.modalAgente;
+      } else if (id_role == 11) {
+        this.$store.state.modalEntitie = !this.$store.state.modalEntitie;
+      } else if (id_role == 17) {
+        this.$store.state.modalColoader = !this.$store.state.modalColoader;
+      } else if (id_role == 2) {
+        this.$store.state.modalNaviera = !this.$store.state.modalNaviera;
+      }
+    },
     aduanaaprobada(item) {
       return item.aprobadoflag; // Deshabilita si el estado no es "activo"
+    },
+    guardar() {
+      this._setHouseEdit();
+      this.dialogCliente = false;
+    },
+    async _setHouseEdit() {
+      var vm = this;
+      this.error = "";
+      if (!vm.$store.state.house_id_consigner) {
+        this.error = "Dato Requerido";
+        return;
+      }
+
+      vm.loadingBotonGuardarHouse = true;
+
+      const lstservices = (this.$store.state.itemsHouseServices || []).map(
+        (item) => ({
+          id: item.id || null,
+          id_begend: item.id_begend || null,
+          nameservice: item.nameservice || null,
+          status: item.status ? 1 : 0,
+          date_service: item.date_service || null,
+        }),
+      );
+
+      var data = JSON.stringify({
+        id_modality: this.$store.state.house_sentido
+          ? this.$store.state.house_sentido
+          : "",
+        id_shipment: this.$store.state.house_id_trasnport
+          ? this.$store.state.house_id_trasnport
+          : "",
+        id_consigner_real: vm.$store.state.house_id_consigner_real
+          ? vm.$store.state.house_id_consigner_real
+          : "",
+        id_port_begin: this.$store.state.house_origen
+          ? this.$store.state.house_origen
+          : "",
+        id_port_end: this.$store.state.house_destino
+          ? this.$store.state.house_destino
+          : "",
+        id_proveedor: vm.$store.state.house_id_agente
+          ? vm.$store.state.house_id_agente
+          : "",
+        id_consigner: vm.$store.state.house_id_consigner
+          ? vm.$store.state.house_id_consigner
+          : "",
+        id_notify: vm.$store.state.house_id_notify
+          ? vm.$store.state.house_id_notify
+          : "",
+        id_aerolinea: vm.$store.state.house_id_airlines
+          ? vm.$store.state.house_id_airlines
+          : "",
+        id_coloader: vm.$store.state.house_id_coloader
+          ? vm.$store.state.house_id_coloader
+          : "",
+        id_naviera: vm.$store.state.house_id_naviera
+          ? vm.$store.state.house_id_naviera
+          : "",
+        id_incoterms: vm.$store.state.house_incoterms
+          ? vm.$store.state.house_incoterms
+          : "",
+        nro_hbl: vm.$store.state.house_blmaster
+          ? vm.$store.state.house_blmaster
+          : "",
+        id_motonave: vm.$store.state.house_id_motonave
+          ? vm.$store.state.house_id_motonave
+          : "",
+        nro_viaje: vm.$store.state.house_viaje
+          ? vm.$store.state.house_viaje
+          : "",
+        bultos: vm.$store.state.house_bultos
+          ? vm.$store.state.house_bultos
+          : "",
+        peso: vm.$store.state.house_peso ? vm.$store.state.house_peso : "",
+        volumen: vm.$store.state.house_volumen
+          ? vm.$store.state.house_volumen
+          : "",
+        id_conditions: vm.$store.state.house_id_condicion
+          ? vm.$store.state.house_id_condicion
+          : "",
+        id_moneda: vm.$store.state.house_id_coins
+          ? vm.$store.state.house_id_coins
+          : "",
+        monto: vm.$store.state.house_monto ? vm.$store.state.house_monto : "",
+        id_branch: JSON.parse(sessionStorage.getItem("dataUser"))[0].id_branch,
+        id_cot: vm.$store.state.house_cotizacion
+          ? vm.$store.state.house_cotizacion
+          : "",
+        lstservices,
+        id: vm.$store.state.house_id,
+        nro_declaracion_aduana:
+          vm.$store.state.house_nro_declaracion_aduana || "",
+        canal_aduana: vm.$store.state.house_canal_aduana || "",
+      });
+
+      var config = {
+        method: "put",
+        url: process.env.VUE_APP_URL_MAIN + "setHouseEdit",
+        headers: {
+          "auth-token": sessionStorage.getItem("auth-token"),
+          "Content-Type": "application/json",
+        },
+        data: data,
+      };
+
+      try {
+        const response = await axios(config);
+        sessionStorage.setItem("auth-token", response.data.token);
+
+        if (response.data.status == "401") {
+          vm.loadingBotonGuardarHouse = false;
+          Swal.fire({
+            icon: "error",
+            text: response.data.mensaje,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            allowEnterKey: false,
+          }).then((resSwal) => {
+            if (resSwal.isConfirmed && response.data.status == "401") {
+              router.push({ name: "Login" });
+              setTimeout(() => {
+                window.location.reload();
+              }, 10);
+            }
+          });
+          return;
+        }
+
+        vm.statusData = true;
+
+        if (!vm.$store.state.url_onedrive) {
+          let proveedor = vm.$store.state.clientes.find(
+            (v) => v.id == vm.$store.state.house_id_consigner,
+          );
+          let id_branch = JSON.parse(sessionStorage.getItem("dataUser"))[0]
+            .id_branch;
+          let id_branchs = ["1", "2", 1, 2];
+          if (id_branchs.includes(id_branch)) {
+            await vm.guardarCarpetaHouse({
+              id: vm.$store.state.house_master,
+              nroMaster: `${vm.$store.state.house_master_expediente}_${proveedor.namelong}`,
+            });
+          }
+        }
+
+        vm.loadingBotonGuardarHouse = false;
+        await vm
+          .$swal({
+            icon: "success",
+            title: "Excelente",
+            text: "House actualizado éxitosamente",
+            allowEnterKey: false,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+          })
+          .then(() => {
+            vm.$router.go(0); // Recarga la página para reflejar los cambios
+          });
+        // Refresh data in background (non-blocking)
+      } catch (error) {
+        console.log(error);
+        vm.loadingBotonGuardarHouse = false;
+        vm.$swal({
+          icon: "error",
+          title: "Lo sentimos",
+          text: error,
+        });
+      } finally {
+        vm.loadingBotonGuardarHouse = false;
+      }
     },
     async validarExistePagosMaster() {
       this.activarBtnContinuar = true;
@@ -539,25 +812,6 @@ export default {
         };
         await axios(config)
           .then(async function (response) {
-            if (
-              !response.data.data[0].id_consigner ||
-              !response.data.data[0].id_proveedor
-            ) {
-              Swal.fire({
-                title: "Aviso Importante",
-                text: "Por favor, asigne un Cliente y Proveedor para poder continuar con el proceso.",
-                icon: "info",
-                timer: 5000,
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                showConfirmButton: false,
-                timerProgressBar: true,
-                // didOpen: (modalElement) => {
-                //   Swal.showLoading();
-                // },
-              });
-            }
-
             sessionStorage.setItem("auth-token", response.data.token);
 
             vm.$store.state.copy_house = response.data.data[0];
@@ -632,6 +886,13 @@ export default {
               ? "https://aco.agentedecargaonline.com/tracking/" +
                 response.data.data[0].token_rastreo
               : "";
+
+            if (
+              !vm.$store.state.house_id_consigner &&
+              !!vm.$route.params.activar
+            ) {
+              vm.dialogCliente = true;
+            }
           })
           .catch(function (error) {
             console.log(error);

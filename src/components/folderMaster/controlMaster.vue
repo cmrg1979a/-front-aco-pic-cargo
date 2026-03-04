@@ -138,15 +138,13 @@ export default {
   },
 
   computed: {
-    ...mapState([
-      "itemsOperadorList",
-    ]),
+    ...mapState(["itemsOperadorList"]),
     operadorNombre() {
       if (!this.$store.state.master_id_operador || !this.itemsOperadorList) {
         return "";
       }
       const operador = this.itemsOperadorList.find(
-        op => op.id == this.$store.state.master_id_operador
+        (op) => op.id == this.$store.state.master_id_operador,
       );
       return operador ? operador.namelong : "";
     },
@@ -402,7 +400,7 @@ export default {
       //   });
       // }
     },
-    async _setHouse(id_master = "") {
+    async _setHouse({ id_master = "", pintaSuccess = true }) {
       var vm = this;
       var finalIdMaster = id_master || vm.$store.state.master_insertId;
 
@@ -452,11 +450,12 @@ export default {
           router.push({ name: "Login" });
           return null;
         }
-
-        vm.$swal({
-          icon: "success",
-          title: res[0].mensaje,
-        });
+        if (pintaSuccess) {
+          vm.$swal({
+            icon: "success",
+            title: res[0].mensaje,
+          });
+        }
 
         // 2. Este return ahora sí devolverá el valor a quien llamó a _setHouse
         return res;
@@ -1111,6 +1110,7 @@ export default {
               title: "Espera",
               timerProgressBar: true,
               text: "Generando expediente...",
+              
             });
 
             var id_branch = JSON.parse(sessionStorage.getItem("dataUser"))[0]
@@ -1126,13 +1126,18 @@ export default {
               // });
             }
 
-            let res = await vm._setHouse(id_master);
+            let res = await vm._setHouse({
+              id_master: id_master,
+              pintaSuccess: false,
+            });
+            vm.$swal.close()
             console.log("_setMaster: Respuesta de _setHouse:", res);
             if (res[0].estadoflag) {
               vm.$router.push({
                 name: "controlHouseEditar",
                 params: {
                   id: res[0].insertid,
+                  activar:1
                 },
               });
             }

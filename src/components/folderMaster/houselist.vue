@@ -4,7 +4,11 @@
       <v-expansion-panels v-model="openExpand">
         <v-expansion-panel>
           <v-expansion-panel-content>
-            <v-tabs v-model="activeTab" background-color="transparent" color="primary">
+            <v-tabs
+              v-model="activeTab"
+              background-color="transparent"
+              color="primary"
+            >
               <v-tab key="houses">
                 <v-icon left>mdi-home-group</v-icon>
                 Lista de House
@@ -17,78 +21,107 @@
 
             <v-tabs-items v-model="activeTab">
               <v-tab-item key="houses">
-            <v-row dense>
-              <v-col cols="12" md="3">
-                <v-text-field
-                  :value="totalHouses"
-                  label="Total de House"
-                  readonly
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" md="3">
-                <v-text-field
-                  :value="totalPesoHouse"
-                  label="Total de House Peso"
-                  suffix="kg"
-                  readonly
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" md="3">
-                <v-text-field
-                  :value="totalVolumenHouse"
-                  label="Total de House Volumen"
-                  suffix="m3"
-                  readonly
-                ></v-text-field>
-              </v-col> 
-            </v-row>
-            <div
-              v-if="$store.state.itemsHouseList && $store.state.itemsHouseList.length > 3 && !showAll"
-              class="mb-2"
-            >
-              <v-btn color="info" small @click="showAll = true">Leer más</v-btn>
-            </div>
-            <v-simple-table>
-              <template v-slot:default>
-                <thead>
-                  <tr>
-                    <th>Listado</th>
-                    <th>Código</th>
-                    <th>Cliente</th>
-                    <th>Incoterm</th>
-                    <th>Peso</th>
-                    <th>Volumen</th>
-                    <th v-if="esAereo">Peso volumétrico</th>
-                    <th v-if="esAereo">Peso Cargable</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr
-                    v-for="(item, index) in displayedItems"
-                    :key="index"
-                    @click="showHouse(item.id)"
-                    style="cursor: pointer;"
+                <v-row dense>
+                  <v-col cols="12" md="3">
+                    <v-text-field
+                      :value="totalHouses"
+                      label="Total de House"
+                      readonly
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12" md="3">
+                    <v-text-field
+                      :value="totalPesoHouse"
+                      label="Total de House Peso"
+                      suffix="kg"
+                      readonly
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12" md="3">
+                    <v-text-field
+                      :value="totalVolumenHouse"
+                      label="Total de House Volumen"
+                      suffix="m3"
+                      readonly
+                    ></v-text-field>
+                  </v-col>
+                </v-row>
+                <div
+                  v-if="
+                    $store.state.itemsHouseList &&
+                    $store.state.itemsHouseList.length > 3 &&
+                    !showAll
+                  "
+                  class="mb-2"
+                >
+                  <v-btn color="info" small @click="showAll = true"
+                    >Leer más</v-btn
                   >
-                    <td>{{ index + 1 }}</td>
-                    <td>{{ item.nro_hbl || item.code_house || '-' }}</td>
-                    <td>{{ item.cliente_nombre || item.nameconsigner || item.cliente || item.consigner || '-' }}</td>
-                    <td>{{ getIncotermName(item) }}</td>
-                    <td>{{ item.peso || 0 }}</td>
-                    <td>{{ item.volumen || 0 }}</td>
-                    <td v-if="esAereo">{{ computePesoVolumetrico(item) }}</td>
-                    <td v-if="esAereo">{{ computePesoCargable(item) }}</td>
-                    <td>
-                      <v-icon small color="info" @click.stop="showHouse(item.id)">mdi-open-in-new</v-icon>
-                    </td>
-                  </tr>
-                </tbody>
-              </template>
-            </v-simple-table>
+                </div>
+                <v-simple-table>
+                  <template v-slot:default>
+                    <thead>
+                      <tr>
+                        <th>Listado</th>
+                        <th>Código</th>
+                        <th>Cliente</th>
+                        <th>Incoterm</th>
+                        <th>Peso</th>
+                        <th>Volumen</th>
+                        <th v-if="esAereo">Peso volumétrico</th>
+                        <th v-if="esAereo">Peso Cargable</th>
+                        <th>Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        v-for="(item, index) in displayedItems"
+                        :key="index"
+                        @click="showHouse(item.id)"
+                        style="cursor: pointer"
+                      >
+                        <td>{{ index + 1 }}</td>
+                        <td>{{ item.nro_hbl || item.code_house || "-" }}</td>
+                        <td>
+                          {{
+                            item.cliente_nombre ||
+                            item.nameconsigner ||
+                            item.cliente ||
+                            item.consigner ||
+                            "-"
+                          }}
+                        </td>
+                        <td>{{ getIncotermName(item) }}</td>
+                        <td>{{ item.peso || 0 }}</td>
+                        <td>{{ item.volumen || 0 }}</td>
+                        <td v-if="esAereo">
+                          {{ computePesoVolumetrico(item) }}
+                        </td>
+                        <td v-if="esAereo">{{ computePesoCargable(item) }}</td>
+                        <td>
+                          <v-icon
+                            small
+                            color="info"
+                            @click.stop="showHouse(item.id)"
+                            >mdi-open-in-new</v-icon
+                          >
+                          <v-icon
+                            small
+                            color="red"
+                            @click.stop="eliminar(item.id)"
+                            >mdi-delete</v-icon
+                          >
+                        </td>
+                      </tr>
+                    </tbody>
+                  </template>
+                </v-simple-table>
               </v-tab-item>
 
               <v-tab-item key="comments">
-                <v-simple-table v-if="masterComments && masterComments.length > 0">
+                <v-simple-table
+                  v-if="masterComments && masterComments.length > 0"
+                >
                   <thead>
                     <tr>
                       <th>Fecha</th>
@@ -121,6 +154,8 @@
 </template>
 
 <script>
+import { mapActions } from "vuex";
+import Swal from "sweetalert2";
 export default {
   name: "houselist",
   computed: {
@@ -129,18 +164,26 @@ export default {
       return this.showAll ? list : list.slice(0, 3);
     },
     masterComments() {
-      const masterId = this.$store.state.master_insertId || this.$store.state.master_Id_get;
+      const masterId =
+        this.$store.state.master_insertId || this.$store.state.master_Id_get;
       if (!masterId) return [];
-      
-      if (this.$store.state.rowMaster && this.$store.state.rowMaster.list_comentarios) {
+
+      if (
+        this.$store.state.rowMaster &&
+        this.$store.state.rowMaster.list_comentarios
+      ) {
         return this.$store.state.rowMaster.list_comentarios;
       }
-      
+
       if (this.$store.state.itemsMasterList) {
-        const masterItem = this.$store.state.itemsMasterList.find(m => m.id == masterId);
-        return masterItem && masterItem.list_comentarios ? masterItem.list_comentarios : [];
+        const masterItem = this.$store.state.itemsMasterList.find(
+          (m) => m.id == masterId,
+        );
+        return masterItem && masterItem.list_comentarios
+          ? masterItem.list_comentarios
+          : [];
       }
-      
+
       return [];
     },
     totalHouses() {
@@ -149,12 +192,18 @@ export default {
     },
     totalPesoHouse() {
       const list = this.$store.state.itemsHouseList || [];
-      const total = list.reduce((acc, it) => acc + (parseFloat(it.peso) || 0), 0);
+      const total = list.reduce(
+        (acc, it) => acc + (parseFloat(it.peso) || 0),
+        0,
+      );
       return Number.isFinite(total) ? Number(total.toFixed(2)) : 0;
     },
     totalVolumenHouse() {
       const list = this.$store.state.itemsHouseList || [];
-      const total = list.reduce((acc, it) => acc + (parseFloat(it.volumen) || 0), 0);
+      const total = list.reduce(
+        (acc, it) => acc + (parseFloat(it.volumen) || 0),
+        0,
+      );
       return Number.isFinite(total) ? Number(total.toFixed(3)) : 0;
     },
     sumaTotal() {
@@ -162,13 +211,17 @@ export default {
     },
     esAereo() {
       const st = this.$store.state;
-      const id = st.master_id_trasnport && st.master_id_trasnport.id ? st.master_id_trasnport.id : st.master_id_trasnport;
+      const id =
+        st.master_id_trasnport && st.master_id_trasnport.id
+          ? st.master_id_trasnport.id
+          : st.master_id_trasnport;
       const items = st.itemsShipment || [];
       const it = items.find((v) => v.id == id);
       return it && it.code === "Aéreo";
     },
   },
   methods: {
+    ...mapActions(["deleteHouse"]),
     showHouse(id) {
       if (this.$route.name == "controlMasterEditar") {
         this.$router.push("/home/folderHouse/control/editar/" + id);
@@ -194,10 +247,29 @@ export default {
       if (item.name_incoterm) return item.name_incoterm;
       if (item.id_incoterms) {
         var incoterms = this.$store.state.itemsIncoterms || [];
-        var found = incoterms.find(function(inc) { return inc.id == item.id_incoterms; });
+        var found = incoterms.find(function (inc) {
+          return inc.id == item.id_incoterms;
+        });
         if (found) return found.name;
       }
-      return '-';
+      return "-";
+    },
+    eliminar(id) {
+      Swal.fire({
+        icon: "question",
+        title: "Eliminar",
+        text: "Desea Eliminar el house",
+        allowEnterKey: false,
+        allowEscapeKey: false,
+        allowOutsideClick: false,
+        showCancelButton: true,
+        cancelButtonText: "Cancelar",
+        confirmButtonText: "Si, Eliminar",
+      }).then((res) => {
+        if (res.isConfirmed) {
+          this.deleteHouse({ id: id });
+        }
+      });
     },
   },
   mounted() {
@@ -208,7 +280,7 @@ export default {
   data: () => ({
     openExpand: 0,
     showAll: false,
-    activeTab: 0, 
+    activeTab: 0,
     items: [
       { header: "LISTA DE HOUSE" },
       {
@@ -248,7 +320,6 @@ export default {
   watch: {
     "$store.state.itemsHouseList": function (newValue, oldValue) {
       this.openExpand = 0;
-      
     },
   },
 };

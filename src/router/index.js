@@ -193,7 +193,7 @@ const routes = [
         component: ConfiguracionAvisoLlegada,
       },
       {
-        path: "folderHouse/control/editar/:id",
+        path: "folderHouse/control/editar/:id/:activar?",
         name: "controlHouseEditar",
         component: controlHouse,
       },

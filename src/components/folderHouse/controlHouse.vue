@@ -400,7 +400,7 @@ export default {
     services,
   },
   watch: {
-    "$store.state.modalEntitie ": function (val) {
+    "$store.state.modalEntitie": function (val) {
       console.log("modalEntitie", this.$store.state.modalEntitie);
       console.log("val", val);
     },
@@ -608,6 +608,7 @@ export default {
       "cargarListadoQuoteAduana",
       "verHouse",
       "guardarCarpetaHouse",
+      "deleteHouse",
     ]),
     getTipoDocumento() {
       return this.isAereo() ? "GUÍA AÉREA" : "BL";
@@ -835,7 +836,7 @@ export default {
           nameservice: item.nameservice || null,
           status: item.status ? 1 : 0,
           date_service: item.date_service || null,
-        })
+        }),
       );
 
       var data = JSON.stringify({
@@ -904,7 +905,8 @@ export default {
           : "",
         lstservices,
         id: vm.$store.state.house_id,
-        nro_declaracion_aduana: vm.$store.state.house_nro_declaracion_aduana || "",
+        nro_declaracion_aduana:
+          vm.$store.state.house_nro_declaracion_aduana || "",
         canal_aduana: vm.$store.state.house_canal_aduana || "",
       });
 
@@ -999,68 +1001,26 @@ export default {
     eliminarHouse() {
       let vm = this;
 
-      if (vm.$store.state.copy_house.cantidad_houses_x_master > 1) {
-        Swal.fire({
-          icon: "question",
-          title: "ADVERTENCIA",
-          text: "¿Está seguro que desea eliminar el house?",
-          showDenyButton: true,
-          confirmButtonText: "Si",
-          denyButtonText: "No",
-        }).then(async (result) => {
-          if (result.isConfirmed) {
-            vm.loadingBotonEliminarHouse = !vm.loadingBotonEliminarHouse;
-
-            var config = {
-              method: "put",
-              url:
-                process.env.VUE_APP_URL_MAIN +
-                "setHouseDelete/" +
-                vm.$route.params.id,
-              headers: {
-                "auth-token": sessionStorage.getItem("auth-token"),
-                "Content-Type": "application/json",
-              },
-            };
-
-            await axios(config).then(function (response) {
-              sessionStorage.setItem("auth-token", response.data.token);
-
-              if (response.data.status == "401") {
-                Swal.fire({
-                  icon: "error",
-                  text: response.data.mensaje,
-                  allowOutsideClick: false,
-                  allowEscapeKey: false,
-                  allowEnterKey: false,
-                }).then((resSwal) => {
-                  if (resSwal.isConfirmed && response.data.status == "401") {
-                    router.push({ name: "Login" });
-                    setTimeout(() => {
-                      window.location.reload();
-                    }, 10);
-                  }
-                });
-              }
-
-              if (response.data.statusBol) {
-                Swal.fire({
-                  icon: "success",
-                  title: "REGISTRO ELIMINADO.",
-                });
-
-                vm.loadingBotonEliminarHouse = !vm.loadingBotonEliminarHouse;
-                vm.$router.go(-1);
-              }
-            });
-          }
-        });
-      } else {
-        Swal.fire({
-          icon: "info",
-          text: "Un expediente máster debe tener al menos un house asignado",
-        });
-      }
+      // if (vm.$store.state.copy_house.cantidad_houses_x_master > 1) {
+      Swal.fire({
+        icon: "question",
+        title: "ADVERTENCIA",
+        text: "¿Está seguro que desea eliminar el house?",
+        showDenyButton: true,
+        confirmButtonText: "Si",
+        denyButtonText: "No",
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          vm.loadingBotonEliminarHouse = !vm.loadingBotonEliminarHouse;
+          this.deleteHouse({ id: vm.$route.params.id });
+        }
+      });
+      // } else {
+      //   Swal.fire({
+      //     icon: "info",
+      //     text: "Un expediente máster debe tener al menos un house asignado",
+      //   });
+      // }
     },
     isImportacion() {
       let val = false;
@@ -1273,7 +1233,6 @@ export default {
       await axios(config)
         .then(function (response) {
           sessionStorage.setItem("auth-token", response.data.token);
-          
 
           vm.$store.state.copy_house =
             response.data.data && response.data.data[0];

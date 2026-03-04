@@ -242,7 +242,8 @@ export default {
       return this.isAereo() ? "BL Máster Nro." : "BL Máster";
     },
     obtenerInputTypeBLMaster() {
-      return this.isAereo() ? "number" : "text";
+      return 'text'
+      // return this.isAereo() ? "number" : "text";
     },
     operadorNombre() {
       if (!this.$store.state.master_id_operador || !this.itemsOperadorList) {

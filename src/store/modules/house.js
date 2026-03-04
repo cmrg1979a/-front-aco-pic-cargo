@@ -1,6 +1,7 @@
 import axios from "axios";
 import Swal from "sweetalert2";
-// import funciones from "./../../mixins/funciones";
+import router from "@/router";
+
 const state = {
   listHouse: [],
   house: {},
@@ -136,6 +137,64 @@ const actions = {
       .catch(function (error) {
         console.log(error);
       });
+  },
+  async deleteHouse({ commit, state, rootState }, data) {
+    var config = {
+      method: "put",
+      url: process.env.VUE_APP_URL_MAIN + "setHouseDelete",
+      headers: {
+        "auth-token": sessionStorage.getItem("auth-token"),
+        "Content-Type": "application/json",
+      },
+      data: data,
+    };
+
+    await axios(config).then(function (response) {
+      sessionStorage.setItem("auth-token", response.data.token);
+
+      if (response.data.status == "401") {
+        Swal.fire({
+          icon: "error",
+          text: response.data.mensaje,
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          allowEnterKey: false,
+        }).then((resSwal) => {
+          if (resSwal.isConfirmed && response.data.status == "401") {
+            router.push({ name: "Login" });
+            setTimeout(() => {
+              window.location.reload();
+            }, 10);
+          }
+        });
+      }
+
+      if (response.data.statusBol) {
+        Swal.fire({
+          icon: "success",
+          title: "REGISTRO ELIMINADO.",
+          allowEnterKey: false,
+          allowEscapeKey: false,
+          allowOutsideClick: false,
+        }).then((res) => {
+          if (res.isConfirmed) {
+            let ruta = router.currentRoute.name;
+            console.log("ruta", ruta);
+            if (ruta === "controlHouseEditar") {
+              let id_master = rootState.copy_house.id_master;
+              router.push({
+                name: "controlMasterEditar",
+                params: {
+                  id: id_master,
+                },
+              });
+            } else if (ruta === "controlMasterEditar") {
+              window.location.reload();
+            }
+          }
+        });
+      }
+    });
   },
 };
 export default {
