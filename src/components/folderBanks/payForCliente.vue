@@ -114,7 +114,7 @@
               ></v-text-field>
             </v-col>
             <v-col md="6" cols="6" v-if="tipo == 'nuevo'">
-              <v-flex>
+              <!-- <v-flex>
                 <v-file-input
                   v-model="payfile"
                   label="Cargar Archivo"
@@ -124,7 +124,7 @@
                   @change="uploadFile()"
                 >
                 </v-file-input>
-              </v-flex>
+              </v-flex> -->
             </v-col>
             <!-- <v-col md="2" cols="2" v-if="!boolFile && tipo == 'nuevo'">
               <v-btn color="info" @click="_uploadFile()">
@@ -199,6 +199,12 @@
               ></v-select>
             </v-col>
             <v-col md="12" cols="12">
+              <p>
+                <v-icon color="red" v-if="$store.state.files.payPath" size="xl"
+                  >mdi-file</v-icon
+                >
+                <span color="red">Archivo Cargado</span>
+              </p>
               <ArrastraYSolarComponent @idArchivoCargado="recibirId" />
             </v-col>
             <v-col md="12" cols="12" v-if="tipo == 'nuevo'">

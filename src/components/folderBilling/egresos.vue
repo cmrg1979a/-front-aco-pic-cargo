@@ -1276,7 +1276,10 @@
           <v-btn :loading="loading" color="success" @click="functionMoverCostos"
             >Mover Costo</v-btn
           >
-          <v-btn :loading="loading" color="error" @click="dialogCambiarExp = false"
+          <v-btn
+            :loading="loading"
+            color="error"
+            @click="dialogCambiarExp = false"
             >Cancelar</v-btn
           >
         </v-card-actions>
@@ -2900,11 +2903,12 @@ export default {
       var vm = this;
 
       let abono = vm.itemsListInvoice.reduce((suma, v) => {
-        return suma + (parseFloat(v.monto) || 0);
+        return suma + (parseFloat(v.monto ? v.monto : 0) || 0);
       }, 0);
 
       let total =
-        (parseFloat(vm.monto_factura) || 0) + (parseFloat(abono) || 0);
+        (parseFloat(vm.monto_factura ? vm.monto_factura : 0) || 0) +
+        (parseFloat(abono) || 0);
       if (total > parseFloat(vm.egreso.total_total_op)) {
         vm.$swal({
           icon: "error",

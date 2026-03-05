@@ -453,7 +453,7 @@ export default {
   }),
   async mounted() {
     this.monExt = this.moneda = JSON.parse(
-      sessionStorage.getItem("dataBranch")
+      sessionStorage.getItem("dataBranch"),
     )[0].moneda[0].symbol;
     this.$store.state.spiner = true;
     await this.ListProgrammedPayment();
@@ -490,26 +490,22 @@ export default {
       this.$store.state.spiner = false;
     },
     moverSeleccionadoAlInicio() {
-      if (this.selected.length > 0) {
-        // Obtener el último elemento seleccionado
-        const ultimoSeleccionado = this.selected[this.selected.length - 1];
-        
-        // Buscar el índice del elemento en listProgramacionxProveedor
-        const listaProgramacion = this.$store.state.programaciones.listProgramacionxProveedor;
-        const indice = listaProgramacion.findIndex(
-          (item) => item.id === ultimoSeleccionado.id
-        );
-        
-        // Si el elemento no está al inicio, moverlo
-        if (indice > 0) {
-          const elemento = listaProgramacion.splice(indice, 1)[0];
-          listaProgramacion.unshift(elemento);
-        }
-      }
+      const listaPagos = this.$store.state.listPagosXProveedorCxP;
+
+      const seleccionadosIds = new Set(this.selected.map((item) => item.id));
+
+      listaPagos.sort((a, b) => {
+        const aSeleccionado = seleccionadosIds.has(a.id);
+        const bSeleccionado = seleccionadosIds.has(b.id);
+
+        if (aSeleccionado && !bSeleccionado) return -1;
+        if (!aSeleccionado && bSeleccionado) return 1;
+        return 0;
+      });
     },
     getAcronym() {
       this.acronym = this.$store.state.itemsCoinsList.filter(
-        (v) => v.id == this.id_coins
+        (v) => v.id == this.id_coins,
       )[0].symbol;
       if (this.acronym != "USD" && this.tipocambio == 1) {
         this.errorTipCambio = "Seleccione un tipo de cambio";
@@ -574,14 +570,14 @@ export default {
           this.tipocambio = element.tipocambio;
           this.id_coins = element.id_coins;
           element.monto_mon_ext = parseFloat(
-            parseFloat(element.monto) * parseFloat(element.tipocambio)
+            parseFloat(element.monto) * parseFloat(element.tipocambio),
           ).toFixed(2);
 
           monex = parseFloat(monex) + parseFloat(element.monto_mon_ext);
         });
       }
       this.acronym = this.$store.state.itemsCoinsList.filter(
-        (v) => v.id == this.id_coins
+        (v) => v.id == this.id_coins,
       )[0].symbol;
       this.montoMonExt = parseFloat(monex).toFixed(2);
     },
@@ -670,7 +666,8 @@ export default {
         method: "get",
         url: process.env.VUE_APP_URL_MAIN + "getListBanksDetailsCargar",
         params: {
-          id_branch: JSON.parse(sessionStorage.getItem("dataUser"))[0].id_branch,
+          id_branch: JSON.parse(sessionStorage.getItem("dataUser"))[0]
+            .id_branch,
         },
         headers: {
           "auth-token": sessionStorage.getItem("auth-token"),
@@ -716,7 +713,7 @@ export default {
     setearMonto(details) {
       if (details.pagar) {
         this.listPagosXProveedorCxP.filter(
-          (v) => v.id == details.id
+          (v) => v.id == details.id,
         )[0].cktotal = true;
       }
     },
@@ -973,9 +970,13 @@ export default {
     ...mapState(["itemsProveedorList", "listPagosXProveedorCxP", "actualizar"]),
   },
   watch: {
-    selected() {
+    selected(newVal, oldVal) {
       this.calcularTotales();
-      this.moverSeleccionadoAlInicio();
+      if (newVal.length > oldVal.length) {
+        this.$nextTick(() => {
+          this.moverSeleccionadoAlInicio();
+        });
+      }
     },
   },
 };

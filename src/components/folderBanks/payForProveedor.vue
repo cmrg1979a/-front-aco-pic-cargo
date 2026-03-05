@@ -119,7 +119,7 @@
                 ></v-text-field>
               </v-col>
               <v-col md="6" cols="6">
-                <v-file-input
+                <!-- <v-file-input
                   label="Cargar Archivo"
                   v-model="payfile"
                   ref="fileInput"
@@ -128,7 +128,7 @@
                   :error-messages="errfile"
                   :loading="loadingFile"
                 >
-                </v-file-input>
+                </v-file-input> -->
               </v-col>
 
               <v-col md="4" cols="4">
@@ -183,6 +183,15 @@
                 ></v-text-field
               ></v-col>
               <v-col md="12" cols="12">
+                <p>
+                  <v-icon
+                    color="red"
+                    v-if="$store.state.files.payPath"
+                    size="xl"
+                    >mdi-file</v-icon
+                  >
+                  <span color="red">Archivo Cargado</span>
+                </p>
                 <ArrastraYSolarComponent @idArchivoCargado="recibirId" />
               </v-col>
               <v-col md="12" cols="12" v-if="tipo == 'nuevo'">
@@ -430,7 +439,6 @@ export default {
       return validacion;
     },
     async _putPayForProveedor() {
-    
       if (
         this.$store.state.files.payPath == 0 ||
         !this.$store.state.files.payPath
@@ -624,28 +632,23 @@ export default {
       this.$store.state.spiner = false;
     },
     moverSeleccionadoAlInicio() {
-      if (this.selected.length > 0) {
-        // Obtener el último elemento seleccionado
-        const ultimoSeleccionado = this.selected[this.selected.length - 1];
+      const listaPagos = this.$store.state.listPagosXProveedorCxP;
 
-        // Buscar el índice del elemento en listPagosXProveedorCxP
-        const listaPagos = this.$store.state.listPagosXProveedorCxP;
-        const indice = listaPagos.findIndex(
-          (item) => item.id === ultimoSeleccionado.id,
-        );
+      const seleccionadosIds = new Set(this.selected.map((item) => item.id));
 
-        // Si el elemento no está al inicio, moverlo
-        if (indice > 0) {
-          const elemento = listaPagos.splice(indice, 1)[0];
-          listaPagos.unshift(elemento);
-        }
-      }
+      listaPagos.sort((a, b) => {
+        const aSeleccionado = seleccionadosIds.has(a.id);
+        const bSeleccionado = seleccionadosIds.has(b.id);
+
+        if (aSeleccionado && !bSeleccionado) return -1;
+        if (!aSeleccionado && bSeleccionado) return 1;
+        return 0;
+      });
     },
     recibirId(file) {
-      
       this.payPath = file.inserid;
       this.payfile = file.archivo;
-      
+
       this.msgfile = "Archivo procesado y vinculado correctamente.";
       this.errfile = "";
     },
@@ -664,9 +667,13 @@ export default {
     },
   },
   watch: {
-    selected() {
+    selected(newVal, oldVal) {
       this.calcularTotales();
-      this.moverSeleccionadoAlInicio();
+      if (newVal.length > oldVal.length) {
+        this.$nextTick(() => {
+          this.moverSeleccionadoAlInicio();
+        });
+      }
     },
   },
 };

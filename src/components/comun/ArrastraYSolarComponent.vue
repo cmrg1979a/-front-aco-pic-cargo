@@ -15,6 +15,7 @@
           hide-details
           @change="uploadFile()"
           style="display: none"
+          @click="openFileInput"
         ></v-file-input>
       </label>
     </div>
@@ -67,6 +68,9 @@ export default {
     openFileInput() {
       this.$refs.fileInput.$el.click();
     },
+    openFileInput() {
+      this.$refs.fileInput.$el.click();
+    },
     async uploadFile() {
       var vm = this;
       vm.msgfile = "";
@@ -75,7 +79,7 @@ export default {
         await this._uploadFile(vm.file);
         vm.$emit("idArchivoCargado", {
           id: vm.$store.state.files.payPath,
-          archivo: vm.file,
+          archivo: vm.$store.state.files.datosPath
         });
       }
     },

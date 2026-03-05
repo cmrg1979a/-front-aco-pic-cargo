@@ -140,22 +140,7 @@
                   label="Fecha "
                 ></v-text-field>
               </v-col>
-              <v-col md="6" cols="6">
-                <v-flex>
-                  <v-file-input
-                    v-model="payfile"
-                    ref="fileInput"
-                    label="Soporte de Pago"
-                    show-size
-                    truncate-length="50"
-                    @change="_uploadFile()"
-                    clearable
-                    :success-messages="msgfile"
-                    :error-messages="errfile"
-                  >
-                  </v-file-input>
-                </v-flex>
-              </v-col>
+              <v-col md="6" cols="6"> </v-col>
 
               <v-col md="4" cols="4">
                 <v-autocomplete
@@ -203,6 +188,15 @@
                 ></v-text-field
               ></v-col>
               <v-col md="12" cols="12">
+                <p>
+                  <v-icon
+                    color="red"
+                    v-if="$store.state.files.payPath"
+                    size="xl"
+                    >mdi-file</v-icon
+                  >
+                  <span color="red">Archivo Cargado</span>
+                </p>
                 <ArrastraYSolarComponent @idArchivoCargado="recibirId" />
               </v-col>
             </v-row>
@@ -753,23 +747,21 @@ export default {
       this.$store.state.spiner = false;
     },
     moverSeleccionadoAlInicio() {
-      if (this.selected.length > 0) {
-        // Obtener el último elemento seleccionado
-        const ultimoSeleccionado = this.selected[this.selected.length - 1];
+      const listaPagos = this.$store.state.listPagosXProveedorCxP;
 
-        // Buscar el índice del elemento en lstPagos
-        const indice = this.lstPagos.findIndex(
-          (item) => item.index === ultimoSeleccionado.index,
-        );
+      const seleccionadosIds = new Set(this.selected.map((item) => item.id));
 
-        // Si el elemento no está al inicio, moverlo
-        if (indice > 0) {
-          const elemento = this.lstPagos.splice(indice, 1)[0];
-          this.lstPagos.unshift(elemento);
-        }
-      }
+      listaPagos.sort((a, b) => {
+        const aSeleccionado = seleccionadosIds.has(a.id);
+        const bSeleccionado = seleccionadosIds.has(b.id);
+
+        if (aSeleccionado && !bSeleccionado) return -1;
+        if (!aSeleccionado && bSeleccionado) return 1;
+        return 0;
+      });
     },
     recibirId(file) {
+      console.log(file);
       this.payPath = file.inserid;
       this.payfile = file.archivo;
 
@@ -781,14 +773,13 @@ export default {
     ...mapState(["provedores", "limpiar"]),
   },
   watch: {
-    limpiar() {
-      this.dataList = false;
-      this.limpiarFormulario();
-    },
-
-    selected() {
+    selected(newVal, oldVal) {
       this.calcularTotales();
-      this.moverSeleccionadoAlInicio();
+      if (newVal.length > oldVal.length) {
+        this.$nextTick(() => {
+          this.moverSeleccionadoAlInicio();
+        });
+      }
     },
   },
 };
