@@ -12,11 +12,11 @@
                 label="Proveedor"
                 outlined
                 dense
-                :rules="[(v) => !!v || 'Dato requerido']"
                 class="my-1"
                 :items="$store.state.itemsProveedorList"
                 item-text="namelong"
                 item-value="id"
+                readonly
                 v-model="$store.state.pricing.datosPrincipales.id_proveedor"
               ></v-autocomplete>
             </v-col>

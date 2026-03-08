@@ -482,6 +482,7 @@ export default {
       "aprobarCotizacionAduana",
       "setHouseEdit",
       "guardarCarpetaHouse",
+      "verHouse",
     ]),
     isDisabled(item) {
       return !item.porasignar; // Deshabilita si el estado no es "activo"
@@ -793,118 +794,191 @@ export default {
     },
 
     async _validaData() {
-      var vm = this;
+      if (this.$route.params.id) {
+        await this.verHouse(this.$route.params);
+        let house = this.$store.state.houses.house;
 
-      if (vm.$route.params.id) {
-        var data = {
-          id: vm.$route.params.id,
-          id_branch: JSON.parse(sessionStorage.getItem("dataUser"))[0]
-            .id_branch,
-        };
-        var config = {
-          method: "post",
-          url: process.env.VUE_APP_URL_MAIN + "getHouseListId/",
-          headers: {
-            "auth-token": sessionStorage.getItem("auth-token"),
-            "Content-Type": "application/json",
-          },
-          data: data,
-        };
-        await axios(config)
-          .then(async function (response) {
-            sessionStorage.setItem("auth-token", response.data.token);
+        this.$store.state.copy_house = house;
+        this.$store.state.dataHouse_transporte = house.id_transport;
+        this.$store.state.house_origen = house.id_port_begin;
+        this.$store.state.house_destino = house.id_port_end;
+        this.$store.state.house_sentido = house.id_modality;
+        this.$store.state.house_id_trasnport = house.id_shipment;
+        this.$store.state.house_incoterms = house.id_incoterms;
+        this.$store.state.house_cotizacion = house.id_cot;
+        this.$store.state.house_cotizacionaduana = house.id_quoteaduana;
 
-            vm.$store.state.copy_house = response.data.data[0];
-            vm.$store.state.dataHouse_transporte =
-              response.data.data[0].id_transport;
-            vm.$store.state.house_origen = response.data.data[0].id_port_begin;
-            vm.$store.state.house_destino = response.data.data[0].id_port_end;
-            vm.$store.state.house_sentido = response.data.data[0].id_modality;
-            vm.$store.state.house_id_trasnport =
-              response.data.data[0].id_shipment;
-            vm.$store.state.house_incoterms =
-              response.data.data[0].id_incoterms;
-            vm.$store.state.house_cotizacion = response.data.data[0].id_cot;
-            vm.$store.state.house_cotizacionaduana =
-              response.data.data[0].id_quoteaduana;
+        this.id_transport = house.id_transport;
 
-            vm.id_transport = response.data.data[0].id_transport;
-            await vm._getPortBegin({
-              id_transport: response.data.data[0].id_transport,
-              id: response.data.data[0].id_port_begin,
-            });
-            await vm._getPortEnd({
-              id_transport: response.data.data[0].id_transport,
-              id: response.data.data[0].id_port_end,
-            });
-            vm.$store.state.house_origen = response.data.data[0].id_port_begin;
-            vm.$store.state.house_destino = response.data.data[0].id_port_end;
-            vm.$store.state.house_expediente = response.data.data[0].code_house;
-            vm.$store.state.house_master = response.data.data[0].id_master;
-            vm.$store.state.house_master_expediente =
-              response.data.data[0].code_master;
-            vm.$store.state.house_id_agente =
-              response.data.data[0].id_proveedor;
-            vm.$store.state.house_id_consigner =
-              response.data.data[0].id_consigner;
-            vm.$store.state.house_id_notify = response.data.data[0].id_notify;
-            vm.$store.state.house_id_airlines =
-              response.data.data[0].id_aerolinea;
-            vm.$store.state.house_id_coloader =
-              response.data.data[0].id_coloader;
-            //vm.$store.state.house_id_agente = response.data.data[0].id_agent;
-            vm.$store.state.house_id_naviera = response.data.data[0].id_naviera;
-            vm.$store.state.house_blmaster = response.data.data[0].nro_hbl;
-            vm.$store.state.house_id_motonave =
-              response.data.data[0].id_motonave;
-            vm.$store.state.house_viaje = response.data.data[0].nro_viaje;
-            vm.$store.state.house_bultos = response.data.data[0].bultos;
-            vm.$store.state.house_peso = response.data.data[0].peso;
-            vm.$store.state.house_volumen = response.data.data[0].volumen;
-            vm.$store.state.house_id_condicion =
-              response.data.data[0].id_conditions;
-            vm.$store.state.house_id_coins = response.data.data[0].id_moneda;
-            vm.$store.state.house_monto = response.data.data[0].monto;
-            vm.$store.state.house_id = response.data.data[0].id;
-            vm.$store.state.url_onedrive = response.data.data[0].url_onedrive;
-            vm.$store.state.house_id_consigner_real =
-              response.data.data[0].id_consigner_real;
-            vm.$store.state.itemsHouseContainers =
-              response.data.data[0].itemshousecontainers;
-            vm.$store.state.house_nro_declaracion_aduana =
-              response.data.data[0].nro_declaracion_aduana || "";
-            vm.$store.state.house_canal_aduana =
-              response.data.data[0].canal_aduana || "";
-            const id_cot = response.data.data[0].id_cot;
-            const id_quote = response.data.data[0].id_quoteaduana;
-            vm.bloquearQuote = !!(id_cot || id_quote);
-
-            await vm._getServicesBegin();
-            // await vm._getBitacoraLineal();
-            vm.$store.state.house_enlace_tracking = response.data.data[0]
-              .token_rastreo
-              ? "https://aco.agentedecargaonline.com/tracking/" +
-                response.data.data[0].token_rastreo
-              : "";
-
-            if (
-              !vm.$store.state.house_id_consigner &&
-              !!vm.$route.params.activar
-            ) {
-              vm.dialogCliente = true;
-            }
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-        vm.$store.state.spiner = false;
-        await vm._getBitacoraLineal({
-          id_modalidad: vm.$store.state.house_sentido,
-          id_shipment: vm.$store.state.house_id_trasnport,
-          id_incoterms: vm.$store.state.house_incoterms,
-        });
-        // await this._getComentariosPredefinidos();
+        this.$store.state.house_origen = house.id_port_begin;
+        this.$store.state.house_destino = house.id_port_end;
+        this.$store.state.house_expediente = house.code_house;
+        this.$store.state.house_master = house.id_master;
+        this.$store.state.house_master_expediente = house.code_master;
+        this.$store.state.house_id_agente = house.id_proveedor;
+        this.$store.state.house_id_consigner = house.id_consigner;
+        this.$store.state.house_id_notify = house.id_notify;
+        this.$store.state.house_id_airlines = house.id_aerolinea;
+        this.$store.state.house_id_coloader = house.id_coloader;
+        //this.$store.state.house_id_agente = house.id_agent;
+        this.$store.state.house_id_naviera = house.id_naviera;
+        this.$store.state.house_blmaster = house.nro_hbl;
+        this.$store.state.house_id_motonave = house.id_motonave;
+        this.$store.state.house_viaje = house.nro_viaje;
+        this.$store.state.house_bultos = house.bultos;
+        this.$store.state.house_peso = house.peso;
+        this.$store.state.house_volumen = house.volumen;
+        this.$store.state.house_id_condicion = house.id_conditions;
+        this.$store.state.house_id_coins = house.id_moneda;
+        this.$store.state.house_monto = house.monto;
+        this.$store.state.house_id = house.id;
+        this.$store.state.url_onedrive = house.url_onedrive;
+        this.$store.state.house_id_consigner_real = house.id_consigner_real;
+        this.$store.state.itemsHouseContainers = house.itemshousecontainers;
+        this.$store.state.house_nro_declaracion_aduana =
+          house.nro_declaracion_aduana || "";
+        this.$store.state.house_canal_aduana = house.canal_aduana || "";
+        const id_cot = house.id_cot;
+        const id_quote = house.id_quoteaduana;
+        this.bloquearQuote = !!(id_cot || id_quote);
+        Promise.all([
+          this._getPortBegin({
+            id_transport: house.id_transport,
+            id: house.id_port_begin,
+          }),
+          this._getPortEnd({
+            id_transport: house.id_transport,
+            id: house.id_port_end,
+          }),
+          this._getServicesBegin(),
+          this._getBitacoraLineal({
+            id_modalidad: this.$store.state.house_sentido,
+            id_shipment: this.$store.state.house_id_trasnport,
+            id_incoterms: this.$store.state.house_incoterms,
+          }),
+          // this._getComentariosPredefinidos(),
+        ]);
+        this.$store.state.house_enlace_tracking = house.token_rastreo
+          ? "https://aco.agentedecargaonline.com/tracking/" +
+            house.token_rastreo
+          : "";
+        if (
+          !this.$store.state.house_id_consigner &&
+          !!this.$route.params.activar
+        ) {
+          vm.dialogCliente = true;
+        }
       }
+      // if (vm.$route.params.id) {
+      //   var data = {
+      //     id: vm.$route.params.id,
+      //     id_branch: JSON.parse(sessionStorage.getItem("dataUser"))[0]
+      //       .id_branch,
+      //   };
+      //   var config = {
+      //     method: "post",
+      //     url: process.env.VUE_APP_URL_MAIN + "getHouseListId/",
+      //     headers: {
+      //       "auth-token": sessionStorage.getItem("auth-token"),
+      //       "Content-Type": "application/json",
+      //     },
+      //     data: data,
+      //   };
+      //   await axios(config)
+      //     .then(async function (response) {
+      //       sessionStorage.setItem("auth-token", response.data.token);
+
+      //       vm.$store.state.copy_house = response.data.data[0];
+      //       vm.$store.state.dataHouse_transporte =
+      //         response.data.data[0].id_transport;
+      //       vm.$store.state.house_origen = response.data.data[0].id_port_begin;
+      //       vm.$store.state.house_destino = response.data.data[0].id_port_end;
+      //       vm.$store.state.house_sentido = response.data.data[0].id_modality;
+      //       vm.$store.state.house_id_trasnport =
+      //         response.data.data[0].id_shipment;
+      //       vm.$store.state.house_incoterms =
+      //         response.data.data[0].id_incoterms;
+      //       vm.$store.state.house_cotizacion = response.data.data[0].id_cot;
+      //       vm.$store.state.house_cotizacionaduana =
+      //         response.data.data[0].id_quoteaduana;
+
+      //       vm.id_transport = response.data.data[0].id_transport;
+      //       await vm._getPortBegin({
+      //         id_transport: response.data.data[0].id_transport,
+      //         id: response.data.data[0].id_port_begin,
+      //       });
+      //       await vm._getPortEnd({
+      //         id_transport: response.data.data[0].id_transport,
+      //         id: response.data.data[0].id_port_end,
+      //       });
+      //       vm.$store.state.house_origen = response.data.data[0].id_port_begin;
+      //       vm.$store.state.house_destino = response.data.data[0].id_port_end;
+      //       vm.$store.state.house_expediente = response.data.data[0].code_house;
+      //       vm.$store.state.house_master = response.data.data[0].id_master;
+      //       vm.$store.state.house_master_expediente =
+      //         response.data.data[0].code_master;
+      //       vm.$store.state.house_id_agente =
+      //         response.data.data[0].id_proveedor;
+      //       vm.$store.state.house_id_consigner =
+      //         response.data.data[0].id_consigner;
+      //       vm.$store.state.house_id_notify = response.data.data[0].id_notify;
+      //       vm.$store.state.house_id_airlines =
+      //         response.data.data[0].id_aerolinea;
+      //       vm.$store.state.house_id_coloader =
+      //         response.data.data[0].id_coloader;
+      //       //vm.$store.state.house_id_agente = response.data.data[0].id_agent;
+      //       vm.$store.state.house_id_naviera = response.data.data[0].id_naviera;
+      //       vm.$store.state.house_blmaster = response.data.data[0].nro_hbl;
+      //       vm.$store.state.house_id_motonave =
+      //         response.data.data[0].id_motonave;
+      //       vm.$store.state.house_viaje = response.data.data[0].nro_viaje;
+      //       vm.$store.state.house_bultos = response.data.data[0].bultos;
+      //       vm.$store.state.house_peso = response.data.data[0].peso;
+      //       vm.$store.state.house_volumen = response.data.data[0].volumen;
+      //       vm.$store.state.house_id_condicion =
+      //         response.data.data[0].id_conditions;
+      //       vm.$store.state.house_id_coins = response.data.data[0].id_moneda;
+      //       vm.$store.state.house_monto = response.data.data[0].monto;
+      //       vm.$store.state.house_id = response.data.data[0].id;
+      //       vm.$store.state.url_onedrive = response.data.data[0].url_onedrive;
+      //       vm.$store.state.house_id_consigner_real =
+      //         response.data.data[0].id_consigner_real;
+      //       vm.$store.state.itemsHouseContainers =
+      //         response.data.data[0].itemshousecontainers;
+      //       vm.$store.state.house_nro_declaracion_aduana =
+      //         response.data.data[0].nro_declaracion_aduana || "";
+      //       vm.$store.state.house_canal_aduana =
+      //         response.data.data[0].canal_aduana || "";
+      //       const id_cot = response.data.data[0].id_cot;
+      //       const id_quote = response.data.data[0].id_quoteaduana;
+      //       vm.bloquearQuote = !!(id_cot || id_quote);
+
+      //       await vm._getServicesBegin();
+      //       // await vm._getBitacoraLineal();
+      //       vm.$store.state.house_enlace_tracking = response.data.data[0]
+      //         .token_rastreo
+      //         ? "https://aco.agentedecargaonline.com/tracking/" +
+      //           response.data.data[0].token_rastreo
+      //         : "";
+
+      //       if (
+      //         !vm.$store.state.house_id_consigner &&
+      //         !!vm.$route.params.activar
+      //       ) {
+      //         vm.dialogCliente = true;
+      //       }
+      //     })
+      //     .catch(function (error) {
+      //       console.log(error);
+      //     });
+      //   vm.$store.state.spiner = false;
+      //   await vm._getBitacoraLineal({
+      //     id_modalidad: vm.$store.state.house_sentido,
+      //     id_shipment: vm.$store.state.house_id_trasnport,
+      //     id_incoterms: vm.$store.state.house_incoterms,
+      //   });
+      //   // await this._getComentariosPredefinidos();
+      // }
     },
     async _activePort(id_transport) {
       await this._getPortBegin({ id_transport: id_transport });

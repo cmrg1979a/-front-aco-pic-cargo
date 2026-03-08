@@ -631,7 +631,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn small color="success" @click="abrirModalAprobar"
+          <v-btn small color="success" @click="abrirSeleccionCorreo"
             >Continuar</v-btn
           >
           <v-btn small color="error" @click="dialogFiles = false"
@@ -639,6 +639,14 @@
           >
         </v-card-actions>
       </v-card>
+    </v-dialog>
+    <v-dialog
+      v-model="dialogSequenceInstructivo"
+      max-width="70%"
+      scrollable
+      v-if="dialogSequenceInstructivo"
+    >
+      <fileSequenceInstructivo @continuar="abrirModalAprobar" />
     </v-dialog>
   </v-container>
 </template>
@@ -649,14 +657,18 @@ import Swal from "sweetalert2";
 import moment from "moment";
 import mixins from "../../../components/mixins/funciones.js";
 import axios from "axios";
+import FileSequenceInstructivo from "../../comun/fileSequenceInstructivo.vue";
+
 export default {
   mixins: [mixins],
   components: {
     ConfigCotizacion: () =>
       import("@/components/folderPricing/ConfigExpediente"),
+    FileSequenceInstructivo,
   },
   data() {
     return {
+      dialogSequenceInstructivo: false,
       dialogFiles: false,
       nuevoexpediente: "",
       aprobarflag: "",
@@ -703,7 +715,6 @@ export default {
         { text: "Archivo", value: "name" },
         { text: "", value: "action" },
       ],
-
     };
   },
   computed: {
@@ -894,6 +905,15 @@ export default {
       }
     },
     async abrirSeleccionDeQuoteAAprobar() {
+      if (!this.$store.state.pricing.datosPrincipales.id_proveedor) {
+        Swal.fire({
+          icon: "warning",
+          title: "Proveedor",
+          text: "Para Aprobar la cotización necesita un proveedor",
+        });
+        return;
+      }
+
       let val = JSON.parse(sessionStorage.getItem("ConfigEmpresa"));
       this.dialogConfig = !val.existemaster;
       if (this.dialogConfig) {
@@ -909,8 +929,26 @@ export default {
     abrirModalListadoArchivos() {
       this.dialogFiles = true;
     },
+    abrirSeleccionCorreo() {
+      Swal.fire({
+        icon: "question",
+        title: "¿Empezar Instructivo?",
+        showConfirmButton: true,
+        confirmButtonText: "Empezar",
+        cancelButtonText: "Cancelar",
+        allowEnterKey: false,
+        allowEscapeKey: false,
+        allowOutsideClick: false,
+      }).then((confirmacion) => {
+        if (confirmacion.isConfirmed) {
+          this.dialogFiles = false;
+          this.dialogSequenceInstructivo = true;
+        }
+      });
+    },
     async abrirModalAprobar() {
       this.dialogFiles = false;
+      this.dialogSequenceInstructivo = false;
       await this.generaInstructivoparaguardata();
       if (this.$refs.frmAprobar.validate()) {
         let fecha_validez = this.$store.state.pricing.opcionCostos.filter(

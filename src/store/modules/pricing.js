@@ -7,6 +7,7 @@ import masterusuario from "./masterusuario";
 import enterprise from "./enterprise";
 import modules from "./../index";
 const state = {
+  dataCliente:{},
   step: 1,
   preServices: [],
   preCostos: [],
@@ -1527,6 +1528,7 @@ const actions = {
 
       state.copy_quote = res;
       state.id = res.id;
+      state.dataCliente = res.cliente[0];
       state.nro_quote = res.quote;
       state.datosPrincipales.id_marketing = res.id_marketing;
       state.datosPrincipales.id_status = res.id_status; //-------
@@ -6153,8 +6155,9 @@ const actions = {
         timerProgressBar: true,
         allowOutsideClick: false,
         confirmButtonText: "Ir al control de gastos",
+        // cancelButtonText: "Enviar Correos",
         denyButtonText: "Cerrar",
-        showCancelButton: false,
+        // showCancelButton: true,
         showConfirmButton: true,
         showDenyButton: true,
         confirmButtonColor: "#004D40",
@@ -6173,6 +6176,7 @@ const actions = {
         if (res.isDenied) {
           window.location.reload();
         }
+        
       });
     });
   },
@@ -9088,6 +9092,195 @@ export function getNombreCotizacion(listNotasQuote) {
   let nota = state.opcionCostos[0].listNotasQuote[0].descripcion;
   state.nombre_cotizacion = `COTIZACION ${nota} ${state.datosPrincipales.nombre}`;
   return name;
+}
+
+function abrirCorreo() {
+  let asesor = state.listEjecutivo.find(
+    (v) => v.id_entitie == state.datosPrincipales.id_vendedor,
+  );
+
+  let PortBegin = state.listPortBegin.find(
+    (v) => v.id == state.datosPrincipales.idorigen,
+  );
+  let PortEnd = state.listPortEnd.find(
+    (v) => v.id == state.datosPrincipales.iddestino,
+  );
+  let Incoterms = state.listIncoterms.find(
+    (v) => v.id == state.datosPrincipales.idincoterms,
+  );
+  let Proveedor = modules.state.itemsProveedorList.find(
+    (v) => v.id == state.datosPrincipales.id_proveedor,
+  );
+
+  let hmtl1 = `
+  <table>
+    <thead>
+      <tr>
+        <th>FECHA</th>
+        <th>${moment().format("DD/MM/YYYY")}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>ASESOR</td>
+        <td>${asesor.name}</td>
+      </tr>
+      <tr>
+        <td>N° QUOTE</td>
+        <td>${state.nro_quote}</td>
+      </tr>
+      <tr>
+        <td>SERVICIO</td>
+        <td>INDIVIDUAL</td>
+      </tr>
+      <tr>
+        <td>COLOADER/AGENTE</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>
+          Email de Seguimiento con el coloader o Agente donde se consiguió la
+          tarifa
+        </td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>PUERTO DE SALIDA</td>
+        <td>${PortBegin.name}</td>
+      </tr>
+      <tr>
+        <td>
+          DATOS DE LA CARGA<br /> Si es EXWORD enviar dirección de recolecta<br />No
+          la de la factura
+        </td>
+        <td>
+          INCOTERMS: ${Incoterms.name}<br/>
+          PESO: ${state.datosPrincipales.peso} KG <br/>
+          VOLUMEN: ${state.datosPrincipales.volumen}} M3 <br/>
+          TIPO DE MERCANCIA: ${
+            state.datosPrincipales.descripcionMercancia
+          } <br />
+        </td>
+      </tr>
+      <tr>
+        <td>DETALLES DEL PROVEEDOR</td>
+        <td>
+          NOMBRE DE LA EMPRESA: ${Proveedor.namelong} <br />
+          PERSONA CONTACTO: ${Proveedor.contacto}<br />
+          EMAIL: <a href="mailto:${Proveedor.emailaddress}">${
+              Proveedor.emailaddress
+            }</a
+          > <br />
+          TELEFONO: ${Proveedor.contacto_phone}
+        </td>
+      </tr>
+      <tr>
+        <td>
+          CLIENTE / RAZON SOCIAL CON LA QUE SE IMPORTARA<br />Si es con la Razon
+          Social de la empresa poner Direccion, gmail
+        </td>
+        <td>
+          Corporacion Plasmame S.A.C vuebe dek sistema<br />RUC: 20606770023<br />DIRECCION:
+          Jiron Nazca 183, Jesus Maria<br />GMAIL:
+          <a href="mailto:Lobintyn1@gmail.com">Lobintyn1@gmail.com</a>
+        </td>
+      </tr>
+      <tr>
+        <td>NOTIFY</td>
+        <td>
+          PIC LOGISTICA SAC<br />RUC: 20609852861<br />AV . AGUSTIN DE LA ROSA
+          TORO 770 ,SAN LUIS<br />Contacto: Carlos Ramirez<br />CORREO:
+          <a href="mailto:ASESOR2@PIC-CARGO.COM">ASESOR2@PIC-CARGO.COM</a> vee dek
+          sustema pror default
+        </td>
+      </tr>
+      <tr>
+        <td>CARGA LISTA DIA FECHA</td>
+        <td>LISTA manual</td>
+      </tr>
+      <tr>
+        <td>GRUPO DE WHATSAPP</td>
+        <td>NOMBRE EXP1523 PLASMAME LIMA FOB INDIVIDUAL manual</td>
+      </tr>
+      <tr>
+        <td>
+          SE ADJUNTA<br />si se adjunta todo lo que más puedas facturas permisos,
+          fotos, y cualquier información relevante
+        </td>
+        <td>
+          PACKING LIST<br />PROFORMA INVOICE<br />VOUCHER DE PAGO DEL CLIENTE AL
+          PROVEEDOR<br />COTIZACION DEL CLIENTE<br />Manual
+        </td>
+      </tr>
+      <tr>
+        <td>TIPO DE MERCANCIA</td>
+        <td>LCL viene del sistema</td>
+      </tr>
+      <tr>
+        <td>
+          DEBEMOS PAGAR AL PROVEEDOR<br />solo aplica si el cliente nos cancela a
+          nosotros y nosotros debemos pagar al proveedor
+        </td>
+        <td>NO manual</td>
+      </tr>
+      <tr>
+        <td>
+          DONDE SE DEBE PAGAR<br />solo aplica si el cliente nos cancela a
+          nosotros y nosotros debemos pagar al proveedor
+        </td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>
+          MONTO A PAGAR<br />solo aplica si el cliente nos cancela a nosotros y
+          nosotros debemos pagar al proveedor
+        </td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>
+          CLIENTE YA NOS PAGOS<br />solo aplica si el cliente nos cancela a
+          nosotros y nosotros debemos pagar al proveedor
+        </td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>
+          LINK DE PAGO o DATOS DE A TRANSFERENCIA INTERNACIONAL<br />recuerda
+          debes cobrar la comisión bancaria<br />solo aplica si el cliente nos
+          cancela a nosotros y nosotros debemos pagar al proveedor
+        </td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>CONDICIONES DE LINK DE CONTRATO DE ALIBABA</td>
+        <td>
+        
+        </td>
+      </tr>
+      <tr>
+        <td>
+          PAGO DE TRANSFERENCIA INTERNCIONAL DEBE PONERSE EL NUMERO DE FACTURA
+        </td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>SEGURO DE MERCANCIA</td>
+        <td><br/>
+      </tr>
+      <tr>
+        <td>OBSERVACIONES ADICIONALES 1</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>OBSERVACIONES ADICCIONALES 2</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  `;
+  console.log(hmtl1);
+  let hmtl2 = ``;
 }
 
 export default {

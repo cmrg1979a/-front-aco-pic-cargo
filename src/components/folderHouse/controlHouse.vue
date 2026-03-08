@@ -501,7 +501,7 @@ export default {
           (houseView && houseView.nro_hbl) || ""
         } - ${(houseView && houseView.consigner) || ""} [${actionLabel}]`;
       } else {
-        await this._getHouseById();
+        // await this._getHouseById();
         const actionLabel =
           this.$route.name == "controlHouseVer" ? "VER" : "EDITAR";
         this.$store.state.mainTitle = `N° BL House ${
@@ -525,6 +525,7 @@ export default {
     }
   },
   async mounted() {
+    console.log('sssssssssssssssssssss')
     if (this.$route.name == "controlHouse") {
       this.$store.state.mainTitle = "CONTROL DE EXPEDIENTE HOUSE";
     } else if (
@@ -548,7 +549,7 @@ export default {
           (houseView && houseView.nro_hbl) || ""
         } - ${(houseView && houseView.consigner) || ""} [${actionLabel}]`;
       } else {
-        await this._getHouseById();
+        // await this._getHouseById();
         const actionLabel =
           this.$route.name == "controlHouseVer" ? "VER" : "EDITAR";
         this.$store.state.mainTitle = `N° BL House ${
