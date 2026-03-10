@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid style="height: 100vh">
+  <v-container fluid class="contenedor-scroll">
     <v-row>
       <v-col cols="12">
         <v-row align="center">
@@ -27,6 +27,16 @@
           :headers="headersCabecera"
           :items="$store.state.reportes.listDetalle"
         >
+          <template v-slot:[`item.action`]="{ item }">
+            <v-btn
+              v-if="!!item.urlfile"
+              icon
+              :href="item.urlfile"
+              target="_blank"
+            >
+              <v-icon>mdi-file</v-icon>
+            </v-btn>
+          </template>
         </v-data-table>
       </v-col>
     </v-row>
@@ -67,6 +77,13 @@
             v-model="filtro.nro_operacion"
           >
           </v-text-field>
+
+          <v-text-field
+            clearable
+            label="Nro Expediente"
+            v-model="filtro.nro_exp"
+          >
+          </v-text-field>
           <v-text-field
             clearable
             type="number"
@@ -105,15 +122,20 @@ export default {
     return {
       search: "",
       headersCabecera: [
-        { text: "Fecha Operacion", value: "fecha_pago" },
-        { text: "Nro Operación	", value: "nro_operacion" },
+        { text: "F. Reg.", value: "create_at" },
+        { text: "F. Op.", value: "fecha_pago" },
+        { text: "Nro Operación", value: "nro_operacion" },
+        { text: "Tipo", value: "tipo_pago" },
+        { text: "Tipo", value: "tipo_pago" },
+        { text: "Exp/ Tipo Gasto", value: "tipo_gasto" },
+        { text: "Exp/ SubTipo Gasto", value: "subtipo_gasto" },
         { text: "Cuenta Salida", value: "banco" },
         { text: "Proveedor	", value: "name_proveedor" },
         { text: "Monto (USD)	", value: "monto_dolar" },
         { text: "Monto	", value: "monto_mon_ex" },
         { text: "Moneda	", value: "moneda_simbolo" },
         { text: "Comentarios", value: "comentarios" },
-        // { text: "Accion", value: "action" },
+        { text: "Accion", value: "action" },
       ],
       list: [],
       dialogFiltro: false,
@@ -125,6 +147,7 @@ export default {
         id_proveedor: "",
         monto: "",
         id_moneda: "",
+        nro_exp: "",
         nro_factura: "",
         nro_serie: "",
         tipogastos: "",
@@ -186,6 +209,7 @@ export default {
         nro_serie: "",
         tipogastos: "",
         tiposubgastos: "",
+        nro_exp: "",
         operativo: true,
         administrativo: true,
       };
@@ -196,4 +220,10 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+.contenedor-scroll {
+  height: 100vh;
+
+  overflow-y: auto;
+}
+</style>
