@@ -341,7 +341,7 @@
             </template>
             <span>Editar Master</span>
           </v-tooltip> -->
-          <!-- <v-tooltip top>
+          <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
               <v-btn
                 icon
@@ -357,7 +357,7 @@
               </v-btn>
             </template>
             <span>Ver Master</span>
-          </v-tooltip> -->
+          </v-tooltip>
           <!-- <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
               <v-btn
