@@ -221,9 +221,5 @@ export default {
 </script>
 
 <style>
-.contenedor-scroll {
-  height: 100vh;
 
-  overflow-y: auto;
-}
 </style>

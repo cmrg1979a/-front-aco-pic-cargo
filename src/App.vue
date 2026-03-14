@@ -1162,4 +1162,10 @@ export default {
   line-height: 150px;
   cursor: pointer;
 }
+
+.contenedor-scroll {
+  height: 100vh;
+
+  overflow-y: auto;
+}
 </style>
