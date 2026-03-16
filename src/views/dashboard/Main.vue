@@ -190,7 +190,7 @@
         class="mx-1"
         color="light-blue darken-3"
         dark
-        @click="copiarCotizacion()"
+        @click="abrirModalCopiarCotizacion()"
       >
         <v-icon class="mx-1" dense small>mdi-content-copy</v-icon>
         COPIAR
@@ -413,6 +413,42 @@
         <!-- <v-card-actions> </v-card-actions> -->
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="dialogFiles" max-width="40%">
+      <v-card>
+        <v-card-title> Archivos a Copiar </v-card-title>
+        <v-card-text>
+          <v-data-table
+            :headers="headersFiles"
+            :items="$store.state.pricing.listadoFilesDrive"
+            show-select
+            v-model="$store.state.pricing.selectedFile"
+            item-key="id"
+          >
+            <template v-slot:[`item.action`]="{ item }">
+              <v-btn
+                icon
+                small
+                :color="getColorIcon(item)"
+                :href="item.webUrl"
+                target="_blank"
+              >
+                <v-icon>{{ getIconFile(item) }}</v-icon>
+              </v-btn>
+            </template>
+          </v-data-table>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn small color="success" @click="copiarCotizacion"
+            >Continuar</v-btn
+          >
+          <v-btn small color="error" @click="dialogFiles = false"
+            >Cancelar</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
@@ -441,6 +477,11 @@ export default {
   mixins: [mixins],
   data() {
     return {
+      dialogFiles: false,
+      headersFiles: [
+        { text: "Archivo", value: "name" },
+        { text: "", value: "action" },
+      ],
       mostrarBtnMenu: true,
       routePricing: ["newQuote", "verQuote", "editQuote"],
       routeAduana: ["newCotizacionAduana", "EditarAduana", "VerAduana"],
@@ -547,6 +588,9 @@ export default {
       "registrarQuote",
       "actualizarQuoteAduana",
       "_getRole",
+      "GetArchivos",
+      "uploadFileFromUrlToOneDrive",
+      "moveFileToOneDrive",
     ]),
     abrirCarpeta(url) {
       if (!url) {
@@ -908,7 +952,7 @@ export default {
         alert("Hubo un problema al copiar los datos automáticamente.");
       }
     },
-    copiarCotizacion() {
+    abrirModalCopiarCotizacion() {
       Swal.fire({
         title: "ADVERTENCIA",
         text: "¿Desea Crear una copia de esta cotización?",
@@ -918,50 +962,131 @@ export default {
         denyButtonText: `Cancelar`,
       }).then(async (result) => {
         if (result.isConfirmed) {
-          this.$store.state.spiner = true;
-          await this.copiarQuote({
-            fullflag: true,
-            id: this.$route.params.id,
-          }).catch((err) => {
-            console.log("copiarQuote", err);
-          });
-
-          this.$store.state.spiner = false;
-          let vm = this;
-          console.log(vm.$store.state.pricing.id);
-          Swal.fire({
-            icon: "info",
-            title: "Aviso",
-            text: vm.$store.state.pricing.mensaje,
-            confirmButtonText: "Ir a ver",
-          }).then((result) => {
-            if (result.isConfirmed) {
-              vm.$router.push({
-                name: "verQuote",
-                params: { id: vm.$store.state.pricing.id },
-              });
-              this.$nextTick(() => {
-                location.reload();
-              });
-              // setTimeout(() => {
-              // }, 100);
-            }
-          });
-          await this.crearCarpetaOneDrive({
-            nro_quote: this.$store.state.pricing.nro_quote,
-            nombre: this.$store.state.pricing.datosPrincipales.nombre,
-          }).catch((err) => {
-            console.log("crearCarpetaOneDrive", err);
-          });
-
-          await this.actualizarURLEnElQuote({
-            id: this.$store.state.pricing.id,
-            url: this.$store.state.pricing.urlFolder,
-          }).catch((err) => {
-            console.log("actualizarURLEnElQuote", err);
-          });
+          this.dialogFiles = true;
         }
       });
+    },
+    getColorIcon(item) {
+      if (item.folder) return "amber";
+      const extension = item.extension ? item.extension.toLowerCase() : "";
+
+      const colors = {
+        pdf: "red",
+        xlsx: "green",
+        xls: "green",
+        docx: "blue",
+        doc: "blue",
+        png: "purple",
+        jpg: "purple",
+      };
+
+      return colors[extension] || "grey";
+    },
+    getIconFile(item) {
+      if (item.folder) return "mdi-folder";
+
+      const extension = item.extension ? item.extension.toLowerCase() : "";
+
+      switch (extension) {
+        case "pdf":
+          return "mdi-file-pdf-box";
+        case "xls":
+        case "xlsx":
+          return "mdi-file-excel";
+        case "doc":
+        case "docx":
+          return "mdi-file-word";
+        case "png":
+        case "jpg":
+        case "jpeg":
+          return "mdi-file-image";
+        case "zip":
+        case "rar":
+          return "mdi-zip-box";
+        default:
+          return "mdi-file";
+      }
+    },
+
+    async copiarCotizacion() {
+      this.dialogFiles = false;
+      try {
+        Swal.fire({
+          icon: "warning",
+          text: "Cargando... un momento por favor",
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
+
+        await this.copiarQuote({
+          fullflag: true,
+          id: this.$route.params.id,
+        }).catch((err) => {
+          console.log("copiarQuote", err);
+        });
+
+        let userStr = sessionStorage.getItem("dataUser");
+        let id_branch = userStr ? JSON.parse(userStr)[0].id_branch : null;
+        let branchCreacion = [1, 2];
+
+        if (branchCreacion.includes(id_branch)) {
+          console.log("Iniciando creación de carpeta...");
+
+          // Aquí recibimos el return de la función anterior
+          const urlGenerada = await this.crearCarpetaOneDrive({
+            nro_quote: this.$store.state.pricing.nro_quote,
+            nombre: this.$store.state.pricing.datosPrincipales.nombre,
+          });
+
+          console.log("URL capturada en generar():", urlGenerada);
+
+          if (urlGenerada) {
+            await Promise.all([
+              this.actualizarURLEnElQuote({
+                id: this.$store.state.pricing.id,
+                url: urlGenerada,
+              }),
+              this.moveFileToOneDrive({
+                fileIds: this.$store.state.pricing.selectedFile.map(
+                  (file) => file.id,
+                ),
+                destinationFolderUrl: urlGenerada,
+              }),
+            ]);
+            console.log("Base de datos actualizada con URL de OneDrive");
+          } else {
+            console.warn(
+              "No se obtuvo URL de OneDrive, se saltó la actualización.",
+            );
+          }
+        }
+
+        let vm = this;
+        Swal.close();
+        Swal.fire({
+          icon: "info",
+          title: "Aviso",
+          text: vm.$store.state.pricing.mensaje,
+          confirmButtonText: "Ir a ver",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            vm.$router.push({
+              name: "verQuote",
+              params: { id: vm.$store.state.pricing.id },
+            });
+            this.$nextTick(() => {
+              location.reload();
+            });
+            // setTimeout(() => {
+            // }, 100);
+          }
+        });
+      } catch (error) {
+        console.error(error);
+      } finally {
+        // Swal.close();
+      }
     },
     isDateValid(date) {
       if (!date) {
