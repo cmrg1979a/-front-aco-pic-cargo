@@ -7,7 +7,7 @@
 
       <v-tab href="#detallado"> Detallado </v-tab>
     </v-tabs>
-    <v-tabs-items v-model="tab">
+    <v-tabs-items v-model="tab" class="fill-height">
       <v-tab-item value="agrupado">
         <listPayForCliente />
       </v-tab-item>

@@ -586,6 +586,20 @@ export default {
       this.msgfile = "Archivo procesado y vinculado correctamente.";
       this.errfile = "";
     },
+    moverSeleccionadoAlInicio() {
+      const listaPagos = this.$store.state.listPagosXProveedorCxP;
+
+      const seleccionadosIds = new Set(this.selected.map((item) => item.id));
+
+      listaPagos.sort((a, b) => {
+        const aSeleccionado = seleccionadosIds.has(a.id);
+        const bSeleccionado = seleccionadosIds.has(b.id);
+
+        if (aSeleccionado && !bSeleccionado) return -1;
+        if (!aSeleccionado && bSeleccionado) return 1;
+        return 0;
+      });
+    },
   },
   computed: {
     ...mapState(["itemsProveedorList", "listPagosXProveedorCxP", "clientes"]),
@@ -600,8 +614,13 @@ export default {
     },
   },
   watch: {
-    selected() {
+    selected(newVal, oldVal) {
       this.calcularMonto();
+      if (newVal.length > oldVal.length) {
+        this.$nextTick(() => {
+          this.moverSeleccionadoAlInicio();
+        });
+      }
     },
   },
 };

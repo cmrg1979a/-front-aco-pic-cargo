@@ -1,6 +1,6 @@
 <template>
-  <v-container fluid class="contenedor-scroll">
-    <v-card>
+  <v-container  fluid class="contenedor-scroll">
+    <v-card min-height="80vh">
       <v-card-title>
         <v-text-field v-model="search" label="Buscar...."> </v-text-field>
         <v-spacer> </v-spacer>

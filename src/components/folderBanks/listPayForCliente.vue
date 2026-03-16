@@ -1,5 +1,5 @@
 <template>
-  <v-card height="90vh">
+  <v-card min-height="80vh">
     <v-alert type="warning" v-if="mostrarAdvFlag" class="ocultarMovil">
       <v-row>
         <v-col cols="11">
