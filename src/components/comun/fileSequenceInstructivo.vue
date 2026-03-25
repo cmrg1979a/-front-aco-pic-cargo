@@ -775,76 +775,72 @@ export default {
     },
     moverArchivo() {},
     async generarHTMLPDF(guardarFlag) {
-      let asesor = this.$store.state.pricing.listEjecutivo.find(
-        (v) =>
-          v.id_entitie ==
-          this.$store.state.pricing.datosPrincipales.id_vendedor,
-      );
+      const state = this.$store.state.pricing;
+      const main = state.datosPrincipales;
+      const cliente = state.dataCliente;
 
-      let Modality = this.$store.state.pricing.listModality.find(
-        (v) => v.id == this.$store.state.pricing.datosPrincipales.idsentido,
-      );
+      // 1. Buscamos con fallback a objeto vacío para evitar errores de .name
+      const asesor =
+        state.listEjecutivo.find((v) => v.id_entitie == main.id_vendedor) || {};
+      const Modality =
+        state.listModality.find((v) => v.id == main.idsentido) || {};
+      const Shipment =
+        state.listShipment.find((v) => v.id == main.idtipocarga) || {};
+      const PortBegin =
+        state.listPortBegin.find((v) => v.id == main.idorigen) || {};
+      const Incoterms =
+        state.listIncoterms.find((v) => v.id == main.idincoterms) || {};
+      const Proveedor =
+        this.$store.state.itemsProveedorList.find(
+          (v) => v.id == main.id_proveedor,
+        ) || {};
 
-      let Shipment = this.$store.state.pricing.listShipment.find(
-        (v) => v.id == this.$store.state.pricing.datosPrincipales.idtipocarga,
-      );
-
-      let PortBegin = this.$store.state.pricing.listPortBegin.find(
-        (v) => v.id == this.$store.state.pricing.datosPrincipales.idorigen,
-      );
-      let PortEnd = this.$store.state.pricing.listPortEnd.find(
-        (v) => v.id == this.$store.state.pricing.datosPrincipales.iddestino,
-      );
-      let Incoterms = this.$store.state.pricing.listIncoterms.find(
-        (v) => v.id == this.$store.state.pricing.datosPrincipales.idincoterms,
-      );
-      let Proveedor = this.$store.state.itemsProveedorList.find(
-        (v) => v.id == this.$store.state.pricing.datosPrincipales.id_proveedor,
-      );
-      let nro_quote = this.$store.state.pricing.nro_quote
+      // 2. Limpieza de nombres para el subject
+      const nro_quote_clean = (state.nro_quote || "")
         .trim()
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/[\s-]+/g, "_");
-      let nombre = this.$store.state.pricing.dataCliente.nombrecompleto
+
+      const nombre_clean = (cliente.nombrecompleto || "")
         .trim()
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/[\s-]+/g, "_");
-      const subject = encodeURIComponent(
-        `EXPEDIENTE_${this.$store.state.pricing.nro_exp}_QUOTE_${nro_quote}_${nombre}_${Incoterms.name}_${Modality.name}`,
-      );
 
+      // 3. Construcción segura del subject
+      const subjectStr = `EXPEDIENTE_${
+        state.nro_exp
+      }_QUOTE_${nro_quote_clean}_${nombre_clean}_${Incoterms.name || ""}_${
+        Modality.name || ""
+      }`;
+      const subject = encodeURIComponent(subjectStr);
+
+      // 4. Ejecución del preview/guardado
       await this.quotePreviewInstructivoManual({
         guardarFlag: guardarFlag,
         subject: subject,
-        asesor: asesor.name,
-        nro_quote: this.$store.state.pricing.nro_quote || "",
+        asesor: asesor.name || "",
+        nro_quote: state.nro_quote || "",
         servicio: this.datosManuales.servicio || "",
         email: this.datosManuales.email || "",
         PortBegin: PortBegin.name || "",
         Incoterms: Incoterms.name || "",
-        peso: this.$store.state.pricing.datosPrincipales.peso || 0,
-        volumen: this.$store.state.pricing.datosPrincipales.volumen || 0,
-        descripcioncarga: this.$store.state.pricing.datosPrincipales
-          .descripcioncarga
-          ? this.$store.state.pricing.datosPrincipales.descripcioncarga
-          : "",
+        peso: main.peso || 0,
+        volumen: main.volumen || 0,
+        descripcioncarga: main.descripcioncarga || "",
         nombrecompletoProveedor: Proveedor.namelong || "",
         contactoProveedor: Proveedor.contacto || "",
         addressProveedor: Proveedor.emailaddress || "",
         contactoPhoneProveedor: Proveedor.contacto_phone || "",
-        nombrecompletoCliente:
-          this.$store.state.pricing.dataCliente.nombrecompleto || "",
-        documentCliente: this.$store.state.pricing.dataCliente.document || "",
-        addressCliente: this.$store.state.pricing.dataCliente.address || "",
-        emailaddressCliente: this.$store.state.pricing.emailaddress || "",
+        nombrecompletoCliente: cliente.nombrecompleto || "",
+        documentCliente: cliente.document || "",
+        addressCliente: cliente.address || "",
+        emailaddressCliente: state.emailaddress || "",
         listDiaFecha: this.datosManuales.listDiaFecha || "",
         grupoWhatsapp: this.datosManuales.grupoWhatsapp || "",
-        Shipment: Shipment.name,
-        url_folderonedrive:
-          this.$store.state.pricing.datosPrincipales.url_folderonedrive,
-
+        Shipment: Shipment.name || "",
+        url_folderonedrive: main.url_folderonedrive,
         pagarProveedor: this.datosManuales.pagarProveedor || "",
         dondePagar: this.datosManuales.dondePagar || "",
         linkDePago: this.datosManuales.linkDePago || "",
@@ -893,78 +889,84 @@ export default {
 
       // 3. Construcción del Template HTML
       const htmlTable = `
-    <table border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse; font-family: Arial, sans-serif; width: 100%;">
-      <tbody>
-        ${this._tr("FECHA", moment().format("DD/MM/YYYY"))}
-        ${this._tr("ASESOR", asesor.name)}
-        ${this._tr("N° QUOTE", pricing.nro_quote)}
-        ${this._tr("SERVICIO", this.datosManuales.servicio)}
-        ${this._tr(
-          "COLOADER/AGENTE",
-          `
-          <b>Datos:</b> ${this.proveedorInstructivo.namelong}<br>
-          <b>Contacto:</b> ${this.proveedorInstructivo.contacto}<br>
-          <b>Teléfono:</b> ${this.proveedorInstructivo.contacto_phone}
-        `,
-        )}
-        ${this._tr("Email de Seguimiento", this.datosManuales.email)}
-        ${this._tr("PUERTO DE SALIDA", portBegin.name)}
-        ${this._tr(
-          "DATOS DE LA CARGA<br><span style='color:red;font-size:10px;'>Si es EXW enviar dirección de recolecta</span>",
-          `
-          INCOTERMS: ${incoterms.name || ""}<br>
-          PESO: ${dp.peso || 0} KG<br>
-          VOLUMEN: ${dp.volumen || 0} M3<br>
-          TIPO DE MERCANCIA: ${dp.descripcioncarga || ""}
-        `,
-        )}
-        ${this._tr(
-          "DETALLES DEL PROVEEDOR",
-          `
-          NOMBRE: ${proveedor.namelong || ""}<br>
-          CONTACTO: ${proveedor.contacto || ""}<br>
-          EMAIL: ${proveedor.emailaddress || ""}<br>
-          TELÉFONO: ${proveedor.contacto_phone || ""}
-        `,
-        )}
-        ${this._tr(
-          "CLIENTE / RAZON SOCIAL",
-          `
-          ${pricing.dataCliente.nombrecompleto || ""}<br>
-          RUC: ${pricing.dataCliente.document || ""}<br>
-          DIRECCIÓN: ${pricing.dataCliente.address || ""}<br>
-          EMAIL: ${pricing.emailaddress || ""}
-        `,
-        )}
-        ${this._tr(
-          "<b>NOTIFY</b>",
-          `
-          PIC LOGISTICA SAC <br>
-          RUC: 20609852861 <br>
-          AV. AGUSTIN DE LA ROSA TORO 770, SAN LUIS <br>
-          Contacto: Carlos Ramirez <br>
-          CORREO: ASESOR2@PIC-CARGO.COM
-        `,
-        )}
-        ${this._tr("CARGA LISTA DIA FECHA", this.datosManuales.listDiaFecha)}
-        ${this._tr("GRUPO DE WHATSAPP", this.datosManuales.grupoWhatsapp)}
-        ${this._tr("SE ADJUNTA", listaArchivos)}
-        ${this._tr(
-          "DEBEMOS PAGAR AL PROVEEDOR",
-          this.datosManuales.pagarProveedor,
-        )}
-        ${this._tr("DONDE SE DEBE PAGAR", this.datosManuales.dondePagar)}
-        ${this._tr(
-          "LINK DE PAGO / TRANSFERENCIA",
-          this.datosManuales.linkDePago,
-        )}
-        ${this._tr("CONDICIONES ALIBABA", this.datosManuales.condicionesLink)}
-        ${this._tr("NRO FACTURA", this.datosManuales.nroFactura)}
-        ${this._tr("SEGURO", this.datosManuales.seguro)}
-        ${this._tr("OBSERVACIONES 1", this.datosManuales.observacion1)}
-        ${this._tr("OBSERVACIONES 2", this.datosManuales.observacion2)}
-      </tbody>
-    </table>`;
+        <table border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse; font-family: Arial, sans-serif; width: 100%;">
+          <tbody>
+            ${this._tr("FECHA", moment().format("DD/MM/YYYY"))}
+            ${this._tr("ASESOR", asesor.name)}
+            ${this._tr("N° QUOTE", pricing.nro_quote)}
+            ${this._tr("SERVICIO", this.datosManuales.servicio)}
+            ${this._tr(
+              "COLOADER/AGENTE",
+              `
+              <b>Datos:</b> ${this.proveedorInstructivo.namelong}<br>
+              <b>Contacto:</b> ${this.proveedorInstructivo.contacto}<br>
+              <b>Teléfono:</b> ${this.proveedorInstructivo.contacto_phone}
+            `,
+            )}
+            ${this._tr("Email de Seguimiento", this.datosManuales.email)}
+            ${this._tr("PUERTO DE SALIDA", portBegin.name)}
+            ${this._tr(
+              "DATOS DE LA CARGA<br><span style='color:red;font-size:10px;'>Si es EXW enviar dirección de recolecta</span>",
+              `
+              INCOTERMS: ${incoterms.name || ""}<br>
+              PESO: ${dp.peso || 0} KG<br>
+              VOLUMEN: ${dp.volumen || 0} M3<br>
+              TIPO DE MERCANCIA: ${dp.descripcioncarga || ""}
+            `,
+            )}
+            ${this._tr(
+              "DETALLES DEL PROVEEDOR",
+              `
+              NOMBRE: ${proveedor.namelong || ""}<br>
+              CONTACTO: ${proveedor.contacto || ""}<br>
+              EMAIL: ${proveedor.emailaddress || ""}<br>
+              TELÉFONO: ${proveedor.contacto_phone || ""}
+            `,
+            )}
+            ${this._tr(
+              "CLIENTE / RAZON SOCIAL",
+              `
+              ${pricing.dataCliente.nombrecompleto || ""}<br>
+              RUC: ${pricing.dataCliente.document || ""}<br>
+              DIRECCIÓN: ${pricing.dataCliente.address || ""}<br>
+              EMAIL: ${pricing.emailaddress || ""}
+            `,
+            )}
+            ${this._tr(
+              "<b>NOTIFY</b>",
+              `
+              PIC LOGISTICA SAC <br>
+              RUC: 20609852861 <br>
+              AV. AGUSTIN DE LA ROSA TORO 770, SAN LUIS <br>
+              Contacto: Carlos Ramirez <br>
+              CORREO: ASESOR2@PIC-CARGO.COM
+            `,
+            )}
+            ${this._tr(
+              "CARGA LISTA DIA FECHA",
+              this.datosManuales.listDiaFecha,
+            )}
+            ${this._tr("GRUPO DE WHATSAPP", this.datosManuales.grupoWhatsapp)}
+            ${this._tr("SE ADJUNTA", listaArchivos)}
+            ${this._tr(
+              "DEBEMOS PAGAR AL PROVEEDOR",
+              this.datosManuales.pagarProveedor,
+            )}
+            ${this._tr("DONDE SE DEBE PAGAR", this.datosManuales.dondePagar)}
+            ${this._tr(
+              "LINK DE PAGO / TRANSFERENCIA",
+              this.datosManuales.linkDePago,
+            )}
+            ${this._tr(
+              "CONDICIONES ALIBABA",
+              this.datosManuales.condicionesLink,
+            )}
+            ${this._tr("NRO FACTURA", this.datosManuales.nroFactura)}
+            ${this._tr("SEGURO", this.datosManuales.seguro)}
+            ${this._tr("OBSERVACIONES 1", this.datosManuales.observacion1)}
+            ${this._tr("OBSERVACIONES 2", this.datosManuales.observacion2)}
+          </tbody>
+        </table>`;
 
       try {
         // 4. Copiar al Portapapeles
@@ -995,22 +997,14 @@ export default {
     },
 
     // Método auxiliar para no repetir tanto código de filas
-    _tr(label, value) {
-      return `
-    <tr>
-      <td width="164" valign="top" style="width:123pt; border:solid windowtext 1.0pt; padding:4pt;">
-        <p style="margin:0; font-size:11px;">${label}</p>
-      </td>
-      <td valign="top" style="border:solid windowtext 1.0pt; border-left:none; padding:4pt;">
-        <p style="margin:0; font-size:11px;">${value || ""}</p>
-      </td>
-    </tr>`;
-    },
+
     abrirModalSegundoCorreo() {
       setTimeout(() => {
         Swal.fire({
           icon: "info",
-          text: "Generar Siguiente Correo. Recuerde haber pegado el correo anterior.",
+          title: "📧 Crear email al agente",
+          text: "✅ Confirmar que ya enviaste el email operaciones",
+          confirmButtonText: "Lo Confirmo",
           allowEnterKey: false,
           allowEscapeKey: false,
           allowOutsideClick: false,
@@ -1022,137 +1016,91 @@ export default {
       }, 3000);
     },
     async GenerartSegundoCorreo() {
-      let asesor = this.$store.state.pricing.listEjecutivo.find(
-        (v) =>
-          v.id_entitie ==
-          this.$store.state.pricing.datosPrincipales.id_vendedor,
-      );
+      const state = this.$store.state.pricing;
+      const main = state.datosPrincipales;
+      const cliente = state.dataCliente;
 
-      let Modality = this.$store.state.pricing.listModality.find(
-        (v) => v.id == this.$store.state.pricing.datosPrincipales.idsentido,
-      );
+      // Obtenemos los objetos o un objeto vacío para evitar errores de .name
+      const PortBegin =
+        state.listPortBegin.find((v) => v.id == main.idorigen) || {};
+      const Incoterms =
+        state.listIncoterms.find((v) => v.id == main.idincoterms) || {};
+      const Modality =
+        state.listModality.find((v) => v.id == main.idsentido) || {};
 
-      let PortBegin = this.$store.state.pricing.listPortBegin.find(
-        (v) => v.id == this.$store.state.pricing.datosPrincipales.idorigen,
-      );
-      let PortEnd = this.$store.state.pricing.listPortEnd.find(
-        (v) => v.id == this.$store.state.pricing.datosPrincipales.iddestino,
-      );
-      let Incoterms = this.$store.state.pricing.listIncoterms.find(
-        (v) => v.id == this.$store.state.pricing.datosPrincipales.idincoterms,
-      );
-      let Proveedor = this.$store.state.itemsProveedorList.find(
-        (v) => v.id == this.$store.state.pricing.datosPrincipales.id_proveedor,
-      );
+      // Formateamos los bloques de texto complejos
+      const cargaDetalles = `
+    <strong>INCOTERMS:</strong> ${Incoterms.name || ""}<br/>
+    <strong>PESO:</strong> ${main.peso || 0} KG <br/>
+    <strong>VOLUMEN:</strong> ${main.volumen || 0} M3 <br/>
+    <strong>TIPO DE MERCANCIA:</strong> ${main.descripcioncarga || ""}
+  `;
 
-      let hmtl1 = `
-            <p>Hola Colega Por aquí tenemos una nueva carga, por indicarnos tu numero de routing order y que Customer seguirá el tema</p>
-            <table style="border-collapse: collapse; width: 100%; max-width: 800px; border: 1px solid #000; font-family: Arial, sans-serif;">
-              <tbody>
-                <tr>
-                  <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">PUERTO DE SALIDA</td>
-                  <td style="border: 1px solid #000; padding: 8px;">${
-                    PortBegin.name || ""
-                  }</td>
-                </tr>
-                <tr>
-                  <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">
-                    DATOS DE LA CARGA<br />
-                    <small style="font-weight: normal;">Si es EXWORK enviar dirección de recolecta, no la de la factura</small>
-                  </td>
-                  <td style="border: 1px solid #000; padding: 8px;">
-                    <strong>INCOTERMS:</strong> ${Incoterms.name || ""}<br/>
-                    <strong>PESO:</strong> ${
-                      this.$store.state.pricing.datosPrincipales.peso || 0
-                    } KG <br/>
-                    <strong>VOLUMEN:</strong> ${
-                      this.$store.state.pricing.datosPrincipales.volumen || 0
-                    } M3 <br/>
-                    <strong>TIPO DE MERCANCIA:</strong> ${
-                      this.$store.state.pricing.datosPrincipales
-                        .descripcioncarga
-                        ? this.$store.state.pricing.datosPrincipales
-                            .descripcioncarga
-                        : ""
-                    }
-                  </td>
-                </tr>
-                <tr>
-                  <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">DETALLES DEL PROVEEDOR</td>
-                  <td style="border: 1px solid #000; padding: 8px;">
-                    <strong>NOMBRE:</strong> ${
-                      this.$store.state.pricing.dataCliente.business_name ||
-                      "Sin nombre"
-                    } <br />
-                    <strong>CONTACTO:</strong> ${
-                      this.$store.state.pricing.dataCliente.contact || ""
-                    } <br />
-                    <strong>EMAIL:</strong> ${
-                      this.$store.state.pricing.dataCliente.emailaddress || ""
-                    } <br />
-                    <strong>TELÉFONO:</strong> ${
-                      this.$store.state.pricing.dataCliente.phone || ""
-                    }
-                  </td>
-                </tr>
-                <tr>
-                  <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">CLIENTE / RAZON SOCIAL</td>
-                  <td style="border: 1px solid #000; padding: 8px;">
-                    ${
-                      this.$store.state.pricing.dataCliente.nombrecompleto || ""
-                    }<br />
-                    RUC: ${
-                      this.$store.state.pricing.dataCliente.document || ""
-                    }<br />
-                    DIRECCION: ${
-                      this.$store.state.pricing.dataCliente.address || ""
-                    } <br />
-                    EMAIL: ${
-                      this.$store.state.pricing.emailaddress
-                        ? `<a href="mailto:${this.$store.state.pricing.emailaddress}">${this.$store.state.pricing.emailaddress}</a>`
-                        : ""
-                    }
-                  </td>
-                </tr>
-                <tr>
-                  <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">NOTIFY</td>
-                  <td style="border: 1px solid #000; padding: 8px;">
-                    PIC LOGISTICA SAC<br />RUC: 20609852861<br />AV . AGUSTIN DE LA ROSA TORO 770, SAN LUIS<br />
-                    Contacto: Carlos Ramirez<br />CORREO: <a href="mailto:ASESOR2@PIC-CARGO.COM">ASESOR2@PIC-CARGO.COM</a>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">CARGA LISTA DIA FECHA</td>
-                  <td style="border: 1px solid #000; padding: 8px;">${
-                    this.datosManuales.fechaCarga || "Shors"
-                  }</td>
-                </tr>
-              </tbody>
-            </table>
-          `;
+      const proveedorDetalles = `
+    <strong>NOMBRE:</strong> ${cliente.business_name || "Sin nombre"} <br />
+    <strong>CONTACTO:</strong> ${cliente.contact || ""} <br />
+    <strong>EMAIL:</strong> ${cliente.emailaddress || ""} <br />
+    <strong>TELÉFONO:</strong> ${cliente.phone || ""}
+  `;
+
+      const clienteDetalles = `
+    ${cliente.nombrecompleto || ""}<br />
+    RUC: ${cliente.document || ""}<br />
+    DIRECCION: ${cliente.address || ""} <br />
+    EMAIL: ${
+      state.emailaddress
+        ? `<a href="mailto:${state.emailaddress}">${state.emailaddress}</a>`
+        : ""
+    }
+  `;
+
+      const htmlBody = `
+    <p>Hola Colega Por aquí tenemos una nueva carga, por indicarnos tu numero de routing order y que Customer seguirá el tema</p>
+    <table style="border-collapse: collapse; width: 100%; max-width: 800px; border: 1px solid #000; font-family: Arial, sans-serif;">
+      <tbody>
+        ${this._tr("PUERTO DE SALIDA", PortBegin.name)}
+        ${this._tr(
+          "DATOS DE LA CARGA<br/><small style='font-weight:normal;'>Si es EXWORK enviar dirección de recolecta</small>",
+          cargaDetalles,
+        )}
+        ${this._tr("DETALLES DEL PROVEEDOR", proveedorDetalles)}
+        ${this._tr("CLIENTE / RAZON SOCIAL", clienteDetalles)}
+        ${this._tr(
+          "NOTIFY",
+          "PIC LOGISTICA SAC<br/>RUC: 20609852861<br/>AV. AGUSTIN DE LA ROSA TORO 770, SAN LUIS<br/>Contacto: Carlos Ramirez<br/>CORREO: ASESOR2@PIC-CARGO.COM",
+        )}
+        ${this._tr(
+          "CARGA LISTA DIA FECHA",
+          this.datosManuales.fechaCarga || "Pendiente",
+        )}
+      </tbody>
+    </table>
+  `;
 
       try {
-        const blob = new Blob([hmtl1], { type: "text/html" });
-        const data = [new ClipboardItem({ ["text/html"]: blob })];
-        await navigator.clipboard.write(data);
+        const blob = new Blob([htmlBody], { type: "text/html" });
+        await navigator.clipboard.write([
+          new ClipboardItem({ "text/html": blob }),
+        ]);
 
-        alert(
-          "Información de cotización copiada. Al aceptar, se abrirá Outlook. (Luego presiona Ctrl+V)",
-        );
+        alert("Copiado. Se abrirá Outlook. (Usa Ctrl+V)");
 
         const subject = encodeURIComponent(
-          `QUOTE ${this.$store.state.pricing.nro_quote} ${this.$store.state.pricing.dataCliente.nombrecompleto} ${Incoterms.name} ${Modality.name}`,
+          `QUOTE ${state.nro_quote} ${cliente.nombrecompleto || ""} ${
+            Incoterms.name || ""
+          } ${Modality.name || ""}`,
         );
-        const body = encodeURIComponent("Hola colega, (PEGA LA TABLA AQUÍ)");
-
-        window.location.href = `mailto:${this.$store.state.pricing.dataCliente.emailaddress}?subject=${subject}&body=${body}`;
+        window.location.href = `mailto:${
+          cliente.emailaddress || ""
+        }?subject=${subject}&body=${encodeURIComponent(
+          "Hola colega, (PEGA LA TABLA AQUÍ)",
+        )}`;
 
         this.$emit("continuar");
       } catch (err) {
-        console.error("Error al copiar:", err);
-        alert("Hubo un problema al copiar los datos automáticamente.");
+        console.error("Error:", err);
+        alert("Hubo un problema al copiar los datos.");
       }
-      //
     },
     checkNoAplica(step) {
       const campos = {
@@ -1179,6 +1127,17 @@ export default {
           ? "No Aplica"
           : "";
       }
+    },
+    _tr(label, value) {
+      return `
+    <tr>
+      <td width="164" valign="top" style="width:123pt; border:solid windowtext 1.0pt; padding:4pt;">
+        <p style="margin:0; font-size:11px;">${label}</p>
+      </td>
+      <td valign="top" style="border:solid windowtext 1.0pt; border-left:none; padding:4pt;">
+        <p style="margin:0; font-size:11px;">${value || ""}</p>
+      </td>
+    </tr>`;
     },
   },
   mounted() {
