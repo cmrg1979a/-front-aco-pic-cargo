@@ -1019,31 +1019,39 @@ export default {
       }, 3000);
     },
     async GenerartSegundoCorreo() {
-      const state = this.$store.state.pricing;
-      const main = state.datosPrincipales;
-      const cliente = state.dataCliente;
-      const pricing = state.pricing;
-      const dp = pricing.datosPrincipales;
-      // Obtenemos los objetos o un objeto vacío para evitar errores de .name
-      const PortBegin = this.puertoOrigen;
-      const Incoterms =
-        state.listIncoterms.find((v) => v.id == main.idincoterms) || {};
-      const Modality =
-        state.listModality.find((v) => v.id == main.idsentido) || {};
+      // Centralizamos el acceso al store para evitar errores de undefined
+      const pricing = this.$store.state.pricing || {};
+      const main = pricing.datosPrincipales || {};
+      const cliente = pricing.dataCliente || {};
 
-      // Formateamos los bloques de texto complejos
+      // Función de búsqueda segura: si la lista no existe, no explota
+      const encontrar = (lista, id) => {
+        if (!lista || !Array.isArray(lista)) return {};
+        return lista.find((v) => v.id == id || v.id_entitie == id) || {};
+      };
+
+      // Buscamos los datos asegurándonos de usar la ruta correcta en el store
+      const proveedor = encontrar(
+        this.$store.state.itemsProveedorList,
+        main.id_proveedor,
+      );
+      const incotermsObj = encontrar(pricing.listIncoterms, main.idincoterms);
+      const modalityObj = encontrar(pricing.listModality, main.idsentido);
+      const portBeginObj = this.puertoOrigen || {};
+
+      // Bloques de texto
       const cargaDetalles = `
-    <strong>INCOTERMS:</strong> ${Incoterms.name || ""}<br/>
+    <strong>INCOTERMS:</strong> ${incotermsObj.name || ""}<br/>
     <strong>PESO:</strong> ${main.peso || 0} KG <br/>
     <strong>VOLUMEN:</strong> ${main.volumen || 0} M3 <br/>
     <strong>TIPO DE MERCANCIA:</strong> ${main.descripcioncarga || ""}
   `;
 
       const proveedorDetalles = `
-    <strong>NOMBRE:</strong> ${cliente.business_name || "Sin nombre"} <br />
-    <strong>CONTACTO:</strong> ${cliente.contact || ""} <br />
-    <strong>EMAIL:</strong> ${cliente.emailaddress || ""} <br />
-    <strong>TELÉFONO:</strong> ${cliente.phone || ""}
+    NOMBRE: ${proveedor.namelong || ""}<br>
+    CONTACTO: ${proveedor.contacto || ""}<br>
+    EMAIL: ${proveedor.emailaddress || ""}<br>
+    TELÉFONO: ${proveedor.contacto_phone || ""}
   `;
 
       const clienteDetalles = `
@@ -1051,8 +1059,8 @@ export default {
     RUC: ${cliente.document || ""}<br />
     DIRECCION: ${cliente.address || ""} <br />
     EMAIL: ${
-      state.emailaddress
-        ? `<a href="mailto:${state.emailaddress}">${state.emailaddress}</a>`
+      pricing.emailaddress
+        ? `<a href="mailto:${pricing.emailaddress}">${pricing.emailaddress}</a>`
         : ""
     }
   `;
@@ -1061,7 +1069,7 @@ export default {
     <p>Hola Colega Por aquí tenemos una nueva carga, por indicarnos tu numero de routing order y que Customer seguirá el tema</p>
     <table style="border-collapse: collapse; width: 100%; max-width: 800px; border: 1px solid #000; font-family: Arial, sans-serif;">
       <tbody>
-        ${this._tr("PUERTO DE SALIDA", PortBegin.name)}
+        ${this._tr("PUERTO DE SALIDA", portBeginObj.name)}
         ${this._tr(
           "DATOS DE LA CARGA<br/><small style='font-weight:normal;'>Si es EXWORK enviar dirección de recolecta</small>",
           cargaDetalles,
@@ -1088,10 +1096,16 @@ export default {
 
         alert("Copiado. Se abrirá Outlook. (Usa Ctrl+V)");
 
-        const subject = `EXPEDIENTE-${pricing.nro_exp} QUOTE ${pricing.nro_quote} ${pricing.dataCliente.nombrecompleto} ${incoterms.name} ${modality.name}`;
+        // Construcción del Subject (Sin caracteres especiales que rompan la URL)
+        const subject = `EXPEDIENTE-${pricing.nro_exp || ""} QUOTE ${
+          pricing.nro_quote || ""
+        } ${cliente.nombrecompleto || ""} ${incotermsObj.name || ""} ${
+          modalityObj.name || ""
+        }`;
+
         window.location.href = `mailto:${
           cliente.emailaddress || ""
-        }?subject=${subject}&body=${encodeURIComponent(
+        }?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(
           "Hola colega, (PEGA LA TABLA AQUÍ)",
         )}`;
 
