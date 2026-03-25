@@ -879,11 +879,11 @@ export default {
       );
       const modality = encontrar(pricing.listModality, dp.idsentido);
       const shipment = encontrar(pricing.listShipment, dp.idtipocarga);
-     
+
       const portEnd = encontrar(pricing.listPortEnd, dp.iddestino);
       const incoterms = encontrar(pricing.listIncoterms, dp.idincoterms);
       const proveedor = encontrar(state.itemsProveedorList, dp.id_proveedor);
-    
+
       // 2. Formateo de archivos adjuntos
       const listaArchivos =
         this.datosFile?.length > 0
@@ -1022,7 +1022,8 @@ export default {
       const state = this.$store.state.pricing;
       const main = state.datosPrincipales;
       const cliente = state.dataCliente;
-
+      const pricing = state.pricing;
+      const dp = pricing.datosPrincipales;
       // Obtenemos los objetos o un objeto vacío para evitar errores de .name
       const PortBegin = this.puertoOrigen;
       const Incoterms =
