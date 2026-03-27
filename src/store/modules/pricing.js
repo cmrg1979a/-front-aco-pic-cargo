@@ -1562,6 +1562,7 @@ const actions = {
 
       state.copy_quote = res;
       state.id = res.id;
+      console.log(res.cliente[0])
       state.dataCliente = res.cliente[0];
       state.nro_quote = res.quote;
       state.datosPrincipales.id_marketing = res.id_marketing;

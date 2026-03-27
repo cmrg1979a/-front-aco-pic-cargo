@@ -657,6 +657,38 @@
           <v-toolbar flat dark color="primary">
             <v-toolbar-title>Datos Manuales Instructivo</v-toolbar-title>
             <v-spacer></v-spacer>
+            <v-btn
+              small
+              class="mx-1"
+              v-if="verPrevisualizacion"
+              color="#01579B"
+              dark
+              @click="verDatosPreview = !verDatosPreview"
+            >
+              <v-icon class="mx-1" small v-if="verDatosPreview"
+                >mdi-eye-off</v-icon
+              >
+              <v-icon class="mx-1" small v-else>mdi-lead-pencil</v-icon>
+              {{ verDatosPreview ? "Ocultar Datos" : "Editar Datos" }}
+            </v-btn>
+            <v-btn
+              small
+              class="mx-1"
+              v-if="verDatosPreview"
+              color="#01579B"
+              dark
+              @click="verPrevisualizacion = !verPrevisualizacion"
+            >
+              <v-icon class="mx-1" small v-if="verPrevisualizacion"
+                >mdi-eye-off</v-icon
+              >
+              <v-icon class="mx-1" small v-else>mdi-eye</v-icon>
+              {{
+                verPrevisualizacion
+                  ? "Ocultar Previsualización"
+                  : "Ver Previsualización"
+              }}
+            </v-btn>
             <v-btn icon @click="cerrarDialogoSequenceInstructivo">
               <v-icon>mdi-close</v-icon>
             </v-btn>
@@ -670,6 +702,9 @@
                 <fileSequenceInstructivo
                   @continuar="abrirModalAprobar"
                   :aprobadoflag="$store.state.pricing.aprobadoflag"
+                  :verPrevisualizacion="verPrevisualizacion"
+                  :verDatosPreview="verDatosPreview"
+                  @cerrarDialogo="cerrarDialogoSequenceInstructivo"
                 />
               </v-col>
             </v-row>
@@ -697,6 +732,8 @@ export default {
   },
   data() {
     return {
+      verPrevisualizacion: true,
+      verDatosPreview: true,
       proveedorInstructivo: {},
       dialogSequenceInstructivo: false,
       dialogFiles: false,
@@ -789,10 +826,12 @@ export default {
   async mounted() {
     this.$nextTick(async () => {
       setTimeout(async () => {
+        this.$store.state.spiner = true;
         await this.generaInstructivoparaguardata();
         if (this.$store.state.pricing.aprobadoflag) {
           this.dialogSequenceInstructivo = true;
         }
+        this.$store.state.spiner = false;
       }, 4000);
     });
   },

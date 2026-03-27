@@ -505,7 +505,7 @@ const actions = {
         
         let data = response.data;
         res = response.data;
-        console.log(res);
+        
         sessionStorage.setItem("auth-token", data.token);
 
         if (data.status == "401") {

@@ -186,7 +186,7 @@ const actions = {
     await axios(config)
       .then(function (response) {
         var res = response.data;
-        console.log(res);
+        
         Swal.fire({
           icon: res.estadoflag ? "success" : "error",
           html: res.mensaje,

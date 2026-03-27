@@ -4,7 +4,6 @@
       <v-row no-gutters>
         <v-col v-if="verDatosPreview" :cols="verPrevisualizacion ? 4 : 12">
           <div class="clsSequence">
-            <v-checkbox label="Ver Preview" v-model="verPrevisualizacion" />
             <v-stepper v-model="e6" vertical non-linear>
               <v-stepper-step :editable="true" :complete="e6 > 1" step="1">
                 SERVICIO
@@ -619,7 +618,6 @@
           class="px-10"
         >
           <v-tabs color="deep-purple accent-4" right v-model="tabPreview">
-            <v-checkbox label="Ver Datos Manuales" v-model="verDatosPreview" />
             <v-spacer></v-spacer>
             <v-tabs-slider></v-tabs-slider>
             <v-tab href="#op">INSTRUCTIVO A OPERACIONES</v-tab>
@@ -652,7 +650,7 @@
                           valign="top"
                           style="border: solid windowtext 1pt; border-top: none"
                         >
-                          <p class="MsoNormal my-0">ASESOR</p>
+                          <p class="MsoNormal my-0">ASESOR/ PRICING</p>
                         </td>
                         <td
                           valign="top"
@@ -665,6 +663,7 @@
                         >
                           <p class="MsoNormal my-0">
                             {{ asesor ? asesor.name : "" }}
+                            / {{ asesorPricing ? asesorPricing.name : "" }}
                           </p>
                         </td>
                       </tr>
@@ -692,6 +691,28 @@
                         </td>
                       </tr>
 
+                      <tr>
+                        <td
+                          valign="top"
+                          style="border: solid windowtext 1pt; border-top: none"
+                        >
+                          <p class="MsoNormal my-0">TIPO DE EMBARQUE</p>
+                        </td>
+                        <td
+                          valign="top"
+                          style="
+                            width: 510.5pt;
+                            border-top: none;
+                            border-left: none;
+                            border-bottom: solid windowtext 1pt;
+                            border-right: solid windowtext 1pt;
+                          "
+                        >
+                          <p class="MsoNormal my-0">
+                            {{ Shipment.code || "" }}
+                          </p>
+                        </td>
+                      </tr>
                       <tr>
                         <td
                           valign="top"
@@ -1222,6 +1243,38 @@
                           </p>
                         </td>
                       </tr>
+
+                      <tr>
+                        <td
+                          valign="top"
+                          style="border: solid windowtext 1pt; border-top: none"
+                        >
+                          <p class="MsoNormal my-0">CARPETA OPERATIVA</p>
+                        </td>
+                        <td
+                          valign="top"
+                          style="
+                            width: 510.5pt;
+                            border-top: none;
+                            border-left: none;
+                            border-bottom: solid windowtext 1pt;
+                            border-right: solid windowtext 1pt;
+                          "
+                        >
+                          <p
+                            class="MsoNormal my-0"
+                            v-if="datosPrincipales.url_folderonedriveexp"
+                          >
+                            CARPETA OPERATIVA
+                            <a
+                              :href="datosPrincipales.url_folderonedriveexp"
+                              target="_blank"
+                              style="color: blue; font-weight: bold"
+                              >CLICK AQUÍ</a
+                            >
+                          </p>
+                        </td>
+                      </tr>
                     </tbody>
                   </v-simple-table>
                 </div>
@@ -1243,6 +1296,28 @@
                           "
                         >
                           {{ puertoOrigen ? puertoOrigen.name : "" }}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td
+                          valign="top"
+                          style="border: solid windowtext 1pt; border-top: none"
+                        >
+                          <p class="MsoNormal my-0">TIPO DE EMBARQUE</p>
+                        </td>
+                        <td
+                          valign="top"
+                          style="
+                            width: 510.5pt;
+                            border-top: none;
+                            border-left: none;
+                            border-bottom: solid windowtext 1pt;
+                            border-right: solid windowtext 1pt;
+                          "
+                        >
+                          <p class="MsoNormal my-0">
+                            {{ Shipment.code || "" }}
+                          </p>
                         </td>
                       </tr>
                       <tr>
@@ -1380,7 +1455,7 @@
             </v-tabs-items>
           </v-tabs>
         </v-col>
-        <v-col cols="12 my-2">
+        <v-col cols="12 my-5">
           <v-btn
             color="success"
             v-if="!aprobadoflag"
@@ -1406,6 +1481,9 @@
           >
             <v-icon class="mx-2">mdi-file-pdf-box</v-icon> Imprimir
           </v-btn>
+          <v-btn color="#E65100" dark @click="$emit('cerrarDialogo')">
+            <v-icon class="mx-1">mdi-close</v-icon> Cerrar
+          </v-btn>
         </v-col>
       </v-row>
     </v-container>
@@ -1424,11 +1502,17 @@ export default {
       type: Boolean,
       default: false,
     },
+    verPrevisualizacion: {
+      type: Boolean,
+      default: true,
+    },
+    verDatosPreview: {
+      type: Boolean,
+      default: true,
+    },
   },
   data() {
     return {
-      verPrevisualizacion: false,
-      verDatosPreview: true,
       nro_quote: "",
       fecha: moment().format("YYYY-MM-DD HH:MM"),
       tabPreview: "op",
@@ -1438,6 +1522,7 @@ export default {
       Proveedor: null,
       proveedorInstructivo: {},
       asesor: {},
+      asesorPricing: {},
       incoterms: {},
       proveedor: {},
       cliente: {},
@@ -1545,7 +1630,6 @@ export default {
       let nameWithoutExtension = vm.files[i].name.replace(/\.[^/.]+$/, "");
       data.append("name", nameWithoutExtension);
       data.append("file", vm.files[i]);
-      console.log("vm.files[i]", vm.files[i].name);
       var config = {
         method: "post",
         url: process.env.VUE_APP_URL_MAIN + "uploadAllPath",
@@ -1570,7 +1654,6 @@ export default {
             destinationFolderUrl:
               vm.$store.state.pricing.datosPrincipales.url_folderonedrive,
           });
-          console.log(res);
         })
         .catch(function (error) {
           console.log(error);
@@ -1593,19 +1676,6 @@ export default {
       const cliente = state.dataCliente;
 
       // 1. Buscamos con fallback a objeto vacío para evitar errores de .name
-      const asesor =
-        state.listEjecutivo.find((v) => v.id_entitie == main.id_vendedor) || {};
-      const Modality =
-        state.listModality.find((v) => v.id == main.idsentido) || {};
-      const Shipment =
-        state.listShipment.find((v) => v.id == main.idtipocarga) || {};
-      const PortBegin = this.puertoOrigen;
-      const Incoterms =
-        state.listIncoterms.find((v) => v.id == main.idincoterms) || {};
-      const Proveedor =
-        this.$store.state.itemsProveedorList.find(
-          (v) => v.id == main.id_proveedor,
-        ) || {};
 
       // 2. Limpieza de nombres para el subject
       const nro_quote_clean = (state.nro_quote || "")
@@ -1621,39 +1691,37 @@ export default {
         .replace(/[\s-]+/g, "_");
 
       // 3. Construcción segura del subject
-      const subjectStr = `EXPEDIENTE_${
-        state.nro_exp
-      }_QUOTE_${nro_quote_clean}_${nombre_clean}_${Incoterms.name || ""}_${
-        Modality.name || ""
-      }`;
+
+      const subjectStr = `INSTRUCTIVO_VENTAS_${nro_quote_clean}_EXPEDIENTE_${this.pricing.nro_exp}`;
       const subject = encodeURIComponent(subjectStr);
 
       // 4. Ejecución del preview/guardado
       await this.quotePreviewInstructivoManual({
         guardarFlag: guardarFlag,
         subject: subject,
-        asesor: asesor.name || "",
+        asesor: this.asesor.name || "",
+        asesorPricing: this.asesorPricing.name || "",
         nro_quote: state.nro_quote || "",
         servicio: this.datosManuales.servicio || "",
         email: this.datosManuales.email || "",
         PortBegin: this.puertoOrigen.name || "",
-        Incoterms: Incoterms.name || "",
+        Incoterms: this.incoterms.name || "",
         peso: main.peso || 0,
         volumen: main.volumen || 0,
         descripcioncarga: main.descripcioncarga || "",
-        nombrecompletoProveedor: Proveedor.namelong || "",
-        contactoProveedor: Proveedor.contacto || "",
-        addressProveedor: Proveedor.emailaddress || "",
-        contactoPhoneProveedor: Proveedor.contacto_phone || "",
+        nombrecompletoProveedor: this.proveedor.namelong || "",
+        contactoProveedor: this.proveedor.contacto || "",
+        addressProveedor: this.proveedor.emailaddress || "",
+        contactoPhoneProveedor: this.proveedor.contacto_phone || "",
         nombrecompletoCliente: cliente.nombrecompleto || "",
         documentCliente: cliente.document || "",
         addressCliente: cliente.address || "",
         emailaddressCliente: state.emailaddress || "",
         listDiaFecha: this.datosManuales.listDiaFecha || "",
         grupoWhatsapp: this.datosManuales.grupoWhatsapp || "",
-        Shipment: Shipment.name || "",
-        url_folderonedrive: main.url_folderonedrive,
-        url_folderonedriveexp: main.url_folderonedriveexp,
+        Shipment: this.Shipment.name || "",
+        url_folderonedrive: this.datosPrincipales.url_folderonedrive,
+        url_folderonedriveexp: this.datosPrincipales.url_folderonedriveexp,
         pagarProveedor: this.datosManuales.pagarProveedor || "",
         dondePagar: this.datosManuales.dondePagar || "",
         linkDePago: this.datosManuales.linkDePago || "",
@@ -1671,6 +1739,10 @@ export default {
                 .map((file) => `• ${file.nombre || file}`)
                 .join("<br />")
             : "No hay archivos",
+        url_logo: JSON.parse(sessionStorage.getItem("dataBranch"))[0].logo,
+        document: JSON.parse(sessionStorage.getItem("dataBranch"))[0].document,
+        address: JSON.parse(sessionStorage.getItem("dataBranch"))[0].address,
+        phone: JSON.parse(sessionStorage.getItem("dataBranch"))[0].phone,
       });
     },
     async generarHTML() {
@@ -1681,6 +1753,8 @@ export default {
           : "No hay archivos";
       // 3. Construcción del Template HTML
       const htmlTable = `
+        <p> Hola Compañero</p>
+        <p>Hemos logrado cerrar esta nueva carga abajo los detalles </p>
         <table border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse; font-family: Arial, sans-serif; width: 100%;">
           <tbody>
             ${this._tr("FECHA", moment().format("DD/MM/YYYY"))}
@@ -1758,8 +1832,17 @@ export default {
             ${this._tr("SEGURO", this.datosManuales.seguro)}
             ${this._tr("OBSERVACIONES 1", this.datosManuales.observacion1)}
             ${this._tr("OBSERVACIONES 2", this.datosManuales.observacion2)}
+            ${
+              this.datosPrincipales.url_folderonedriveexp
+                ? this._tr(
+                    "CARPETA OPERATIVA",
+                    `<a href="${this.datosPrincipales.url_folderonedriveexp}" target="_blank" style="color: blue; font-weight: bold;">CLICK AQUÍ</a>`,
+                  )
+                : ""
+            }
           </tbody>
-        </table>`;
+        </table>
+        <p>Quedamos atentos a sus comentarios y en caso de cualquier duda por favor contactarnos</p>`;
 
       try {
         // 4. Copiar al Portapapeles
@@ -1773,7 +1856,17 @@ export default {
         );
 
         // 5. Configuración del correo
-        const subject = `EXPEDIENTE-${this.pricing.nro_exp} QUOTE ${this.pricing.nro_quote} ${this.pricing.dataCliente.nombrecompleto} ${this.incoterms.name} ${this.Modality.name}`;
+        // Función para quitar tildes
+        const clean = (str) =>
+          str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "") : "";
+
+        // Aplicación en tu constante
+        const subject = `EXPEDIENTE-${this.pricing.nro_exp} QUOTE ${
+          this.pricing.nro_quote
+        } ${clean(this.pricing.dataCliente.nombrecompleto)} ${clean(
+          this.incoterms.name,
+        )} ${clean(this.Modality.name)}`;
+
         const body =
           "Hola colega, adjunto los detalles del expediente (Pega la tabla aquí):\n\n";
 
@@ -1863,6 +1956,7 @@ export default {
             <table style="border-collapse: collapse; width: 100%; max-width: 800px; border: 1px solid #000; font-family: Arial, sans-serif;">
               <tbody>
                 ${this._tr("PUERTO DE SALIDA", this.puertoOrigen.name || "")}
+                ${this._tr("TIPO DE EMBARQUE", this.Shipment.code || "")}
                 ${this._tr(
                   "DATOS DE LA CARGA<br/><small style='font-weight:normal;'>Si es EXWORK enviar dirección de recolecta</small>",
                   cargaDetalles,
@@ -1875,11 +1969,11 @@ export default {
                 )}
                 ${this._tr(
                   "CARGA LISTA DIA FECHA",
-                  this.datosManuales.fechaCarga || "Pendiente",
+                  this.datosManuales.listDiaFecha || "Pendiente",
                 )}
               </tbody>
             </table>
-          `;
+          <p>Quedamos atentos a sus comentarios y en caso de cualquier duda por favor contactarnos</p>`;
 
       try {
         const blob = new Blob([htmlBody], { type: "text/html" });
@@ -1890,11 +1984,15 @@ export default {
         alert("Copiado. Se abrirá Outlook. (Usa Ctrl+V)");
 
         // Construcción del Subject (Sin caracteres especiales que rompan la URL)
-        const subject = `EXPEDIENTE-${this.pricing.nro_exp || ""} QUOTE ${
-          this.pricing.nro_quote || ""
-        } ${this.cliente.nombrecompleto || ""} ${this.incoterms.name || ""} ${
-          this.Modality.name || ""
-        }`;
+        const clean = (str) =>
+          str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "") : "";
+
+        // Aplicación en tu constante
+        const subject = `EXPEDIENTE-${this.pricing.nro_exp} QUOTE ${
+          this.pricing.nro_quote
+        } ${clean(this.pricing.dataCliente.nombrecompleto)} ${clean(
+          this.incoterms.name,
+        )} ${clean(this.Modality.name)}`;
 
         window.location.href = `mailto:${
           this.cliente.emailaddress || ""
@@ -1947,18 +2045,19 @@ export default {
     },
 
     cargarDatosModality() {
-      if (!this.pricing?.listEjecutivo || !this.datosPrincipales) return;
+      if (!this.pricing?.listModality || !this.datosPrincipales) return;
       this.Modality =
-        this.pricing.listEjecutivo.find(
-          (v) => v.id_entitie == this.datosPrincipales.id_vendedor,
+        this.pricing.listModality.find(
+          (v) => v.id == this.datosPrincipales.idsentido,
         ) || {};
+      console.log(this.Modality);
     },
 
     cargarDatosShipment() {
       if (!this.pricing?.listShipment || !this.datosPrincipales) return;
       this.Shipment =
         this.pricing.listShipment.find(
-          (v) => v.id == this.datosPrincipales.idsentido,
+          (v) => v.id == this.datosPrincipales.idtipocarga,
         ) || {};
     },
 
@@ -1974,6 +2073,13 @@ export default {
       this.asesor = this.encontrar(
         this.pricing.listEjecutivo,
         this.datosPrincipales.id_vendedor,
+        "id_entitie",
+      );
+    },
+    cargarDatosAsesorPricing() {
+      this.asesorPricing = this.encontrar(
+        this.pricing.listEjecutivo,
+        this.datosPrincipales.id_pricing,
         "id_entitie",
       );
     },
@@ -2017,11 +2123,8 @@ export default {
   },
 
   async mounted() {
-    console.log(this.aprobadoflag);
     if (this.aprobadoflag) {
       this.e6 = 16;
-      this.verPrevisualizacion = true;
-      this.verDatosPreview = false;
     }
     Promise.all([
       this.cargarDatosModality(),
@@ -2033,6 +2136,7 @@ export default {
       this.cargarDatosIncoterms(),
       this.cargarDatosProveedor(),
       this.cargarDatosCliente(),
+      this.cargarDatosAsesorPricing(),
     ]);
 
     const tipoCargaItem = this.$store.state.pricing.listShipment.find(
@@ -2058,7 +2162,6 @@ export default {
       this.proveedorInstructivo = this.$store.state.provedores.find(
         (v) => v.id == proveedoresUnicos[0],
       );
-      console.log(this.proveedorInstructivo);
     }
     this.puertoOrigen = await this.verPuerto({
       id_transport: idTipoCarga,
@@ -2068,8 +2171,6 @@ export default {
       id_transport: idTipoCarga,
       id: this.$store.state.pricing.datosPrincipales.iddestino,
     });
-    console.log("this.puertoOrigen", this.puertoOrigen);
-    console.log("this.puertoDestino", this.puertoDestino);
   },
   watch: {},
   computed: {

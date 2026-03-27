@@ -340,7 +340,7 @@ export default {
         .then(function (response) {
           let res = response.data;
           if (res.estadoflag) {
-            console.log(res);
+            
             vm.lstHouse = res.data;
           }
         })

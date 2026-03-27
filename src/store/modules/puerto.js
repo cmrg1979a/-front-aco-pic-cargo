@@ -159,7 +159,7 @@ let actions = {
         .catch(function (error) {
           console.error(error);
         });
-      console.log(res);
+      
       return res;
     } catch (error) {
       console.error(error);
