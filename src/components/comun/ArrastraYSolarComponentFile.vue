@@ -78,11 +78,16 @@ export default {
   watch: {
     archivoInicial: {
       handler(newValue) {
-        if (newValue && newValue.archivo) {
+        // Si newValue existe y tiene una ruta (ya sea adentro de .archivo o directo)
+        if (newValue && (newValue.ruta || newValue.archivo)) {
           this.cargarDataExistente(newValue);
+        } else {
+          // Si no hay archivo, reseteamos el estado visual
+          this.archivoSubidoExitosamente = false;
+          this.file = null;
         }
       },
-      immediate: true, // Esto hace que se ejecute apenas cargue el componente
+      immediate: true,
       deep: true,
     },
   },

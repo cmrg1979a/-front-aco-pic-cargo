@@ -126,230 +126,42 @@
                   <v-col cols="12">
                     <v-simple-table>
                       <tbody>
-                        <tr>
+                        <tr
+                          v-for="(doc, index) in listaDocumentos"
+                          :key="index"
+                        >
                           <td width="5%">
                             <v-checkbox
-                              disabled
-                              v-model="datosManuales.cotizacionFlag"
+                              v-model="doc.flag"
+                              color="success"
+                              hide-details
                             />
                           </td>
-                          <td width="45%">COTIZACION DE VENTAS</td>
-                          <td width="50%">
-                            <ArrastraYSolarComponent
-                              id="CotizacionVenta"
-                              :archivo-inicial="datosManuales.cotizacionFile"
-                              @archivo-cargado="
-                                (datoEmit) =>
-                                  cargarArchivo(datoEmit, 'cotizacionFile')
-                              "
-                              @archivo-eliminado="
-                                eliminarArchivoPadre('cotizacionFile')
-                              "
-                            />
-                          </td>
-                        </tr>
 
-                        <tr>
-                          <td width="5%">
-                            <v-checkbox
-                              disabled
-                              v-model="datosManuales.facturaCommercialFlag"
-                            />
-                          </td>
-                          <td width="45%">FACTURA COMERCIAL</td>
-                          <td width="50%">
-                            <ArrastraYSolarComponent
-                              id="facturaCommercial"
-                              :archivo-inicial="
-                                datosManuales.facturaCommercialFile
-                              "
-                              @archivo-cargado="
-                                (datoEmit) =>
-                                  cargarArchivo(
-                                    datoEmit,
-                                    'facturaCommercialFile',
-                                  )
-                              "
-                              @archivo-eliminado="
-                                eliminarArchivoPadre('facturaCommercialFile')
-                              "
-                            />
-                          </td>
-                        </tr>
-
-                        <tr>
-                          <td width="5%">
-                            <v-checkbox
-                              disabled
-                              v-model="datosManuales.listaEmpaqueFlag"
-                            />
-                          </td>
-                          <td width="45%">LISTA DE EMPAQUE</td>
-                          <td width="50%">
-                            <ArrastraYSolarComponent
-                              id="ListaEmpaque"
-                              :archivo-inicial="datosManuales.listaEmpaqueFile"
-                              @archivo-cargado="
-                                (datoEmit) =>
-                                  cargarArchivo(datoEmit, 'listaEmpaqueFile')
-                              "
-                              @archivo-eliminado="
-                                eliminarArchivoPadre('listaEmpaqueFile')
-                              "
-                            />
-                          </td>
-                        </tr>
-
-                        <tr>
-                          <td width="5%">
-                            <v-checkbox
-                              disabled
-                              v-model="datosManuales.proformaFlag"
-                            />
-                          </td>
-                          <td width="45%">PROFORMA</td>
-                          <td width="50%">
-                            <ArrastraYSolarComponent
-                              id="Proforma"
-                              :archivo-inicial="datosManuales.proformaFile"
-                              @archivo-cargado="
-                                (datoEmit) =>
-                                  cargarArchivo(datoEmit, 'proformaFile')
-                              "
-                              @archivo-eliminado="
-                                eliminarArchivoPadre('proformaFile')
-                              "
-                            />
-                          </td>
-                        </tr>
-
-                        <tr>
-                          <td width="5%">
-                            <v-checkbox
-                              disabled
-                              v-model="datosManuales.fichaTecnicaFlag"
-                            />
-                          </td>
-                          <td width="45%">FICHA TECNICA</td>
-                          <td width="50%">
-                            <ArrastraYSolarComponent
-                              id="FichaTecnica"
-                              :archivo-inicial="datosManuales.fichaTecnicaFile"
-                              @archivo-cargado="
-                                (datoEmit) =>
-                                  cargarArchivo(datoEmit, 'fichaTecnicaFile')
-                              "
-                              @archivo-eliminado="
-                                eliminarArchivoPadre('fichaTecnicaFile')
-                              "
-                            />
-                          </td>
-                        </tr>
-
-                        <tr>
-                          <td width="5%">
-                            <v-checkbox
-                              disabled
-                              v-model="datosManuales.soportePagoAlibabaFlag"
-                            />
-                          </td>
-                          <td width="45%">SOPORTE DE PAGO DE ALIBABA</td>
-                          <td width="50%">
-                            <ArrastraYSolarComponent
-                              id="SoportePagoAlibaba"
-                              :archivo-inicial="
-                                datosManuales.soportePagoAlibabaFile
-                              "
-                              @archivo-cargado="
-                                (datoEmit) =>
-                                  cargarArchivo(
-                                    datoEmit,
-                                    'soportePagoAlibabaFile',
-                                  )
-                              "
-                              @archivo-eliminado="
-                                eliminarArchivoPadre('soportePagoAlibabaFile')
-                              "
-                            />
-                          </td>
-                        </tr>
-
-                        <tr>
-                          <td width="5%">
-                            <v-checkbox
-                              disabled
-                              v-model="
-                                datosManuales.soporteTransferenciaInternacionalFlag
-                              "
-                            />
-                          </td>
                           <td width="45%">
-                            SOPORTE DE TRANSFERENCIA INTERNACIONAL
+                            <div v-if="doc.editable">
+                              <v-text-field
+                                v-model="doc.label"
+                                dense
+                                hide-details
+                                placeholder="Nombre del documento personalizado"
+                                variant="underlined"
+                              ></v-text-field>
+                            </div>
+                            <div v-else>
+                              {{ doc.label }}
+                            </div>
                           </td>
-                          <td width="50%">
-                            <ArrastraYSolarComponent
-                              id="SoporteTransferenciaInternacional"
-                              :archivo-inicial="
-                                datosManuales.soporteTransferenciaInternacionalFile
-                              "
-                              @archivo-cargado="
-                                (datoEmit) =>
-                                  cargarArchivo(
-                                    datoEmit,
-                                    'soporteTransferenciaInternacionalFile',
-                                  )
-                              "
-                              @archivo-eliminado="
-                                eliminarArchivoPadre(
-                                  'soporteTransferenciaInternacionalFile',
-                                )
-                              "
-                            />
-                          </td>
-                        </tr>
 
-                        <tr>
-                          <td width="5%">
-                            <v-checkbox
-                              disabled
-                              v-model="datosManuales.otrosFlag"
-                            />
-                          </td>
-                          <td width="45%">OTROS</td>
                           <td width="50%">
                             <ArrastraYSolarComponent
-                              id="Otros"
-                              :archivo-inicial="datosManuales.otrosFile"
+                              :id="doc.key"
+                              :archivo-inicial="doc.file"
                               @archivo-cargado="
                                 (datoEmit) =>
-                                  cargarArchivo(datoEmit, 'otrosFile')
+                                  cargarArchivoDinamico(datoEmit, doc)
                               "
-                              @archivo-eliminado="
-                                eliminarArchivoPadre('otrosFile')
-                              "
-                            />
-                          </td>
-                        </tr>
-
-                        <tr>
-                          <td width="5%">
-                            <v-checkbox
-                              disabled
-                              v-model="datosManuales.agregarOtrosFlag"
-                            />
-                          </td>
-                          <td width="45%">ARGEGAR OTROS</td>
-                          <td width="50%">
-                            <ArrastraYSolarComponent
-                              id="AgregarOtros"
-                              :archivo-inicial="datosManuales.agregarOtrosFile"
-                              @archivo-cargado="
-                                (datoEmit) =>
-                                  cargarArchivo(datoEmit, 'agregarOtrosFile')
-                              "
-                              @archivo-eliminado="
-                                eliminarArchivoPadre('agregarOtrosFile')
-                              "
+                              @archivo-eliminado="eliminarArchivoDinamico(doc)"
                             />
                           </td>
                         </tr>
@@ -516,6 +328,7 @@
                         <v-text-field
                           type="number"
                           v-model="datosManuales.montoRecibido"
+                          width="150px"
                         >
                         </v-text-field>
                       </v-col>
@@ -1990,6 +1803,71 @@ export default {
   },
   data() {
     return {
+      listaDocumentos: [
+        {
+          key: "cotizacion",
+          label: "COTIZACIÓN DE VENTAS",
+          flag: false,
+          file: null,
+          editable: false,
+        },
+        {
+          key: "facturaCommercial",
+          label: "FACTURA COMERCIAL",
+          flag: false,
+          file: null,
+          editable: false,
+        },
+        {
+          key: "listaEmpaque",
+          label: "LISTA DE EMPAQUE",
+          flag: false,
+          file: null,
+          editable: false,
+        },
+        {
+          key: "proforma",
+          label: "PROFORMA",
+          flag: false,
+          file: null,
+          editable: false,
+        },
+        {
+          key: "fichaTecnica",
+          label: "FICHA TÉCNICA",
+          flag: false,
+          file: null,
+          editable: false,
+        },
+        {
+          key: "soportePagoAlibaba",
+          label: "SOPORTE DE PAGO DE ALIBABA",
+          flag: false,
+          file: null,
+          editable: false,
+        },
+        {
+          key: "soporteTransferenciaInternacional",
+          label: "SOPORTE DE TRANSFERENCIA INTERNACIONAL",
+          flag: false,
+          file: null,
+          editable: false,
+        },
+        {
+          key: "otros",
+          label: "OTROS",
+          flag: false,
+          file: null,
+          editable: true,
+        },
+        // {
+        //   key: "agregarOtros",
+        //   label: "AGREGAR OTROS",
+        //   flag: false,
+        //   file: null,
+        //   editable: true,
+        // },
+      ],
       nro_quote: "",
       cboSiNo: [
         { value: true, text: "Si" },
@@ -2090,12 +1968,9 @@ export default {
       this.e6 = 23;
     },
     continuarPagarProveedor() {
-      console.log("nani?");
       if (!this.datosManuales.pagarProveedor) {
-        console.log("ssss");
         this.cambiarPagarProvedor();
       } else {
-        console.log("bbb");
         this.continuar();
       }
     },
@@ -2112,6 +1987,15 @@ export default {
         this.datosManuales[flagName] = true;
         this.filesLinkPagoAlibaba.push(this.datosManuales[name]);
       }
+    },
+    cargarArchivoDinamico(datoEmit, doc) {
+      doc.file = datoEmit.archivo;
+      doc.flag = true;
+      console.log(`Archivo cargado para: ${doc.label}`);
+    },
+    eliminarArchivoDinamico(doc) {
+      doc.file = null;
+      doc.flag = false;
     },
     eliminarArchivoPadre(name) {
       console.log(`Eliminando archivo del padre: ${name}`);
@@ -2150,7 +2034,10 @@ export default {
     setDatosInstructivo() {
       this.guardarDatosInstructivo({
         id: this.$route.params.id,
-        datosInstructivoManual: this.datosManuales,
+        datosInstructivoManual: {
+          ...this.datosManuales,
+          listaDocumentos: this.listaDocumentos,
+        },
       });
       this.$emit("continuar");
     },
@@ -2282,15 +2169,41 @@ export default {
         pagarProveedor: requierePagar,
         mostrarPagarProveedorAlibaba: esAlibaba,
         mostrarPagarProveedorInternacional: esInternacional,
+        listaDocumentos: this.listaDocumentos,
       });
     },
     async generarHTML() {
+      const documentosSeleccionados = this.listaDocumentos.filter(
+        (doc) => doc.flag,
+      );
+
       const listaArchivos =
-        this.filesLinkPagoAlibaba?.length > 0
-          ? this.filesLinkPagoAlibaba
-              .map((f) => `• ${f.nombre || f}`)
+        documentosSeleccionados.length > 0
+          ? documentosSeleccionados
+              .map((doc) => {
+                let nombreArchivo = "";
+
+                // VALIDACIÓN: Si hay archivo, extraemos el nombre; si no, ponemos el aviso
+                if (doc.file) {
+                  const nombreRaw =
+                    doc.file.name ||
+                    (typeof doc.file === "string" ? doc.file : "");
+
+                  // Limpiamos el nombre si viene con la ruta completa
+                  nombreArchivo = nombreRaw.includes("/")
+                    ? nombreRaw.substring(nombreRaw.lastIndexOf("/") + 1)
+                    : nombreRaw;
+                } else {
+                  // SI EL FLAG ESTÁ ACTIVO PERO NO HAY ARCHIVO
+                  nombreArchivo = "DOCUMENTO CONFIRMADO";
+                }
+
+                const detalle = `: <span style="color: #555;">${nombreArchivo}</span>`;
+
+                return `• <b>${doc.label.toUpperCase()}</b>${detalle}`;
+              })
               .join("<br />")
-          : "No hay archivos";
+          : "No hay archivos seleccionados";
 
       let datosPagoAlibaba = "";
       if (this.mostrarPagarProveedorAlibaba) {
@@ -2478,7 +2391,7 @@ export default {
         const clean = (str) =>
           str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "") : "";
 
-        const subject = `EXPEDIENTE-${this.pricing.nro_exp} QUOTE ${
+        const subject = `EXPEDIENTE-${this.pricing.nro_exp}QUOTE${
           this.pricing.nro_quote
         } ${clean(this.pricing.dataCliente.nombrecompleto)} ${clean(
           this.incoterms.name,
@@ -2604,7 +2517,7 @@ export default {
         const clean = (str) =>
           str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "") : "";
 
-        const subject = `EXPEDIENTE-${this.pricing.nro_exp} QUOTE ${
+        const subject = `EXPEDIENTE-${this.pricing.nro_exp}QUOTE${
           this.pricing.nro_quote
         } ${clean(this.pricing.dataCliente.nombrecompleto)} ${clean(
           this.incoterms.name,
@@ -2843,32 +2756,12 @@ export default {
     },
     "$store.state.pricing.datosPrincipales.datosinstructivomanual": {
       handler(newData) {
-        if (newData) {
-          this.filesLinkPagoAlibaba = [];
-
-          const nombresDeArchivos = [
-            "cotizacionFile",
-            "facturaCommercialFile",
-            "listaEmpaqueFile",
-            "proformaFile",
-            "fichaTecnicaFile",
-            "soportePagoAlibabaFile",
-            "soporteTransferenciaInternacionalFile",
-            "otrosFile",
-            "agregarOtrosFile",
-          ];
-
-          nombresDeArchivos.forEach((propiedad) => {
-            const archivoGuardado = newData[propiedad];
-
-            if (archivoGuardado && archivoGuardado.id) {
-              this.filesLinkPagoAlibaba.push({
-                id: archivoGuardado.id,
-                archivo: archivoGuardado.archivo,
-                name: propiedad,
-              });
-            }
-          });
+        if (newData && newData.listaDocumentos) {
+          this.listaDocumentos = JSON.parse(
+            JSON.stringify(newData.listaDocumentos),
+          );
+        } else if (newData) {
+          this.rehidratarDesdeFormatoViejo(newData);
         }
       },
       immediate: true,
@@ -2893,34 +2786,31 @@ export default {
       return false;
     },
     formatearArchivos() {
-      if (
-        !this.filesLinkPagoAlibaba ||
-        this.filesLinkPagoAlibaba.length === 0
-      ) {
-        return "No hay archivos";
+      // Filtramos solo los que tienen el flag activo (el checkbox marcado)
+      const seleccionados = this.listaDocumentos.filter((doc) => doc.flag);
+
+      if (seleccionados.length === 0) {
+        return "No hay archivos seleccionados";
       }
 
-      const nombresLegibles = {
-        cotizacionFile: "COTIZACIÓN DE VENTAS",
-        facturaCommercialFile: "FACTURA COMERCIAL",
-        listaEmpaqueFile: "LISTA DE EMPAQUE",
-        proformaFile: "PROFORMA",
-        fichaTecnicaFile: "FICHA TÉCNICA",
-        soportePagoAlibabaFile: "SOPORTE DE PAGO DE ALIBABA",
-        soporteTransferenciaInternacionalFile:
-          "SOPORTE DE TRANSFERENCIA INTERNACIONAL",
-        otrosFile: "OTROS",
-        agregarOtrosFile: "AGREGAR OTROS",
-      };
+      return seleccionados
+        .map((doc) => {
+          let nombreLimpio = "";
 
-      return this.filesLinkPagoAlibaba
-        .map((f) => {
-          const titulo = nombresLegibles[f.name] || f.name;
+          // Validamos si existe el objeto file y si tiene un nombre
+          if (doc.file && doc.file.name) {
+            const nombreRaw = doc.file.name;
+            // Limpiamos si es una URL de OneDrive/S3 o similar
+            nombreLimpio = nombreRaw.includes("http")
+              ? nombreRaw.substring(nombreRaw.lastIndexOf("/") + 1)
+              : nombreRaw;
+          } else {
+            // SI NO HAY ARCHIVO PERO EL FLAG ESTÁ ACTIVO
+            nombreLimpio = "DOCUMENTO CONFIRMADO";
+          }
 
-          const nombreArchivoOriginal =
-            f.archivo && f.archivo.name ? f.archivo.name : "Archivo sin nombre";
-
-          return `• <b>${titulo}:</b> ${nombreArchivoOriginal}`;
+          // Retornamos el formato con negritas y el detalle
+          return `• <b>${doc.label.toUpperCase()}:</b> ${nombreLimpio}`;
         })
         .join("<br />");
     },
