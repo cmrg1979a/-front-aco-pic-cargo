@@ -824,10 +824,13 @@ export default {
   },
 
   async mounted() {
+    this.stepAprobado = this.$route.params.step
+      ? parseInt(this.$route.params.step)
+      : 1;
     this.$nextTick(async () => {
       setTimeout(async () => {
         await this.generaInstructivoparaguardata();
-        if (this.$store.state.pricing.aprobadoflag) {
+        if (this.$store.state.pricing.aprobadoflag && this.stepAprobado == 5) {
           this.dialogSequenceInstructivo = true;
         }
       }, 4000);
