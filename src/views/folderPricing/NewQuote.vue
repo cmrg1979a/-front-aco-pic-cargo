@@ -110,15 +110,15 @@ export default {
     this.$store.state.pricing.step = 1;
     this.$store.commit("SET_RESET");
     this.$store.state.mainTitle = "Nueva Cotización";
-    Promise.all([
+    await Promise.all([
       // await this.resetQuoteNew(),
-      await this.getMarketingList(),
-      await this.getQuoteStatus(),
-      await this.ensurePreliminarStatus(),
-      await this.getModality(),
-      await this.getShipment(),
-      await this.getIncoterms(),
-      await this.getCargarEjecutivo(),
+      this.getMarketingList(),
+      this.getQuoteStatus(),
+      this.ensurePreliminarStatus(),
+      this.getModality(),
+      this.getShipment(),
+      this.getIncoterms(),
+      this.getCargarEjecutivo(),
     ]);
     await this.getQuoteStatus();
     await this.setDefaultStatusPreliminar();
@@ -130,16 +130,15 @@ export default {
           IdProveedor.push(costo.id_proveedor);
       });
     });
-    Promise.all([
-      await this.getBegEndList(),
-      await this.getServices(),
-      await this.obtenerCostosPricing(),
-
-      await this.getImpuestos(),
-      await this.getCargarMasterDetalleNotasCotizacion(),
-      await this.obtenerImpuestoXEmpresa(),
-      await this.cargarMasterDetallePercepcionAduana(),
-      await this._getContainers(),
+    await Promise.all([
+      this.getBegEndList(),
+      this.getServices(),
+      this.obtenerCostosPricing(),
+      this.getImpuestos(),
+      this.getCargarMasterDetalleNotasCotizacion(),
+      this.obtenerImpuestoXEmpresa(),
+      this.cargarMasterDetallePercepcionAduana(),
+      this._getContainers(),
     ]);
     await this.obtenerProveedorPricing({
       id: IdProveedor.join(","),

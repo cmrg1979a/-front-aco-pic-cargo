@@ -4,12 +4,11 @@
     <v-row dense>
       <v-col cols="12" md="4">
         <v-text-field
-            
           readonly
           v-model="$store.state.houses.house.code_master"
           label="N° de Expedientes Master"
-          
-        > </v-text-field>
+        >
+        </v-text-field>
       </v-col>
       <!-- <v-col cols="12" md="4">
         <v-text-field
@@ -20,17 +19,16 @@
       </v-col> -->
       <v-col cols="12" md="4">
         <v-text-field
-          label="Quote Asociado al House"
+          label="Cot Nro"
           :value="quoteCodeDisplay"
           readonly
           @click="verCotizacion"
           :style="quoteCodeDisplay ? 'cursor: pointer;' : ''"
-          :append-icon="quoteCodeDisplay ? 'mdi-open-in-new' : ''"
+          :append-icon="quoteCodeDisplay ? 'mdi-eye' : ''"
         >
         </v-text-field>
-        
       </v-col>
-      
+
       <v-col cols="12" md="4">
         <v-autocomplete
           label="Quote aduana"
@@ -60,7 +58,7 @@
           label="Tipo de Embarque"
           return-object
         ></v-text-field>
-      </v-col >
+      </v-col>
       <v-col cols="12" md="4">
         <v-text-field
           label="Incoterms"
@@ -113,41 +111,96 @@
     <v-row dense>
       <template v-if="esLCL">
         <v-col cols="12" md="4">
-          <v-text-field label="Bultos" :value="$store.state.houses.house.bultos" readonly></v-text-field>
+          <v-text-field
+            label="Bultos"
+            :value="$store.state.houses.house.bultos"
+            readonly
+          ></v-text-field>
         </v-col>
         <v-col cols="12" md="4">
-          <v-text-field label="Peso" suffix="kg" :value="$store.state.houses.house.peso" readonly></v-text-field>
+          <v-text-field
+            label="Peso"
+            suffix="kg"
+            :value="$store.state.houses.house.peso"
+            readonly
+          ></v-text-field>
         </v-col>
         <v-col cols="12" md="4">
-          <v-text-field label="Volumen" suffix="m3" :value="$store.state.houses.house.volumen" readonly></v-text-field>
+          <v-text-field
+            label="Volumen"
+            suffix="m3"
+            :value="$store.state.houses.house.volumen"
+            readonly
+          ></v-text-field>
         </v-col>
       </template>
       <template v-else-if="esAereo">
         <v-col cols="12" md="4">
-          <v-text-field label="Bultos" :value="$store.state.houses.house.bultos" readonly></v-text-field>
+          <v-text-field
+            label="Bultos"
+            :value="$store.state.houses.house.bultos"
+            readonly
+          ></v-text-field>
         </v-col>
         <v-col cols="12" md="4">
-          <v-text-field label="Peso" suffix="kg" :value="$store.state.houses.house.peso" readonly></v-text-field>
+          <v-text-field
+            label="Peso"
+            suffix="kg"
+            :value="$store.state.houses.house.peso"
+            readonly
+          ></v-text-field>
         </v-col>
         <v-col cols="12" md="4">
-          <v-text-field label="Peso Cargable" suffix="kg" :value="$store.state.houses.house.peso_cargable" readonly></v-text-field>
+          <v-text-field
+            label="Peso Cargable"
+            suffix="kg"
+            :value="$store.state.houses.house.peso_cargable"
+            readonly
+          ></v-text-field>
         </v-col>
         <v-col cols="12" md="4">
-          <v-text-field label="Peso Volumétrico" suffix="kg" :value="pesoVolumetrico" readonly></v-text-field>
+          <v-text-field
+            label="Peso Volumétrico"
+            suffix="kg"
+            :value="pesoVolumetrico"
+            readonly
+          ></v-text-field>
         </v-col>
       </template>
       <template v-else-if="esFCL">
         <v-col cols="12" md="3">
-          <v-text-field label="Tipo de contenedor" :value="($store.state.house_id_containers && $store.state.house_id_containers.name) || ''" readonly></v-text-field>
+          <v-text-field
+            label="Tipo de contenedor"
+            :value="
+              ($store.state.house_id_containers &&
+                $store.state.house_id_containers.name) ||
+              ''
+            "
+            readonly
+          ></v-text-field>
         </v-col>
         <v-col cols="12" md="3">
-          <v-text-field label="Cantidad de contenedores" :value="$store.state.house_cantidad" readonly></v-text-field>
+          <v-text-field
+            label="Cantidad de contenedores"
+            :value="$store.state.house_cantidad"
+            readonly
+          ></v-text-field>
         </v-col>
         <v-col cols="12" md="3">
-          <v-text-field label="Peso" suffix="kg" :value="$store.state.houses.house.peso" readonly></v-text-field>
+          <v-text-field
+            label="Peso"
+            suffix="kg"
+            :value="$store.state.houses.house.peso"
+            readonly
+          ></v-text-field>
         </v-col>
         <v-col cols="12" md="3">
-          <v-text-field label="Volumen" suffix="m3" :value="$store.state.houses.house.volumen" readonly></v-text-field>
+          <v-text-field
+            label="Volumen"
+            suffix="m3"
+            :value="$store.state.houses.house.volumen"
+            readonly
+          ></v-text-field>
         </v-col>
       </template>
     </v-row>
@@ -208,8 +261,6 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-
-
   </div>
 </template>
 <script>
@@ -238,34 +289,52 @@ export default {
       "dataHouse_transporte",
     ]),
     esAereo() {
-      const s = (this.$store.state.houses.house && this.$store.state.houses.house.shipment) || '';
-      return String(s).toLowerCase().includes('aéreo') || String(s).toLowerCase().includes('aereo');
+      const s =
+        (this.$store.state.houses.house &&
+          this.$store.state.houses.house.shipment) ||
+        "";
+      return (
+        String(s).toLowerCase().includes("aéreo") ||
+        String(s).toLowerCase().includes("aereo")
+      );
     },
     esFCL() {
-      const s = (this.$store.state.houses.house && this.$store.state.houses.house.shipment) || '';
-      return String(s).toUpperCase() === 'FCL';
+      const s =
+        (this.$store.state.houses.house &&
+          this.$store.state.houses.house.shipment) ||
+        "";
+      return String(s).toUpperCase() === "FCL";
     },
     esLCL() {
-      const s = (this.$store.state.houses.house && this.$store.state.houses.house.shipment) || '';
-      return String(s).toUpperCase() === 'LCL';
+      const s =
+        (this.$store.state.houses.house &&
+          this.$store.state.houses.house.shipment) ||
+        "";
+      return String(s).toUpperCase() === "LCL";
     },
     quotesFiltered() {
       // Filtrar y asegurar que cada item tenga las propiedades correctas
-      return (this.$store.state.pricing.listQuotes || []).filter(item => {
-        return item && typeof item === 'object' && item.code && item.id;
+      console.log("listQuotes", this.$store.state.pricing.listQuotes);
+      return (this.$store.state.pricing.listQuotes || []).filter((item) => {
+        return item && typeof item === "object" && item.code && item.id;
       });
     },
     quoteCodeDisplay() {
-      // Obtener el código de la cotización asociada al House
-      const quoteId = this.$store.state.house_cotizacion || this.$store.state.houses.house.id_cot;
-      if (!quoteId) return '';
-      
-      const quote = this.quotesFiltered.find(q => q.id === quoteId);
-      return quote ? quote.code : '';
+      const quoteId =
+        this.$store.state.house_cotizacion ||
+        this.$store.state.houses.house.id_cot;
+
+      if (!quoteId) return "";
+
+      return this.$store.state.houses.house.quote;
     },
     pesoVolumetrico() {
       if (!this.esAereo) return null;
-      const m3 = parseFloat((this.$store.state.houses.house && this.$store.state.houses.house.volumen) || 0);
+      const m3 = parseFloat(
+        (this.$store.state.houses.house &&
+          this.$store.state.houses.house.volumen) ||
+          0,
+      );
       if (!m3) return null;
       const pv = m3 > 0 ? m3 * 166.66 : 0;
       if (!pv || !isFinite(pv)) return null;
@@ -368,7 +437,7 @@ export default {
             id_shipment = this.$store.state.house_id_trasnport.id_transport;
           } else if (typeof this.$store.state.house_id_trasnport === "number") {
             id_shipment = this.$store.state.itemsShipment.filter(
-              (v) => v.id == this.$store.state.pricing.dataQuote.id_shipment
+              (v) => v.id == this.$store.state.pricing.dataQuote.id_shipment,
             )[0].id_transport;
           }
 
@@ -415,7 +484,7 @@ export default {
             lstServicesOrigen,
             lstServicesFlete,
             lstServicesDestino,
-            lstServicesOpcional
+            lstServicesOpcional,
           );
 
           let lstServices = [];
@@ -568,7 +637,7 @@ export default {
       if (vm.$refs.formNewService.validate()) {
         const dataBegend =
           vm.$store.state.itemsBegEndList.find(
-            (v) => v.id === vm.house_service_id_begend
+            (v) => v.id === vm.house_service_id_begend,
           ) || {};
         const dataService = {
           id_begend: vm.house_service_id_begend,
@@ -580,7 +649,7 @@ export default {
 
         let value_itemImpuestos = null;
         let index_itemImpuestos = vm.$store.state.itemsHouseServices.findIndex(
-          (item) => item.nameservice.toUpperCase() == "IMPUESTOS"
+          (item) => item.nameservice.toUpperCase() == "IMPUESTOS",
         );
         if (index_itemImpuestos !== -1) {
           value_itemImpuestos =
@@ -619,12 +688,13 @@ export default {
       });
     },
     verCotizacion() {
-      const quoteId = this.$store.state.house_cotizacion || this.$store.state.houses.house.id_cot;
+      const quoteId =
+        this.$store.state.house_cotizacion ||
+        this.$store.state.houses.house.id_cot;
       if (quoteId) {
         this.$router.push(`/home/folderPricing/verQuote/${quoteId}`);
       }
     },
-
   },
 };
 </script>

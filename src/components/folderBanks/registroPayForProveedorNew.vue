@@ -420,7 +420,7 @@ export default {
   },
   mounted() {
     this.$store.state.mainTitle = "BANCOS - NUEVA SALIDA";
-    Promise.all([
+    await Promise.all([
       this.cargarProveedores(),
       this._getCoinsList(),
       this.getListBanksDetailsCargar(),

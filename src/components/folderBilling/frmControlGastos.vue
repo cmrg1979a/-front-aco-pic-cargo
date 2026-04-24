@@ -606,17 +606,16 @@ export default {
       JSON.parse(sessionStorage.getItem("dataUser"))[0].departamento == 2
         ? true
         : false;
-    Promise.all([
-      await this.obtenerImpuestoXEmpresa(this.$route.params.id_branch),
-      await this.cargarCorrelativo(),
-      await this.getListControlGastos(this.$route.params.id),
-
-      await this.cargarBranch(),
-      await this._getBanksList(),
-      await this._getCoinsList(),
-      await this._getProveedor(),
-      await this.getListBanksDetailsCargar(),
+    await Promise.all([
+      this.obtenerImpuestoXEmpresa(this.$route.params.id_branch),
+      this.cargarCorrelativo(),
+      this.getListControlGastos(this.$route.params.id),
+      this.cargarBranch(),
+      this._getBanksList(),
+      this._getCoinsList(),
+      this.getListBanksDetailsCargar(),
     ]);
+    await this._getProveedor(),
     this.calcularProfit();
     this.codigo_master =
       this.$store.state.controlGastos.listControlGastos[0].master_nromaster;

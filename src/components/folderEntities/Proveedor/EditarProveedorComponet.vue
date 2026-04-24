@@ -167,7 +167,7 @@ export default {
   async mounted() {
     this.$store.state.spiner = true;
     //this.$refs.formProveedor.reset();
-    Promise.all([
+    await Promise.all([
       this._getDocumentsPais(),
       this.cargarMasterDetalleTipoProveedor(),
       this._getPais(),

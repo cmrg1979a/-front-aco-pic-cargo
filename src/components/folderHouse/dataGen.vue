@@ -18,7 +18,7 @@
       </v-col> -->
       <v-col cols="12" md="4">
         <v-autocomplete
-          label="Quote Asociado al House"
+          label="Cot Nro"
           :items="$store.state.pricing.listQuotes"
           item-text="code"
           item-value="id"

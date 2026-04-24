@@ -41,7 +41,17 @@
             <tbody>
               <tr>
                 <td>{{ house.code_house }}</td>
-                <td>{{ getQuoteNumber(house) }}</td>
+                <td>
+                  {{ house.quote }}
+                  <v-btn
+                    color="info"
+                    icon
+                    v-if="house.id_quote"
+                    @click="abrirCotizacion(house.id_quote)"
+                  >
+                    <v-icon>mdi-eye</v-icon>
+                  </v-btn>
+                </td>
                 <td>{{ house.consigner }}</td>
                 <td>{{ house.total_total_pr_ingresos }}</td>
                 <td>{{ house.total_total_op_ingresos }}</td>
@@ -1239,6 +1249,13 @@ export default {
     }, 2000);
   },
   methods: {
+    abrirCotizacion(id) {
+      const routeData = this.$router.resolve({
+        name: "verQuote",
+        params: { id: id },
+      });
+      window.open(routeData.href, "_blank");
+    },
     recibirId(file) {
       this.payPath = file.inserid;
       this.payfile = file.archivo;

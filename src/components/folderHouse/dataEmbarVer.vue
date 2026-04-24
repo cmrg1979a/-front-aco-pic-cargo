@@ -25,7 +25,7 @@
           readonly
         />
       </v-col>
-      
+
       <!-- Fila 3: Motonave + Viaje (sin N° BL House en vista) -->
       <v-col cols="12" md="6">
         <v-text-field
@@ -41,15 +41,15 @@
           readonly
         ></v-text-field>
       </v-col>
-       
-       <v-col cols="12" md="4" lg="4" xl="4" >
+
+      <v-col cols="12" md="4" lg="4" xl="4">
         <v-text-field
           label="Condición"
           v-model="$store.state.houses.house.conditions"
           readonly
         ></v-text-field>
       </v-col>
-       <v-col cols="12" md="4" lg="4" xl="4" >
+      <v-col cols="12" md="4" lg="4" xl="4">
         <v-text-field
           label="Monto"
           suffix="USD"
@@ -57,7 +57,7 @@
           readonly
         />
       </v-col>
-       <v-col cols="12" md="4" lg="4" xl="4" >
+      <v-col cols="12" md="4" lg="4" xl="4">
         <v-text-field
           label="Moneda"
           v-model="$store.state.houses.house.moneda"
@@ -65,7 +65,13 @@
         />
       </v-col>
 
-       <v-col cols="12" md="3" lg="3" xl="3"  v-if="$store.state.master_id_trasnport.id == 2">
+      <v-col
+        cols="12"
+        md="3"
+        lg="3"
+        xl="3"
+        v-if="$store.state.master_id_trasnport.id == 2"
+      >
         <v-autocomplete
           :items="itemsContainers"
           item-text="name"
@@ -75,19 +81,37 @@
           v-model="$store.state.house_id_containers"
         ></v-autocomplete>
       </v-col>
-       <v-col cols="12" md="3" lg="3" xl="3"  v-if="$store.state.master_id_trasnport.id == 2">
+      <v-col
+        cols="12"
+        md="3"
+        lg="3"
+        xl="3"
+        v-if="$store.state.master_id_trasnport.id == 2"
+      >
         <v-text-field
           label="N°. Contenedor"
           v-model="$store.state.house_nro_containers"
         ></v-text-field>
       </v-col>
-       <v-col cols="12" md="3" lg="3" xl="3"  v-if="$store.state.master_id_trasnport.id == 2">
+      <v-col
+        cols="12"
+        md="3"
+        lg="3"
+        xl="3"
+        v-if="$store.state.master_id_trasnport.id == 2"
+      >
         <v-text-field
           label="N°. Precinto"
           v-model="$store.state.house_nro_precinto"
         ></v-text-field>
       </v-col>
-       <v-col cols="12" md="3" lg="3" xl="3"  v-if="$store.state.master_id_trasnport.id == 2">
+      <v-col
+        cols="12"
+        md="3"
+        lg="3"
+        xl="3"
+        v-if="$store.state.master_id_trasnport.id == 2"
+      >
         <v-text-field v-model="$store.state.house_cantidad" label="Cant.">
           <v-icon
             class="btn__add"
@@ -97,7 +121,7 @@
                 $store.state.house_id_containers.name,
                 $store.state.house_nro_containers,
                 $store.state.house_nro_precinto,
-                $store.state.house_cantidad
+                $store.state.house_cantidad,
               )
             "
             slot="append"
@@ -163,9 +187,13 @@ export default {
   },
   async mounted() {
     this.limpiarData();
-    await this._getProveedor();
-    await this.cargarClientes();
-    await this._getProveedorRolShipper();
+    await Promise.all([
+      this._getProveedor(),
+      this.cargarClientes(),
+      this._getProveedorRolShipper(),
+      // this.getListQuote(),
+    ]);
+
     // this.$store.state.spiner = true;
 
     // this.$store.state.spiner = false;
@@ -203,6 +231,7 @@ export default {
       "_getProveedor",
       "cargarClientes",
       "_getProveedorRolShipper",
+      "getListQuote",
     ]),
 
     cleanData() {
